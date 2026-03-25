@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">The Ring Private</string>
+
+    <string name="texto_terminos_titulo">Términos y Condiciones</string>
+    <string name="texto_terminos">TÉRMINOS Y CONDICIONES DE USO DE LA APLICACIÓN\n\nEstos Términos y Condiciones regulan la descarga, acceso y utilización de la aplicación móvil (en adelante, la \"APLICACIÓN\"), que The Ring Private ponen a disposición de los usuarios. Esta versión de la APLICACIÓN está disponible de forma gratuita. El acceso a la APLICACIÓN supone que el usuario reconoce ha aceptado y consentido sin reservas de las presentes condiciones de uso.\n\n1. OBJETO\nLa aplicación tiene el objetivo la inscripción y mejorar la comunicación. En el diseño y desarrollo de esta APLICACIÓN han intervenido profesionales especialistas así como un grupo de usuarios que participaron en el periodo de prueba. La APLICACIÓN se pone a disposición de los socios para su uso, recopilando y almacenando la información solicitada al usuarios. Funciona en un teléfono móvil Android o iOS con cámara frontal.\n\n2. DERECHOS DE PROPIEDAD INTELECTUAL E INDUSTRIAL\nLos derechos de propiedad intelectual e industrial sobre la APLICACIÓN son titularidad de The Ring Private, correspondiéndole el ejercicio exclusivo de los derechos de explotación de los mismos en cualquier forma y, en especial, los derechos de reproducción, distribución, comunicación pública y transformación.\nLos terceros titulares de derechos de propiedad intelectual e industrial sobre fotografías, logotipos, y cualesquiera otros símbolos o contenidos incluidos en la APLICACIÓN han concedido las correspondientes autorizaciones para su reproducción, distribución y puesta a disposición del público.\nEl socio reconoce que la reproducción, modificación, distribución, comercialización, descompilación, desensamblado, utilización de técnicas de ingeniería inversa o de cualquier otro medio para obtener el código fuente, transformación o publicación de cualquier resultado de pruebas de referencias no autorizadas de cualquiera de los elementos y utilidades integradas dentro del desarrollo constituye una infracción de los derechos de propiedad intelectual de The Ring Private, obligándose, en consecuencia, a no realizar ninguna de las acciones mencionadas.\n\n3. POLITICA DE PRIVACIDAD\nDe conformidad con lo dispuesto en las normativas vigentes en protección de datos personales, el Reglamento (UE) 2016/679 de 27 de abril de 2016 (GDPR), se informa que los datos de carácter personal proporcionados mediante la aceptación de estos Términos y Condiciones, formarán parte de un fichero responsabilidad de The Ring Private y que estos serán tratados con la finalidad descrita en el apartado \"1. OBJETO\" de este documento y serán conservados mientras dure la relación objeto del uso de la APLICACIÓN, con el único objetivo de facilitar la introducción de mejoras en futuras versiones de la APLICACIÓN. Asimismo, se informa que podrá retirar el consentimiento en cualquier momento y ejercer los derechos de acceso, rectificación, supresión, portabilidad, limitación y oposición dirigiéndose a C. del Amparo, 78, Centro, 28012 Madrid. Email: ringasociacion@gmail.com.\nTambién podrá presentar una reclamación ante la Autoridad de control (www.agpd.es) si considera que el tratamiento no se ajusta a la normativa vigente. The Ring Private se reserva la facultad de efectuar, en cualquier momento y sin necesidad de previo aviso, modificaciones y actualizaciones en la APLICACIÓN. Asimismo, también se reserva el derecho a modificar los presentes Términos y Condiciones con el objetivo de adaptarlos a las posibles novedades legislativas y cambios en la propia APLICACIÓN, así como a las que se puedan derivar de los códigos tipos existentes en la materia o por motivos estratégicos o corporativos.\n\n4. EXCLUSIÓN DE RESPONSABILIDAD\nThe Ring Private se reserva the derecho de editar, actualizar, modificar, suspender, eliminar o finalizar los servicios ofrecidos por la Aplicación, incluyendo todo o parte de su contenido, sin necesidad de previo aviso, así como de modificar la forma o tipo de acceso a esta. Las posibles causas de modificación pueden tener lugar, por motivos tales, como su adaptación a las posibles novedades legislativas y cambios en la propia Aplicación, así como a las que se puedan derivar de los códigos tipos existentes en la materia o por motivos estratégicos o corporativos.\nThe Ring Private no será responsable del uso de la APLICACIÓN por un menor de edad, siendo la descarga y uso de la APLICACIÓN de la exclusiva responsabilidad del usuario. La APLICACIÓN se presta \"tal y como es\" y sin ninguna clase de garantía. The Ring Private no se hace responsable de la calidad final de la APLICACIÓN ni de que ésta sirva y cumpla con todos los objetivos de la misma. No obstante lo anterior, The Ring Private se compromete en la medida de sus posibilidades a contribuir a mejorar la calidad de la APLICACIÓN, pero no puede garantizar la precisión ni la actualidad del contenido de la misma.\nLa responsabilidad de uso de la APLICACIÓN corresponde solo al usuario. Salvo lo establecido en estos Términos y Condiciones, The Ring Private no es responsable de ninguna pérdida o daño que se produzca en relación con la descarga o el uso de la APLICACIÓN, tales como los producidos como consecuencia de fallos, averías o bloqueos en el funcionamiento de la APLICACIÓN (por ejemplo, y sin carácter limitativo: error en las líneas de comunicaciones, defectos en el hardware o software de la APLICACIÓN o fallos en la red de Internet). Igualmente, The Ring Private tampoco será responsable de los daños producidos como consecuencia de un uso indebido o inadeuado de la APLICACIÓN por parte de los usuarios.\n\n5. LEGISLACIÓN Y FUERO\nEl usuario acepta que la legislación aplicable y los Juzgados y Tribunales competentes para conocer de las divergencias derivadas de la interpretación o aplicación de este clausulado son los españoles, y se somete, con renuncia expresa a cualquier otro fuero, a los juzgados y tribunales más cercanos a la ciudad de MADRID.</string>
+
+    <string name="texto_normas_titulo">NORMAS DEL CLUB</string>
+    <string name="texto_normas">NORMAS DE CONVIVENCIA - THE RING PRIVATE\n\nBienvenido a The Ring Private. Para garantizar la mejor experiencia, todos los socios deben cumplir las siguientes normas:\n\n1. RESPETO MUTUO\nEl respeto es la base de nuestra comunidad. No se tolerará ningún tipo de discriminación, acoso o falta de respeto hacia otros socios or personal del club.\n\n2. PRIVACIDAD\nLa privacidad es fundamental. Queda estrictamente prohibido realizar fotografías o vídeos dentro del recinto sin autorización previa. Lo que pasa en The Ring, se queda en The Ring.\n\n3. USO DE INSTALACIONES\nPor favor, cuida las instalaciones y haz un uso responsable de los materiales. Mantén el orden y la limpieza en las zonas comunes.\n\n4. ACCESO Y SEGURIDAD\nEl acceso es personal e intransferible mediante el código QR generado en esta aplicación. Por seguridad, sigue siempre las indicaciones del personal del centro.\n\n5. COMPORTAMIENTO EN EL CHAT\nEl chat es un espacio de comunicación positiva. El spam, la publicidad no autorizada o el comportamiento tóxico resultarán en la expulsión inmediata de los grupos de chat.\n\nEl incumplimiento de estas normas puede conllevar la suspensión temporal o definitiva de la condición de socio.</string>
+
+    <string name="texto_faq_titulo">Preguntas Frecuentes</string>
+    <string name="texto_faq">CÓMO LLEGAR\nTHE RING PRIVATE se encuentra situado en la calle Amparo, 78 (Lavapiés, Madrid).\n\n¿Dónde estamos?\nNos encontramos en la C. del Amparo, 78, en pleno centro de Madrid, cerca de la efervescencia cultural y la diversidad que caracteriza a Lavapiés.\n\nEstaciones de Metro más cercanas:\nEstación principal: Línea 3 – Lavapiés/Embajadores. A pocos minutos a pie, facilita la conexión con otras áreas clave de Madrid.\nOpciones adicionales: Línea 1 – Tirso de Molina.\n\nLíneas de Autobuses más cercanas:\nEl área está bien comunicada por autobuses. Destacan las líneas 3, 17, 23 y 27, ofreciendo una red para desplazarte por la ciudad.\n\nCómo llegar desde Chueca / Gran Vía:\nDesde Chueca, toma la Línea 5 hacia Acacias. Desde Gran Vía, opta por la Línea 1 hacia Tirso de Molina o la Línea 3 hacia Lavapiés, según tu preferencia.\n\nEn coche:\nSi conduces, ten en cuenta las restricciones de tráfico de Madrid Central. Se recomienda aparcar en parkings cercanos.</string>
+
+    <string name="texto_aviso_legal">THE RING PRIVATE informa que todos los datos recogidos son cifrados mediante AES-256. No compartimos información con terceros. Tu DNI solo se utiliza para validar tu membresía activa en el sistema de acceso físico.</string>
+
+    <string name="texto_tarifas_horarios_titulo">Tarifas y Horarios</string>
+    <string name="texto_tarifas_horarios">MODALIDADES DE SOCIO\n\nTienes que abonar la cuota actual eligiendo una de las siguientes modalidades:\n\nSocio por un día:\nViernes: 15€\nSábado: 15€\n\nTipo de socio:\nSocio VIP por 1 mes: 90€\nSocio VIP por 6 meses: 250€\n\nHORARIO:\n\nViernes: 21:00–5:30 h.\nSábado: 21:00–5:30 h.\nDomingo: Cerrado\nLunes: Cerrado\nMartes: Cerrado\nMiércoles: Cerrado\nJueves: Cerrado</string>
+
+    <string name="ajuste_editar_perfil">Editar Perfil</string>
+    <string name="ajuste_cambiar_pass">Cambiar Contraseña</string>
+    <string name="ajuste_cambiar_user">Cambiar Nombre de Usuario</string>
+    <string name="ajuste_pausar_todas">Pausar todas</string>
+    <string name="ajuste_megusta">Me gusta</string>
+    <string name="ajuste_menciones">Menciones</string>
+    <string name="ajuste_aviso_legal">Aviso Legal</string>
+    <string name="ajuste_cerrar_sesion">Cerrar Sesión</string>
+
+    <string name="menu_perfil">Perfil</string>
+    <string name="menu_normas">Normas</string>
+    <string name="menu_notificaciones">Notificaciones</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_theme">Apariencia</string>
+    <string name="theme_light">Modo Claro</string>
+    <string name="theme_dark">Modo Oscuro</string>
+    <string name="lang_es">Español</string>
+    <string name="lang_en">Inglés</string>
+    <string name="notif_empty">No tienes notificaciones</string>
+    <string name="whatsapp_admin_msg">Hola, me gustaría contactar con el administrador de The Ring Private.</string>
+    <string name="btn_close">Cerrar</string>
+    <string name="qr_identificativo">QR IDENTIFICATIVO</string>
+    <string name="configuracion">CONFIGURACIÓN</string>
+    <string name="informacion_legal">INFORMACIÓN Y LEGAL</string>
+    <string name="acciones">ACCIONES</string>
+    <string name="ajustes">Ajustes</string>
+    <string name="eliminar_cuenta">Eliminar Cuenta</string>
+
+    <!-- Errores Login/Registro -->
+    <string name="error_dni_vacio">Introduce tu correo o DNI</string>
+    <string name="error_pass_vacio">Introduce tu contraseña</string>
+    <string name="error_credenciales">Credenciales incorrectas</string>
+    <string name="error_datos_incompletos">Introduce ambos datos</string>
+    <string name="error_datos_no_coinciden">Los datos no coinciden</string>
+    <string name="error_usuario_no_encontrado">Usuario no encontrado</string>
+    <string name="msg_reset_email_enviado">Identidad confirmada. Revisa tu correo.</string>
+    <string name="error_procesar">Error al procesar</string>
+
+    <!-- Notificaciones Traducibles -->
+    <string name="notif_evento_quedada_titulo">EVENTO: QUEDADA</string>
+    <string name="notif_evento_quedada_msg">¡No te pierdas nuestra próxima quedada el sábado a las 20:00h!</string>
+
+    <!-- Traducciones faltantes -->
+    <string name="login_user_hint">Correo o DNI</string>
+    <string name="login_password_hint">Contraseña</string>
+    <string name="login_forgot_password">Olvidé la contraseña</string>
+    <string name="login_btn_signin">INICIAR SESIÓN</string>
+    <string name="login_no_account">¿No tienes cuenta? Regístrate</string>
+    <string name="login_change_lang">Cambiar Idioma</string>
+
+    <string name="profile_title">Mi Perfil</string>
+    <string name="profile_public_data">DATOS PÚBLICOS (Visibles en el chat)</string>
+    <string name="profile_nickname">Apodo:</string>
+    <string name="profile_private_credentials">CREDENCIALES PRIVADAS</string>
+    <string name="profile_email">Correo Electrónico:</string>
+    <string name="profile_password">Contraseña:</string>
+    <string name="profile_not_linked">No vinculado</string>
+    <string name="profile_btn_change_pass">CAMBIAR CONTRASEÑA</string>
+
+    <string name="settings_rates">Tarifas y Horarios</string>
+    <string name="settings_terms">Términos y Condiciones</string>
+    <string name="settings_help">Ayuda y Soporte</string>
+    <string name="settings_faq">Preguntas Frecuentes</string>
+    <string name="settings_change_lang_btn">Cambiar Idioma</string>
+    <string name="settings_change_theme_btn">Cambiar Apariencia</string>
+
+    <string name="help_support_title">Ayuda y Soporte</string>
+    <string name="help_support_msg">Si tienes algún problema, contáctanos en:\nringasociacion@gmail.com</string>
+
+    <string name="theme_light_internal">Claro</string>
+    <string name="theme_dark_internal">Oscuro</string>
+    <string name="more_options">MAS</string>
+    <string name="user_label">Usuario</string>
+
+    <!-- Recuperar Contraseña -->
+    <string name="forgot_pass_title">Recuperar Contraseña</string>
+    <string name="forgot_pass_desc">Introduce tu DNI y el Correo para verificar tu identidad.</string>
+    <string name="btn_verify">VERIFICAR</string>
+    <string name="new_password_title">Nueva Contraseña</string>
+    <string name="new_password_hint">Nueva Contraseña</string>
+    <string name="btn_change_password">CAMBIAR CONTRASEÑA</string>
+
+    <!-- Cerrar Sesión -->
+    <string name="logout_title">¿Cerrar Sesión?</string>
+    <string name="logout_message">Tendrás que volver a ingresar tus credenciales para entrar.</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_exit">Salir</string>
+
+    <string name="loading">Cargando...</string>
+    <string name="socio_label">SOCI@</string>
+    <string name="apodo_empty_error">El apodo no puede estar vacío</string>
+    <string name="apodo_in_use">Este apodo ya está en uso</string>
+    <string name="apodo_updated">Apodo actualizado</string>
+    <string name="pass_changed_success">Contraseña cambiada con éxito</string>
+    <string name="reauth_needed">Error de seguridad. Reautenticación necesaria.</string>
+    <string name="min_6_chars">Mínimo 6 caracteres</string>
+    <string name="socio_prefix">SOCIO</string>
+
+    <!-- Registro -->
+    <string name="register_title">Crea tu cuenta</string>
+    <string name="register_name_hint">Nombre</string>
+    <string name="register_lastname_hint">Apellidos</string>
+    <string name="register_dni_hint">DNI / NIE</string>
+    <string name="register_terms_accept">Acepto los Términos y Condiciones</string>
+    <string name="register_terms_error">Debes aceptar para continuar</string>
+    <string name="register_btn_signup">REGISTRARSE</string>
+    <string name="error_obligatorio">Obligatorio</string>
+    <string name="error_dni_invalido">DNI Inválido</string>
+    <string name="error_email_invalido">Email Inválido</string>
+    <string name="error_unknown">Desconocido</string>
+
+    <string name="btn_accept">ACEPTAR</string>
+
+</resources>

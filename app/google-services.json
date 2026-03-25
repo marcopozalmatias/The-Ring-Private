@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "115221503000",
+    "project_id": "the-ring-private",
+    "storage_bucket": "the-ring-private.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:115221503000:android:ba4ca92c8aac4b127b776d",
+        "android_client_info": {
+          "package_name": "com.example.theringprivate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmVZczyfrj8O2YLELnwktma3fXHU8pJm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

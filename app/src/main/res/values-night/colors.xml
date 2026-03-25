@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colores Temáticos (Modo Oscuro - El original) -->
+    <color name="backgroundColor">#000000</color>
+    <color name="cardBackground">#1A1A1A</color>
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="textColorSecondary">#CCCCCC</color>
+    <color name="dividerColor">#2A2A2A</color>
+    <color name="qrOverlayBackground">#EB000000</color>
+
+    <color name="color_fondo_ajustes">#1A1A1A</color>
+</resources>

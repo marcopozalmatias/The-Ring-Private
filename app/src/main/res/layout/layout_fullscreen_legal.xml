@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor">
+
+    <ImageView
+        android:id="@+id/btnCerrarCruceta"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:padding="12dp"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        app:tint="@color/textColorPrimary"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="Cerrar" />
+
+    <TextView
+        android:id="@+id/txtTituloLegal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@id/btnCerrarCruceta"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@id/btnCerrarCruceta"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="6dp"
+        android:text="Título"
+        android:textColor="@color/textColorPrimary"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/txtTituloLegal"
+        android:layout_above="@id/btnCerrarAbajo"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="16dp"
+        android:paddingHorizontal="24dp"
+        android:scrollbars="none">
+
+        <TextView
+            android:id="@+id/txtContenidoLegal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cargando contenido..."
+            android:textColor="@color/textColorSecondary"
+            android:textSize="15sp"
+            android:lineSpacingExtra="6dp" />
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnCerrarAbajo"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="60dp"
+        android:text="@string/btn_accept"
+        android:textColor="@color/white"
+        android:backgroundTint="#A30000"
+        android:textStyle="bold" />
+</RelativeLayout>
