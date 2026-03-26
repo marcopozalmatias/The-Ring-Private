@@ -17,6 +17,7 @@ import android.text.TextWatcher;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -24,10 +25,15 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -43,6 +49,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
     private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
+    private CheckBox cbTerms;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -57,26 +64,29 @@ public class RegisterActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // --- Aplicar Tema Guardado ---
+        SharedPreferences prefs = getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("DarkMode", false);
+        AppCompatDelegate.setDefaultNightMode(isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+
+        // 1. Habilitar Edge-to-Edge para aprovechar toda la pantalla
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
         auth = FirebaseAuth.getInstance();
         pedirPermisosNotificaciones();
 
-        ScrollView rootLayout = findViewById(R.id.scrollRegister);
-        LinearLayout container = findViewById(R.id.containerRegister);
-
-        if (rootLayout != null && container != null) {
-            rootLayout.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-                Rect r = new Rect();
-                rootLayout.getWindowVisibleDisplayFrame(r);
-                int screenHeight = rootLayout.getRootView().getHeight();
-                int keypadHeight = screenHeight - r.bottom;
-                if (keypadHeight > screenHeight * 0.15) {
-                    container.setPadding(0, 0, 0, keypadHeight - 100);
-                } else {
-                    container.setPadding(0, 0, 0, 0);
-                }
+        ScrollView scrollRegister = findViewById(R.id.scrollRegister);
+        
+        // 2. TRUCO PARA EL TECLADO Y BOTONES:
+        if (scrollRegister != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(scrollRegister, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+                int paddingBottom = Math.max(systemBars.bottom, ime.bottom);
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, paddingBottom);
+                return WindowInsetsCompat.CONSUMED;
             });
         }
 
@@ -98,7 +108,7 @@ public class RegisterActivity extends AppCompatActivity {
         TextInputEditText etDni = findViewById(R.id.etRegDni);
         TextInputEditText etEmail = findViewById(R.id.etRegEmail);
         TextInputEditText etPassword = findViewById(R.id.etRegPassword);
-        CheckBox cbTerms = findViewById(R.id.cbTerms);
+        cbTerms = findViewById(R.id.cbTerms);
         TextView tvTermsLink = findViewById(R.id.tvTermsLink);
         TextView tvTermsError = findViewById(R.id.tvTermsError);
         MaterialButton btnRegister = findViewById(R.id.btnRegister);
@@ -217,10 +227,22 @@ public class RegisterActivity extends AppCompatActivity {
         TextView txtTituloLegal = view.findViewById(R.id.txtTituloLegal);
         TextView txtContenidoLegal = view.findViewById(R.id.txtContenidoLegal);
         ImageView btnCerrarCruceta = view.findViewById(R.id.btnCerrarCruceta);
+        Button btnCerrarAbajo = view.findViewById(R.id.btnCerrarAbajo);
+
         if (txtTituloLegal != null) txtTituloLegal.setText(titulo);
         if (txtContenidoLegal != null) txtContenidoLegal.setText(contenido);
+        
         if (btnCerrarCruceta != null) btnCerrarCruceta.setOnClickListener(v -> dialog.dismiss());
-        dialog.setContentView(view); dialog.show();
+        
+        if (btnCerrarAbajo != null) {
+            btnCerrarAbajo.setOnClickListener(v -> {
+                if (cbTerms != null) cbTerms.setChecked(true);
+                dialog.dismiss();
+            });
+        }
+
+        dialog.setContentView(view);
+        dialog.show();
     }
 
     private interface ApodoCallback { void onApodoGenerated(String apodo); }

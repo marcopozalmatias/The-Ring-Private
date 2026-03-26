@@ -345,17 +345,20 @@ public class HomeActivity extends AppCompatActivity {
         if (imgQr != null) imgQr.animate().alpha(0.2f).setDuration(200).start();
         if (progressQr != null) progressQr.setVisibility(View.VISIBLE);
         
-        String token = UUID.randomUUID().toString();
-        Map<String, Object> data = new HashMap<>();
-        data.put("token", token);
-        data.put("timestamp", System.currentTimeMillis());
-        
-        FirebaseDatabase.getInstance(DB_URL).getReference("TokensQR").child(currentUserEmailSafe).setValue(data).addOnSuccessListener(aVoid -> {
-            Bitmap bitmap = generarQR(currentUserEmailSafe + "|" + token);
-            if (isQrVisible && imgQr != null) {
-                imgQr.setImageBitmap(bitmap);
-                imgQr.animate().alpha(1f).setDuration(400).start();
-                if (progressQr != null) progressQr.setVisibility(View.GONE);
+        // Obtener datos del usuario para el QR
+        FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe).child("perfil").get().addOnSuccessListener(snapshot -> {
+            if (snapshot.exists()) {
+                String dni = snapshot.child("dni").getValue(String.class);
+                String nombre = snapshot.child("nombreReal").getValue(String.class);
+                
+                String qrData = "DNI: " + (dni != null ? dni : "N/A") + "\nNombre: " + (nombre != null ? nombre : "N/A");
+                
+                Bitmap bitmap = generarQR(qrData);
+                if (isQrVisible && imgQr != null) {
+                    imgQr.setImageBitmap(bitmap);
+                    imgQr.animate().alpha(1f).setDuration(400).start();
+                    if (progressQr != null) progressQr.setVisibility(View.GONE);
+                }
             }
         });
     }

@@ -148,8 +148,12 @@ public class SettingsFragment extends Fragment {
         dialog.findViewById(R.id.btnLangEn).setOnClickListener(v -> { cambiarIdioma("en"); dialog.dismiss(); });
         
         // Ocultar partes innecesarias
-        View themeSection = dialog.findViewById(R.id.btnThemeLight).getParent().getParent() instanceof LinearLayout ? (View)dialog.findViewById(R.id.btnThemeLight).getParent().getParent() : null;
-        if (themeSection != null) themeSection.setVisibility(View.GONE);
+        View layoutSectionTheme = dialog.findViewById(R.id.layoutSectionTheme);
+        if (layoutSectionTheme != null) layoutSectionTheme.setVisibility(View.GONE);
+        View dividerLang = dialog.findViewById(R.id.dividerLang);
+        if (dividerLang != null) dividerLang.setVisibility(View.GONE);
+        View dividerTheme = dialog.findViewById(R.id.dividerTheme);
+        if (dividerTheme != null) dividerTheme.setVisibility(View.GONE);
         View btnMas = dialog.findViewById(R.id.btnMas);
         if (btnMas != null) btnMas.setVisibility(View.GONE);
         
@@ -165,8 +169,12 @@ public class SettingsFragment extends Fragment {
         dialog.findViewById(R.id.btnThemeDark).setOnClickListener(v -> { cambiarTema(true); dialog.dismiss(); });
         
         // Ocultar partes innecesarias
-        View langSection = dialog.findViewById(R.id.tvLangTitle).getParent() instanceof LinearLayout ? (View)dialog.findViewById(R.id.tvLangTitle).getParent() : null;
-        if (langSection != null) langSection.setVisibility(View.GONE);
+        View layoutSectionLang = dialog.findViewById(R.id.layoutSectionLang);
+        if (layoutSectionLang != null) layoutSectionLang.setVisibility(View.GONE);
+        View dividerLang = dialog.findViewById(R.id.dividerLang);
+        if (dividerLang != null) dividerLang.setVisibility(View.GONE);
+        View dividerTheme = dialog.findViewById(R.id.dividerTheme);
+        if (dividerTheme != null) dividerTheme.setVisibility(View.GONE);
         View btnMas = dialog.findViewById(R.id.btnMas);
         if (btnMas != null) btnMas.setVisibility(View.GONE);
         

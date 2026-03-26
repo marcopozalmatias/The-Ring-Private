@@ -24,8 +24,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Random;
-
 public class ProfileFragment extends Fragment {
 
     private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
@@ -57,9 +55,7 @@ public class ProfileFragment extends Fragment {
         TextView tvDni = view.findViewById(R.id.tvDni);
         TextView tvEmail = view.findViewById(R.id.tvEmail);
         TextView tvNombreReal = view.findViewById(R.id.tvNombreReal);
-        TextView tvApodo = view.findViewById(R.id.tvApodo);
 
-        ImageView btnEditApodo = view.findViewById(R.id.btnEditApodo);
         MaterialButton btnChangePass = view.findViewById(R.id.btnChangePassProfile);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -84,30 +80,13 @@ public class ProfileFragment extends Fragment {
                 String dniBD = snapshot.child("dni").getValue(String.class);
                 if (dniBD == null) dniBD = getString(R.string.socio_label);
 
-                String apodo = snapshot.child("apodo").getValue(String.class);
-
                 if (tvNombreReal != null) tvNombreReal.setText(nombre);
                 if (tvDni != null) tvDni.setText(dniBD);
-
-                if (apodo == null || apodo.isEmpty()) {
-                    String apodoGenerado = generarApodoAutomatico(nombre);
-                    database.child("apodo").setValue(apodoGenerado);
-                    if (tvApodo != null) tvApodo.setText(apodoGenerado);
-                } else {
-                    if (tvApodo != null) tvApodo.setText(apodo);
-                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {}
         });
-
-        if (btnEditApodo != null) {
-            btnEditApodo.setOnClickListener(v -> {
-                String apodoActual = tvApodo != null ? tvApodo.getText().toString() : "";
-                mostrarDialogoEditarApodo(apodoActual);
-            });
-        }
         
         if (btnChangePass != null) {
             btnChangePass.setOnClickListener(v -> mostrarDialogoVerificarYCambiarPass());
@@ -180,65 +159,5 @@ public class ProfileFragment extends Fragment {
             });
         }
         dialog.show();
-    }
-
-    private void mostrarDialogoEditarApodo(String apodoActual) {
-        Dialog dialog = new Dialog(requireContext());
-        dialog.setContentView(R.layout.dialog_edit_apodo);
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        }
-
-        TextInputEditText etInput = dialog.findViewById(R.id.etInput);
-        MaterialButton btnCancel = dialog.findViewById(R.id.btnCancel);
-        MaterialButton btnSave = dialog.findViewById(R.id.btnSave);
-
-        if (etInput != null) etInput.setText(apodoActual);
-
-        if (btnCancel != null) btnCancel.setOnClickListener(v -> dialog.dismiss());
-        if (btnSave != null) {
-            btnSave.setOnClickListener(v -> {
-                String nuevoApodo = etInput != null ? etInput.getText().toString().trim().toLowerCase() : "";
-                if (nuevoApodo.isEmpty()) {
-                    Toast.makeText(requireContext(), getString(R.string.apodo_empty_error), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (nuevoApodo.equals(apodoActual.toLowerCase())) {
-                    dialog.dismiss();
-                    return;
-                }
-
-                DatabaseReference apodosRef = FirebaseDatabase.getInstance(DB_URL).getReference("Apodos");
-                apodosRef.child(nuevoApodo).get().addOnSuccessListener(snapshot -> {
-                    if (snapshot.exists()) {
-                        Toast.makeText(requireContext(), getString(R.string.apodo_in_use), Toast.LENGTH_SHORT).show();
-                    } else {
-                        apodosRef.child(apodoActual.toLowerCase()).removeValue();
-                        apodosRef.child(nuevoApodo).setValue(currentUserEmailSafe);
-                        database.child("apodo").setValue(nuevoApodo);
-                        dialog.dismiss();
-                        Toast.makeText(requireContext(), getString(R.string.apodo_updated), Toast.LENGTH_SHORT).show();
-                    }
-                });
-            });
-        }
-        dialog.show();
-    }
-
-    private String generarApodoAutomatico(String nombreReal) {
-        Random random = new Random();
-        int num = random.nextInt(90) + 10;
-        String prefix = getString(R.string.socio_prefix);
-        if (getString(R.string.user_label).equals(nombreReal) || nombreReal == null || nombreReal.trim().isEmpty()) return prefix + num;
-        
-        String[] parts = nombreReal.split(" ");
-        StringBuilder iniciales = new StringBuilder();
-        for (String part : parts) {
-            if (!part.isEmpty()) {
-                iniciales.append(Character.toUpperCase(part.charAt(0)));
-            }
-        }
-        return iniciales.toString() + num;
     }
 }

@@ -1,116 +1,99 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">The Ring Private</string>
-
-    <string name="texto_terminos_titulo">Terms and Conditions</string>
-    <string name="texto_terminos">APPLICATION TERMS AND CONDITIONS OF USE\n\nThese Terms and Conditions regulate the download, access and use of the mobile application (hereinafter, the \"APPLICATION\"), which The Ring Private makes available to users. This version of the APPLICATION is available for free. Access to the APPLICATION implies that the user acknowledges having accepted and consented without reservations to these conditions of use.\n\n1. OBJECT\nThe application aims for registration and improved communication. Specialist professionals as well as a group of users who participated in the testing period intervened in the design and development of this APPLICATION. The APPLICATION is made available to members for their use, collecting and storing the information requested from users. It works on an Android or iOS mobile phone with a front camera.\n\n2. INTELLECTUAL AND INDUSTRIAL PROPERTY RIGHTS\nThe intellectual and industrial property rights over the APPLICATION are owned by The Ring Private, corresponding to the exclusive exercise of the exploitation rights thereof in any form and, especially, the rights of reproduction, distribution, public communication and transformation.\nThird-party owners of intellectual and industrial property rights over photographs, logos, and any other symbols or content included in the APPLICATION have granted the corresponding authorizations for their reproduction, distribution and making available to the public.\nThe member acknowledges that the reproduction, modification, distribution, commercialization, decompilation, disassembly, use of reverse engineering techniques or any other means to obtain the source code, transformation or publication of any result of unauthorized benchmark testing of any of the elements and utilities integrated within the development constitutes an infringement of the intellectual property rights of The Ring Private, undertaking, consequently, not to perform any of the mentioned actions.\n\n3. PRIVACY POLICY\nIn accordance with the provisions of the current regulations on personal data protection, Regulation (EU) 2016/679 of April 27, 2016 (GDPR), it is reported that the personal data provided by accepting these Terms and Conditions will form part of a file under the responsibility of The Ring Private and that these will be treated for the purpose described in section \"1. OBJECT\" of this document and will be kept for the duration of the relationship subject to the use of the APPLICATION, with the sole objective of facilitating the introduction of improvements in future versions of the APPLICATION. Likewise, it is reported that consent may be withdrawn at any time and rights of access, rectification, erasure, portability, limitation and opposition may be exercised by writing to C. del Amparo, 78, Centro, 28012 Madrid. Email: ringasociacion@gmail.com.\nYou may also file a complaint with the Control Authority (www.agpd.es) if you consider that the processing does not comply with current regulations. The Ring Private reserves the right to make modifications and updates to the APPLICATION at any time and without prior notice. Likewise, it also reserves the right to modify these Terms and Conditions with the aim of adapting them to possible legislative developments and changes in the APPLICATION itself, as well as to those that may be derived from existing type codes in the matter or for strategic or corporate reasons.\n\n4. EXCLUSIÓN DE RESPONSABILIDAD\nThe Ring Private reserves the right to edit, update, modify, suspend, delete or terminate the services offered by the Application, including all or part of its content, without prior notice, as well as to modify the form or type of access to it. Possible causes for modification may take place for reasons such as its adaptation to possible legislative developments and changes in the Application itself, as well as to those that may be derived from existing type codes in the matter or for strategic or corporate reasons.\nThe Ring Private will not be responsible for the use of the APPLICATION by a minor, the download and use of the APPLICATION being the exclusive responsibility of the user. The APPLICATION is provided \"as is\" and without any kind of warranty. The Ring Private is not responsible for the final quality of the APPLICATION or for it serving and fulfilling all its objectives. Notwithstanding the foregoing, The Ring Private undertakes to the extent of its possibilities to contribute to improving the quality of the APPLICATION, but cannot guarantee the accuracy or timeliness of its content.\nThe responsibility for using the APPLICATION corresponds only to the user. Except as established in these Terms and Conditions, The Ring Private is not responsible for any loss or damage that occurs in relation to the download or use of the APPLICATION, such as those produced as a consequence of failures, breakdowns or blockages in the operation of the APPLICATION (for example, and without limitation: error in communication lines, defects in the APPLICATION hardware or software or Internet network failures). Likewise, The Ring Private will not be responsible for damages produced as a consequence of improper or inappropriate use of the APPLICATION by users.\n\n5. LEGISLACIÓN Y FUERO\nThe user accepts that the applicable legislation and the Courts and Tribunals competent to hear discrepancies derived from the interpretation or application of this clause are the Spanish ones, and submits, with express waiver of any other jurisdiction, to the courts and tribunals closest to the city of MADRID.</string>
-
-    <string name="texto_normas_titulo">CLUB RULES</string>
-    <string name="texto_normas">RULES OF CONDUCT - THE RING PRIVATE\n\nWelcome to The Ring Private. To ensure the best experience, all members must comply with the following rules:\n\n1. MUTUAL RESPECT\nRespect is the foundation of our community. No type of discrimination, harassment or lack of respect towards other members or club staff will be tolerated.\n\n2. PRIVACY\nPrivacy is essential. It is strictly forbidden to take photographs or videos within the premises without prior authorization. What happens in The Ring, stays in The Ring.\n\n3. USE OF FACILITIES\nPlease take care of the facilities and make responsible use of the materials. Maintain order and cleanliness in common areas.\n\n4. ACCESS AND SECURITY\nAccess is personal and non-transferable through the QR code generated in this application. For safety, always follow the instructions of the center staff.\n\n5. CHAT BEHAVIOR\nThe chat is a space for positive communication. Spam, unauthorized advertising or toxic behavior will result in immediate expulsion from chat groups.\n\nFailure to comply with these rules may lead to temporary or permanent suspension of membership status.</string>
-
-    <string name="texto_faq_titulo">Frequently Asked Questions</string>
-    <string name="texto_faq">HOW TO GET THERE\nTHE RING PRIVATE is located at Calle Amparo, 78 (Lavapiés, Madrid).\n\nWhere are we?\nWe are at C. del Amparo, 78, in the heart of Madrid, close to the cultural effervescence and diversity that characterizes Lavapiés.\n\nNearest Metro Stations:\nMain station: Line 3 – Lavapiés/Embajadores. A few minutes walk away, it facilitates connection with other key areas of Madrid.\nAdditional options: Line 1 – Tirso de Molina.\n\nNearest Bus Lines:\nThe area is well connected by buses. Lines 3, 17, 23 and 27 stand out, offering a network to move around the city.\n\nHow to get there from Chueca / Gran Vía:\nFrom Chueca, take Line 5 towards Acacias. From Gran Vía, opt for Line 1 towards Tirso de Molina or Line 3 towards Lavapiés, according to your preference.\n\nBy car:\nIf you drive, keep in mind the traffic restrictions of Madrid Central. It is recommended to park in nearby parking lots.</string>
-
-    <string name="texto_aviso_legal">THE RING PRIVATE informs that all data collected is encrypted using AES-256. We do not share information with third parties. Your ID is only used to validate your active membership in the physical access system.</string>
-
-    <string name="texto_tarifas_horarios_titulo">Rates and Schedules</string>
-    <string name="texto_tarifas_horarios">MEMBERSHIP TYPES\n\nYou must pay the current fee by choosing one of the following options:\n\nMember for a day:\nFriday: 15€\nSaturday: 15€\n\nType of member:\nVIP Member for 1 month: 90€\nVIP Member for 6 months: 250€\n\nSCHEDULE:\n\nFriday: 21:00–5:30 h.\nSaturday: 21:00–5:30 h.\nSunday: Closed\nMonday: Closed\nTuesday: Closed\nWednesday: Closed\nThursday: Closed</string>
-
-    <string name="ajuste_editar_perfil">Edit Profile</string>
-    <string name="ajuste_cambiar_pass">Change Password</string>
-    <string name="ajuste_cambiar_user">Change Username</string>
-    <string name="ajuste_pausar_todas">Pause all</string>
-    <string name="ajuste_megusta">Like</string>
-    <string name="ajuste_menciones">Mentions</string>
-    <string name="ajuste_aviso_legal">Legal Notice</string>
-    <string name="ajuste_cerrar_sesion">Log Out</string>
-
-    <string name="menu_perfil">Profile</string>
-    <string name="menu_normas">Rules</string>
-    <string name="menu_notificaciones">Notifications</string>
-    <string name="settings_language">Language</string>
-    <string name="settings_theme">Screen mode</string>
-    <string name="theme_light">Light Mode</string>
-    <string name="theme_dark">Dark Mode</string>
-    <string name="lang_es">Spanish</string>
-    <string name="lang_en">English</string>
-    <string name="notif_empty">No notifications</string>
-    <string name="whatsapp_admin_msg">Hello, I would like to contact the administrator of The Ring Private.</string>
-    <string name="btn_close">Close</string>
-    <string name="qr_identificativo">IDENTIFYING QR</string>
-    <string name="configuracion">CONFIGURATION</string>
-    <string name="informacion_legal">LEGAL AND INFO</string>
-    <string name="acciones">ACTIONS</string>
-    <string name="ajustes">Settings</string>
-    <string name="eliminar_cuenta">Delete Account</string>
-
-    <string name="error_dni_vacio">Enter your email or ID</string>
-    <string name="error_pass_vacio">Enter your password</string>
-    <string name="error_credenciales">Invalid credentials</string>
-    <string name="error_datos_incompletos">Enter both details</string>
-    <string name="error_datos_no_coinciden">Data does not match</string>
-    <string name="error_usuario_no_encontrado">User not found</string>
-    <string name="msg_reset_email_enviado">Identity confirmed. Check your email.</string>
-    <string name="error_procesar">Error processing request</string>
-
-    <string name="notif_evento_quedada_titulo">EVENT: MEETUP</string>
-    <string name="notif_evento_quedada_msg">Don\'t miss our next meetup this Saturday at 8:00 PM!</string>
-
-    <string name="login_user_hint">Email or ID</string>
+    <string name="login_user_hint">Email or DNI</string>
     <string name="login_password_hint">Password</string>
-    <string name="login_forgot_password">Forgot password</string>
-    <string name="login_btn_signin">LOG IN</string>
-    <string name="login_no_account">Don\'t have an account? Sign up</string>
-    <string name="login_change_lang">Change Language</string>
+    <string name="login_forgot_password">Forgot password?</string>
+    <string name="login_btn_signin">Sign In</string>
+    <string name="login_no_account">No account? Sign up</string>
 
-    <string name="profile_title">My Profile</string>
-    <string name="profile_public_data">PUBLIC DATA (Visible in chat)</string>
-    <string name="profile_nickname">Nickname:</string>
-    <string name="profile_private_credentials">PRIVATE CREDENTIALS</string>
-    <string name="profile_email">Email:</string>
-    <string name="profile_password">Password:</string>
-    <string name="profile_not_linked">Not linked</string>
-    <string name="profile_btn_change_pass">CHANGE PASSWORD</string>
+    <string name="forgot_pass_title">Recover Password</string>
+    <string name="forgot_pass_desc">Enter your DNI and Email to verify your identity</string>
+    <string name="btn_verify">Verify Identity</string>
+    <string name="new_password_title">New Password</string>
+    <string name="new_password_hint">New password</string>
+    <string name="btn_change_password">Change Password</string>
+    <string name="msg_reset_email_enviado">A password reset email has been sent</string>
 
-    <string name="settings_rates">Rates and Schedules</string>
+    <string name="register_title">Create Account</string>
+    <string name="register_name_hint">Name</string>
+    <string name="register_lastname_hint">Lastname</string>
+    <string name="register_dni_hint">DNI / ID Card</string>
+    <string name="profile_email">Email</string>
+    <string name="profile_password">Password</string>
+    <string name="register_terms_accept">I accept terms and conditions</string>
+    <string name="register_btn_signup">Sign Up</string>
+    <string name="register_terms_error">You must accept the terms</string>
+
+    <string name="error_dni_vacio">Please enter your DNI or Email</string>
+    <string name="error_pass_vacio">Please enter your password</string>
+    <string name="error_credenciales">Invalid credentials</string>
+    <string name="error_datos_incompletos">Please fill in all fields</string>
+    <string name="error_datos_no_coinciden">The data does not match our records</string>
+    <string name="error_usuario_no_encontrado">User not found</string>
+    <string name="error_procesar">Error processing request</string>
+    <string name="error_obligatorio">Required field</string>
+    <string name="error_dni_invalido">Invalid DNI</string>
+    <string name="error_email_invalido">Invalid Email</string>
+    <string name="min_6_chars">Minimum 6 characters</string>
+
     <string name="settings_terms">Terms and Conditions</string>
-    <string name="settings_help">Help and Support</string>
-    <string name="settings_faq">Frequently Asked Questions</string>
-    <string name="settings_change_lang_btn">Change Language</string>
-    <string name="settings_change_theme_btn">Change Appearance</string>
+    <string name="texto_terminos">Legal terms go here...</string>
+    <string name="texto_normas">Club rules go here...</string>
+    <string name="whatsapp_admin_msg">Hello, I need help with the application.</string>
 
-    <string name="help_support_title">Help and Support</string>
-    <string name="help_support_msg">If you have any issues, contact us at:\nringasociacion@gmail.com</string>
-
+    <string name="menu_notificaciones">NOTIFICATIONS</string>
+    <string name="notif_empty">You have no pending notifications</string>
+    <string name="menu_perfil">PROFILE</string>
+    <string name="menu_normas">RULES</string>
+    <string name="qr_identificativo">IDENTIFICATION QR CODE</string>
+    <string name="btn_close">CLOSE</string>
+    <string name="ajustes">SETTINGS</string>
+    <string name="configuracion">CONFIGURATION</string>
+    <string name="ajuste_cambiar_pass">Change password</string>
+    <string name="settings_change_lang_btn">Change language</string>
+    <string name="settings_change_theme_btn">Appearance</string>
+    <string name="informacion_legal">LEGAL INFORMATION</string>
+    <string name="settings_rates">Rates</string>
+    <string name="ajuste_aviso_legal">Legal notice</string>
+    <string name="settings_help">Help</string>
+    <string name="settings_faq">FAQ</string>
+    <string name="acciones">ACTIONS</string>
+    <string name="ajuste_cerrar_sesion">Log out</string>
+    <string name="eliminar_cuenta">DELETE ACCOUNT</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_theme">Appearance</string>
     <string name="theme_light_internal">Light</string>
     <string name="theme_dark_internal">Dark</string>
     <string name="more_options">MORE</string>
-    <string name="user_label">User</string>
 
-    <!-- Recover Password -->
-    <string name="forgot_pass_title">Recover Password</string>
-    <string name="forgot_pass_desc">Enter your ID and Email to verify your identity.</string>
-    <string name="btn_verify">VERIFY</string>
-    <string name="new_password_title">New Password</string>
-    <string name="new_password_hint">New Password</string>
-    <string name="btn_change_password">CHANGE PASSWORD</string>
-
-    <!-- Logout -->
-    <string name="logout_title">Log Out?</string>
-    <string name="logout_message">You will need to enter your credentials again to log in.</string>
-    <string name="btn_cancel">Cancel</string>
-    <string name="btn_exit">Exit</string>
-
-    <string name="loading">Loading...</string>
-    <string name="socio_label">MEMBER</string>
-    <string name="apodo_empty_error">Nickname cannot be empty</string>
-    <string name="apodo_in_use">This nickname is already in use</string>
-    <string name="apodo_updated">Nickname updated</string>
-    <string name="pass_changed_success">Password changed successfully</string>
-    <string name="reauth_needed">Security error. Re-authentication required.</string>
-    <string name="min_6_chars">Minimum 6 characters</string>
-    <string name="socio_prefix">MEMBER</string>
-
+    <string name="ajuste_editar_perfil">Edit Profile</string>
+    <string name="profile_public_data">PUBLIC DATA</string>
+    <string name="profile_nickname">Nickname</string>
+    <string name="btn_cancel">CANCEL</string>
     <string name="btn_accept">ACCEPT</string>
+    <string name="logout_title">Log Out</string>
+    <string name="logout_message">Are you sure you want to exit the application?</string>
+    <string name="btn_exit">EXIT</string>
+    <string name="profile_title">MY PROFILE</string>
+    <string name="profile_private_credentials">PRIVATE CREDENTIALS</string>
+    <string name="profile_not_linked">Account not linked</string>
+    <string name="profile_btn_change_pass">Change access password</string>
 
+    <!-- Missing keys -->
+    <string name="loading">Loading...</string>
+    <string name="user_label">User</string>
+    <string name="socio_label">Member</string>
+    <string name="pass_changed_success">Password changed successfully</string>
+    <string name="reauth_needed">Re-authentication is required</string>
+    <string name="texto_tarifas_horarios_titulo">Rates and Schedules</string>
+    <string name="texto_tarifas_horarios">Rates and schedules content...</string>
+    <string name="texto_terminos_titulo">Terms of Service</string>
+    <string name="texto_aviso_legal">Legal notice content...</string>
+    <string name="help_support_title">Help and Support</string>
+    <string name="help_support_msg">Contact us for assistance.</string>
+    <string name="texto_faq_titulo">Frequently Asked Questions</string>
+    <string name="texto_faq">FAQ content...</string>
+
+    <string name="notif_evento_quedada_titulo">The Ring Meeting</string>
+    <string name="notif_evento_quedada_msg">We wait for you at today\'s training!</string>
 </resources>

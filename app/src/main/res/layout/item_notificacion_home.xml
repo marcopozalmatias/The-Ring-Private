@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardBackgroundColor="@color/cardBackground"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp">
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical">
+        android:padding="14dp"
+        android:gravity="center_vertical"
+        android:background="@drawable/bg_notification_item">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -27,29 +26,32 @@
                 android:layout_height="wrap_content"
                 android:text="TÍTULO"
                 android:textColor="@color/rojo_ring"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                android:letterSpacing="0.04" />
 
             <TextView
                 android:id="@+id/tvTextoNotifHome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="3dp"
                 android:text="Mensaje de la notificación"
                 android:textColor="@color/textColorPrimary"
-                android:textSize="15sp" />
+                android:textSize="14sp" />
         </LinearLayout>
 
         <ImageView
             android:id="@+id/btnDeleteNotifHome"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginStart="8dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="10dp"
             android:src="@android:drawable/ic_menu_close_clear_cancel"
             app:tint="@color/textColorSecondary"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true"
+            android:alpha="0.5"/>
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</LinearLayout>
