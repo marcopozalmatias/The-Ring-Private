@@ -34,6 +34,7 @@
     <string name="error_obligatorio">Campo obligatorio</string>
     <string name="error_dni_invalido">DNI inválido</string>
     <string name="error_email_invalido">Email inválido</string>
+    <string name="error_email_existe">Este correo ya está vinculado a una cuenta</string>
     <string name="min_6_chars">Mínimo 6 caracteres</string>
 
     <string name="settings_terms">Términos y Condiciones</string>
@@ -202,5 +203,5 @@
     </string>
 
     <string name="notif_evento_quedada_titulo">Quedada The Ring</string>
-    <string name="notif_evento_quedada_msg">¡Te esperamos en el entrenamiento de hoy!</string>
+    <string name="notif_evento_quedada_msg">Quedada el 22/04/2026 a las 18:00h - Evento Especial</string>
 </resources>

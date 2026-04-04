@@ -39,6 +39,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
@@ -50,6 +51,7 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
     private CheckBox cbTerms;
+    private TextInputLayout tilEmail; // Subido a miembro para acceder desde realizarRegistro
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -100,7 +102,7 @@ public class RegisterActivity extends AppCompatActivity {
         TextInputLayout tilNombre = findViewById(R.id.tilRegNombre);
         TextInputLayout tilApellidos = findViewById(R.id.tilRegApellidos);
         TextInputLayout tilDni = findViewById(R.id.tilRegDni);
-        TextInputLayout tilEmail = findViewById(R.id.tilRegEmail);
+        tilEmail = findViewById(R.id.tilRegEmail);
         TextInputLayout tilPassword = findViewById(R.id.tilRegPassword);
 
         TextInputEditText etNombre = findViewById(R.id.etRegNombre);
@@ -140,7 +142,16 @@ public class RegisterActivity extends AppCompatActivity {
                 if (cbTerms != null && !cbTerms.isChecked()) { if (tvTermsError != null) tvTermsError.setVisibility(View.VISIBLE); isValid = false; }
 
                 if (!isValid) return;
-                generarApodoUnico(apodoBase, apodoFinal -> realizarRegistro(email, password, nombre, apellidos, dni, apodoFinal));
+                
+                // Comprobar si el DNI ya existe antes de procesar
+                FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).get().addOnCompleteListener(dniTask -> {
+                    if (dniTask.isSuccessful() && dniTask.getResult().exists()) {
+                         if (tilDni != null) tilDni.setError(getString(R.string.error_datos_no_coinciden)); // O un error más específico si existiera
+                         Toast.makeText(this, "Este DNI ya está registrado", Toast.LENGTH_SHORT).show();
+                    } else {
+                         generarApodoUnico(apodoBase, apodoFinal -> realizarRegistro(email, password, nombre, apellidos, dni, apodoFinal));
+                    }
+                });
             });
         }
     }
@@ -162,7 +173,19 @@ public class RegisterActivity extends AppCompatActivity {
         recreate();
     }
 
-    private void generarApodoUnico(String base, ApodoCallback callback) { /* Implementación simplificada */ }
+    private void generarApodoUnico(String base, ApodoCallback callback) {
+        FirebaseDatabase.getInstance(DB_URL).getReference("Apodos").child(base).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (task.getResult().exists()) {
+                    generarApodoUnico(base + (int)(Math.random() * 100), callback);
+                } else {
+                    callback.onApodoGenerated(base);
+                }
+            } else {
+                callback.onApodoGenerated(base);
+            }
+        });
+    }
 
     private void realizarRegistro(String email, String pass, String nom, String ape, String dni, String apodo) {
         auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener(task -> {
@@ -180,7 +203,11 @@ public class RegisterActivity extends AppCompatActivity {
                     finish();
                 });
             } else {
-                Toast.makeText(this, getString(R.string.error_procesar), Toast.LENGTH_SHORT).show();
+                if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                    if (tilEmail != null) tilEmail.setError(getString(R.string.error_email_existe));
+                } else {
+                    Toast.makeText(this, getString(R.string.error_procesar), Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }

@@ -34,6 +34,7 @@
     <string name="error_obligatorio">Required field</string>
     <string name="error_dni_invalido">Invalid DNI</string>
     <string name="error_email_invalido">Invalid Email</string>
+    <string name="error_email_existe">This email is already linked to an account</string>
     <string name="min_6_chars">Minimum 6 characters</string>
 
     <string name="settings_terms">Terms and Conditions</string>
@@ -95,5 +96,5 @@
     <string name="texto_faq">FAQ content...</string>
 
     <string name="notif_evento_quedada_titulo">The Ring Meeting</string>
-    <string name="notif_evento_quedada_msg">We wait for you at today\'s training!</string>
+    <string name="notif_evento_quedada_msg">Meeting on 04/22/2026 at 6:00 PM - Special Event</string>
 </resources>
