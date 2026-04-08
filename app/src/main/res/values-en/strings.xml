@@ -57,7 +57,8 @@
     <string name="settings_rates">Rates</string>
     <string name="ajuste_aviso_legal">Legal notice</string>
     <string name="settings_help">Help</string>
-    <string name="settings_faq">FAQ</string>
+    <string name="settings_faq">Frequently Asked Questions</string>
+    <string name="settings_user_manual">User Manual</string>
     <string name="acciones">ACTIONS</string>
     <string name="ajuste_cerrar_sesion">Log out</string>
     <string name="eliminar_cuenta">DELETE ACCOUNT</string>
@@ -97,4 +98,21 @@
 
     <string name="notif_evento_quedada_titulo">The Ring Meeting</string>
     <string name="notif_evento_quedada_msg">Meeting on 04/22/2026 at 6:00 PM - Special Event</string>
+
+    <string name="texto_manual_usuario_titulo">User Manual</string>
+    <string name="texto_manual_usuario">
+        Welcome to the official THE RING PRIVATE app.\n\n
+        1. REGISTRATION AND LOGIN\n
+        To access, you must be registered with your ID and email. If you forget your password, you can recover it from the home screen.\n\n
+        2. QR CODE\n
+        On the home screen, you have a personal QR code. This code is your identification to access the club. Scan it at the reception.\n\n
+        3. NOTIFICATIONS\n
+        Stay up to date with all events and special meetings in the notifications section.\n\n
+        4. PROFILE AND SETTINGS\n
+        You can customize your nickname in the profile and change the language or appearance (dark/light mode) in the settings.\n\n
+        5. RULES\n
+        It is mandatory to comply with the club rules, which you can consult at any time in the corresponding section.\n\n
+        6. SECURITY\n
+        You can permanently delete your account from the settings if you wish.
+    </string>
 </resources>

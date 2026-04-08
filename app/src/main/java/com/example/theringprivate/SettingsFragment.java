@@ -105,27 +105,27 @@ public class SettingsFragment extends Fragment {
 
         View optionRates = view.findViewById(R.id.optionRates);
         if (optionRates != null) {
-            optionRates.setOnClickListener(v -> mostrarTextoLegal(getString(R.string.texto_tarifas_horarios_titulo), getString(R.string.texto_tarifas_horarios)));
+            optionRates.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_tarifas_horarios_titulo, R.string.texto_tarifas_horarios));
         }
 
         View optionTerms = view.findViewById(R.id.optionTerms);
         if (optionTerms != null) {
-            optionTerms.setOnClickListener(v -> mostrarTextoLegal(getString(R.string.texto_terminos_titulo), getString(R.string.texto_terminos)));
+            optionTerms.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_terminos_titulo, R.string.texto_terminos));
         }
 
         View optionPrivacy = view.findViewById(R.id.optionPrivacy);
         if (optionPrivacy != null) {
-            optionPrivacy.setOnClickListener(v -> mostrarTextoLegal(getString(R.string.ajuste_aviso_legal), getString(R.string.texto_aviso_legal)));
+            optionPrivacy.setOnClickListener(v -> mostrarTextoLegal(R.string.ajuste_aviso_legal, R.string.texto_aviso_legal));
         }
 
         View optionHelp = view.findViewById(R.id.optionHelp);
         if (optionHelp != null) {
-            optionHelp.setOnClickListener(v -> mostrarTextoLegal(getString(R.string.help_support_title), getString(R.string.help_support_msg)));
+            optionHelp.setOnClickListener(v -> mostrarTextoLegal(R.string.help_support_title, R.string.help_support_msg));
         }
 
         View optionFaq = view.findViewById(R.id.optionFaq);
         if (optionFaq != null) {
-            optionFaq.setOnClickListener(v -> mostrarTextoLegal(getString(R.string.texto_faq_titulo), getString(R.string.texto_faq)));
+            optionFaq.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_faq_titulo, R.string.texto_faq));
         }
 
         View optionLogoutItem = view.findViewById(R.id.optionLogoutItem);
@@ -136,6 +136,11 @@ public class SettingsFragment extends Fragment {
         View optionDeleteAccount = view.findViewById(R.id.optionDeleteAccount);
         if (optionDeleteAccount != null) {
             optionDeleteAccount.setOnClickListener(v -> mostrarDialogoEliminarCuenta());
+        }
+
+        View optionUserManual = view.findViewById(R.id.optionUserManual);
+        if (optionUserManual != null) {
+            optionUserManual.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_manual_usuario_titulo, R.string.texto_manual_usuario));
         }
     }
 
@@ -386,7 +391,7 @@ public class SettingsFragment extends Fragment {
         dialog.show();
     }
 
-    private void mostrarTextoLegal(String titulo, String contenido) {
+    private void mostrarTextoLegal(int resIdTitulo, int resIdContenido) {
         Dialog dialog = new Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_fullscreen_legal, null);
         TextView txtTituloLegal = dialogView.findViewById(R.id.txtTituloLegal);
@@ -394,8 +399,8 @@ public class SettingsFragment extends Fragment {
         ImageView btnCerrarCruceta = dialogView.findViewById(R.id.btnCerrarCruceta);
         Button btnCerrarAbajo = dialogView.findViewById(R.id.btnCerrarAbajo);
 
-        if (txtTituloLegal != null) txtTituloLegal.setText(titulo);
-        if (txtContenidoLegal != null) txtContenidoLegal.setText(contenido);
+        if (txtTituloLegal != null) TranslationHelper.translateTextView(txtTituloLegal, resIdTitulo);
+        if (txtContenidoLegal != null) TranslationHelper.translateTextView(txtContenidoLegal, resIdContenido);
         if (btnCerrarCruceta != null) btnCerrarCruceta.setOnClickListener(v -> dialog.dismiss());
         if (btnCerrarAbajo != null) btnCerrarAbajo.setOnClickListener(v -> dialog.dismiss());
 

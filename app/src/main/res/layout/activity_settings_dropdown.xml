@@ -174,18 +174,31 @@
         android:layout_marginHorizontal="20dp"/>
 
     <!-- Opción MÁS -->
-    <TextView
+    <LinearLayout
         android:id="@+id/btnMas"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/more_options"
-        android:textColor="@color/rojo_ring"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        android:orientation="horizontal"
         android:gravity="center"
         android:paddingVertical="16dp"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
-        android:focusable="true"/>
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ajustetransparente"
+            android:layout_marginEnd="10dp"
+            app:tint="@color/rojo_ring"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/more_options"
+            android:textColor="@color/rojo_ring"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
 </LinearLayout>

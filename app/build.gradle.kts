@@ -6,14 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.theringprivate"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.theringprivate"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -54,5 +52,6 @@ dependencies {
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.firebase:firebase-database-ktx")
     implementation("androidx.biometric:biometric:1.1.0")
+    implementation(libs.mlkit.translate)
 
 }

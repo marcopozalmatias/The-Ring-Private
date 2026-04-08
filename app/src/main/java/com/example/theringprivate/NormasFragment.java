@@ -36,8 +36,12 @@ public class NormasFragment extends Fragment {
         ImageView btnCerrarCruceta = dialogView.findViewById(R.id.btnCerrarCruceta);
         Button btnCerrarAbajo = dialogView.findViewById(R.id.btnCerrarAbajo);
 
-        if (txtTituloLegal != null) txtTituloLegal.setText("NORMAS DEL CLUB");
-        if (txtContenidoLegal != null) txtContenidoLegal.setText(getString(R.string.texto_normas));
+        if (txtTituloLegal != null) {
+            TranslationHelper.translateTextView(txtTituloLegal, R.string.menu_normas);
+        }
+        if (txtContenidoLegal != null) {
+            TranslationHelper.translateTextView(txtContenidoLegal, R.string.texto_normas);
+        }
 
         View.OnClickListener clickCerrar = v -> {
             dialog.dismiss();

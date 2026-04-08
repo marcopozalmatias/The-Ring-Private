@@ -492,8 +492,8 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Notificacion n = lista.get(position);
-            holder.titulo.setText(n.getTitulo());
-            holder.texto.setText(n.getMensaje());
+            TranslationHelper.translateTextView(holder.titulo, n.getTitulo());
+            TranslationHelper.translateTextView(holder.texto, n.getMensaje());
             holder.btnDelete.setOnClickListener(v -> listener.onDelete(n));
         }
 

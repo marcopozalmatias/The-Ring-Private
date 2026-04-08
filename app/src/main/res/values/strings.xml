@@ -94,6 +94,7 @@
     <string name="ajuste_aviso_legal">Aviso legal</string>
     <string name="settings_help">Ayuda</string>
     <string name="settings_faq">Preguntas frecuentes</string>
+    <string name="settings_user_manual">Manual de usuario</string>
     <string name="acciones">ACCIONES</string>
     <string name="ajuste_cerrar_sesion">Cerrar sesión</string>
     <string name="eliminar_cuenta">ELIMINAR CUENTA</string>
@@ -204,4 +205,21 @@
 
     <string name="notif_evento_quedada_titulo">Quedada The Ring</string>
     <string name="notif_evento_quedada_msg">Quedada el 22/04/2026 a las 18:00h - Evento Especial</string>
+
+    <string name="texto_manual_usuario_titulo">Manual de Usuario</string>
+    <string name="texto_manual_usuario">
+        Bienvenido a la aplicación oficial de THE RING PRIVATE.\n\n
+        1. REGISTRO E INICIO DE SESIÓN\n
+        Para acceder, debes estar registrado con tu DNI y correo. Si olvidas tu contraseña, puedes recuperarla desde la pantalla de inicio.\n\n
+        2. CÓDIGO QR\n
+        En la pantalla de inicio dispones de un código QR personal. Este código es tu identificación para acceder al club. Pásalo por el lector en recepción.\n\n
+        3. NOTIFICACIONES\n
+        Mantente al tanto de todos los eventos y quedadas especiales en la sección de notificaciones.\n\n
+        4. PERFIL Y AJUSTES\n
+        Puedes personalizar tu apodo en el perfil y cambiar el idioma o la apariencia (modo oscuro/claro) en los ajustes.\n\n
+        5. NORMAS\n
+        Es obligatorio cumplir las normas del club, las cuales puedes consultar en cualquier momento en su sección correspondiente.\n\n
+        6. SEGURIDAD\n
+        Puedes eliminar tu cuenta permanentemente desde los ajustes si así lo deseas.
+    </string>
 </resources>
