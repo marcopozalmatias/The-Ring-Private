@@ -35,27 +35,13 @@
     <string name="error_dni_invalido">DNI inválido</string>
     <string name="error_email_invalido">Email inválido</string>
     <string name="error_email_existe">Este correo ya está vinculado a una cuenta</string>
+    <string name="error_dni_ya_registrado">Este DNI ya está registrado</string>
+    <string name="error_password_segura">La contraseña debe tener al menos 6 caracteres, 1 mayúscula y 1 símbolo especial</string>
     <string name="min_6_chars">Mínimo 6 caracteres</string>
 
     <string name="settings_terms">Términos y Condiciones</string>
     <string name="texto_terminos_titulo">Términos y Condiciones</string>
-    <string name="texto_terminos">
-        Los presentes Términos y Condiciones regulan la descarga, acceso y utilización de la aplicación, (en adelante, la APLICACIÓN), que The Ring Private pone a disposición de los usuarios. Esta versión de la APLICACIÓN se encuentra disponible de forma gratuita. El acceso a la APLICACIÓN supone que el usuario reconoce haber aceptado y consentido sin reservas las presentes condiciones de uso.\n\n
-        1. OBJETO\n
-        La aplicación tiene el objetivo de transportar y mejorar la comunicación. En el diseño y desarrollo de esta APLICACIÓN han intervenido profesionales especializados así como un grupo de usuarios que participaron en el periodo de prueba. La APLICACIÓN se pone a disposición de los usuarios para su uso personal y no profesional. No obstante, en un futuro podrá tener este uso con previo contrato.\n\n
-        2. DERECHOS DE PROPIEDAD INTELECTUAL E INDUSTRIAL\n
-        Los derechos de propiedad intelectual e industrial sobre la APLICACIÓN son titularidad de The Ring Private, correspondiéndole el ejercicio exclusivo de los derechos de explotación de los mismos en cualquier forma y, en especial, los derechos de reproducción, distribución, comunicación pública y transformación.\n\n
-        Los terceros titulares de derechos de propiedad intelectual e industrial sobre fotografías, logotipos, y cualesquiera otros contenidos en la APLICACIÓN han concedido las correspondientes autorizaciones para su reproducción, distribución y puesta a disposición del público. El uso comercial que la reproducción, modificación, distribución, comercialización, descompilación, desensamblado, utilización de técnicas de ingeniería inversa o de cualquier otro medio para obtener el código fuente, transformación o publicación de cualquier resultado de pruebas de referencias no autorizadas de cualquiera de los elementos y utilidades integrados dentro del desarrollo constituye una infracción de los derechos de propiedad intelectual de The Ring Private, obligándose, en consecuencia, a no realizar ninguna de las acciones mencionadas.\n\n
-        3. POLÍTICA DE PRIVACIDAD\n
-        De conformidad con lo dispuesto en la normativa vigente en protección de datos personales, el Reglamento (UE) 2016/679 de 27 de abril de 2018 (GDPR), se informa que los datos de carácter personal que nos facilite a través de la aceptación de estos términos y condiciones, formarán parte de la base de datos propiedad de The Ring Private y que estos serán tratados con la finalidad descrita en el apartado \"1. OBJETO\" de este documento y serán conservados mientras dure la relación objeto del uso de la APLICACIÓN con el único objetivo de facilitar las interacciones de los usuarios titulares dentro de la APLICACIÓN. Asimismo, se informa que podrá retirar el consentimiento en cualquier momento y ejercer sus derechos de acceso, rectificación, supresión, portabilidad, limitación y oposición dirigiéndose a C. del Calvario, 23, Estrecho, 28033 Madrid. Email: info@theringprivate.com. También podrá presentar una queja ante la autoridad de control (www.aepd.es).\n\n
-        4. EXCLUSIÓN DE RESPONSABILIDADES\n
-        The Ring Private se reserva el derecho de editar, actualizar, modificar, suspender, eliminar o finalizar los servicios ofrecidos por la Aplicación, incluyendo todo o parte de su contenido, sin necesidad de previo aviso, así como de modificar la forma o tipo de acceso a esta.\n\n
-        The Ring Private no será responsable del uso de la APLICACIÓN por un menor de edad, siendo la descarga y uso de la APLICACIÓN de la exclusiva responsabilidad del usuario.\n\n
-        La APLICACIÓN se presta \"tal y como es\" y sin ninguna clase de garantía. The Ring Private no se hace responsable de la calidad final de la APLICACIÓN ni de que esta sirva y cumpla con todos los objetivos de la misma. No obstante, el usuario y The Ring Private se comprometen en la medida de sus posibilidades a contribuir a mejorar la calidad de la APLICACIÓN, pero no garantiza que no se produzcan la veracidad de contenido de la misma.\n\n
-        La responsabilidad de uso de la APLICACIÓN corresponde solo al usuario. Salvo lo establecido en estos Términos y Condiciones, The Ring Private no se hace responsable de ninguna pérdida o daño que el usuario o el tercero pueda sufrir como consecuencia del acceso o uso de la APLICACIÓN, o de la invasibilidad de usarla, incluyendo pero no limitado a fallos de comunicación, defectos en el hardware o software de la APLICACIÓN o fallos en la red de Internet. Igualmente, The Ring Private no será responsable de los daños producidos como consecuencia de un uso indebido o inadecuado de la APLICACIÓN por parte de los usuarios.\n\n
-        5. LEGISLACIÓN Y FORO\n
-        El usuario acepta que la legislación aplicable y los Juzgados y Tribunales competentes para conocer de las divergencias derivadas de la interpretación o aplicación de este clausulado son los españoles, y se somete, con renuncia expresa a cualquier otro fuero, a los juzgados y tribunales más cercanos a la ciudad de MADRID.
-    </string>
+    <string name="texto_terminos">Los presentes Términos y Condiciones regulan la descarga, acceso y utilización de la aplicación, (en adelante, la APLICACIÓN), que The Ring Private pone a disposición de los usuarios. Esta versión de la APLICACIÓN se encuentra disponible de forma gratuita. El acceso a la APLICACIÓN supone que el usuario reconoce haber aceptado y consentido sin reservas las presentes condiciones de uso.\n\n1. OBJETO\nLa aplicación tiene el objetivo de transportar y mejorar la comunicación. En el diseño y desarrollo de esta APLICACIÓN han intervenido profesionales especializados así como un grupo de usuarios que participaron en el periodo de prueba. La APLICACIÓN se pone a disposición de los usuarios para su uso personal y no profesional. No obstante, en un futuro podrá tener este uso con previo contrato.\n\n2. DERECHOS DE PROPIEDAD INTELECTUAL E INDUSTRIAL\nLos derechos de propiedad intelectual e industrial sobre la APLICACIÓN son titularidad de The Ring Private, correspondiéndole el ejercicio exclusivo de los derechos de explotación de los mismos en cualquier forma y, en especial, los derechos de reproducción, distribución, comunicación pública y transformación.\n\nLos terceros titulares de derechos de propiedad intelectual e industrial sobre fotografías, logotipos, y cualesquiera otros contenidos en la APLICACIÓN han concedido las correspondientes autorizaciones para su reproducción, distribución y puesta a disposición del público. El uso comercial que la reproducción, modificación, distribución, comercialización, descompilación, desensamblado, utilización de técnicas de ingeniería inversa o de cualquier otro medio para obtener el código fuente, transformación o publicación de cualquier resultado de pruebas de referencias no autorizadas de cualquiera de los elementos y utilidades integrados dentro del desarrollo constituye una infracción de los derechos de propiedad intelectual de The Ring Private, obligándose, en consecuencia, a no realizar ninguna de las acciones mencionadas.\n\n3. POLÍTICA DE PRIVACIDAD\nDe conformidad con lo dispuesto en la normativa vigente en protección de datos personales, el Reglamento (UE) 2016/679 de 27 de abril de 2018 (GDPR), se informa que los datos de carácter personal que nos facilite a través de la aceptación de estos términos y condiciones, formarán parte de la base de datos propiedad de The Ring Private y que estos serán tratados con la finalidad descrita en el apartado \"1. OBJETO\" de este documento y serán conservados mientras dure la relación objeto del uso de la APLICACIÓN con el único objetivo de facilitar las interacciones de los usuarios titulares dentro de la APLICACIÓN. Asimismo, se informa que podrá retirar el consentimiento en cualquier momento y ejercer sus derechos de acceso, rectificación, supresión, portabilidad, limitación y oposición dirigiéndose a C. del Calvario, 23, Estrecho, 28033 Madrid. Email: info@theringprivate.com. También podrá presentar una queja ante la autoridad de control (www.aepd.es).\n\n4. EXCLUSIÓN DE RESPONSABILIDADES\nThe Ring Private se reserva el derecho de editar, actualizar, modificar, suspender, eliminar o finalizar los servicios ofrecidos por la Aplicación, incluyendo todo o parte de su contenido, sin necesidad de previo aviso, así como de modificar la forma o tipo de acceso a esta.\n\nThe Ring Private no será responsable del uso de la APLICACIÓN por un menor de edad, siendo la descarga y uso de la APLICACIÓN de la exclusiva responsabilidad del usuario.\n\nLa APLICACIÓN se presta \"tal y como es\" y sin ninguna clase de garantía. The Ring Private no se hace responsable de la calidad final de la APLICACIÓN ni de que esta sirva y cumpla con todos los objetivos de la misma. No obstante, el usuario y The Ring Private se comprometen en la medida de sus posibilidades a contribuir a mejorar la calidad de la APLICACIÓN, pero no garantiza que no se produzcan la veracidad de contenido de la misma.\n\nLa responsabilidad de uso de la APLICACIÓN corresponde solo al usuario. Salvo lo establecido en estos Términos y Condiciones, The Ring Private no se hace responsable de ninguna pérdida o daño que el usuario o el tercero pueda sufrir como consecuencia del acceso o uso de la APLICACIÓN, o de la invasibilidad de usarla, incluyendo pero no limitado a fallos de comunicación, defectos en el hardware o software de la APLICACIÓN o fallos en la red de Internet. Igualmente, The Ring Private no será responsable de los daños producidos como consecuencia de un uso indebido o inadecuado de la APLICACIÓN por parte de los usuarios.\n\n5. LEGISLACIÓN Y FORO\nEl usuario acepta que la legislación aplicable y los Juzgados y Tribunales competentes para conocer de las divergencias derivadas de la interpretación o aplicación de este clausulado son los españoles, y se somete, con renuncia expresa a cualquier otro fuero, a los juzgados y tribunales más cercanos a la ciudad de MADRID.</string>
     <string name="texto_normas">
         NORMAS: THE RING PRIVATE\n\n
         Te comprometes a cumplir estas normas. En beneficio de todos, se advierte que cualquier transgresión de las siguientes reglas se considerará una falta MUY GRAVE y será motivo de expulsión inmediata.\n\n
@@ -123,103 +109,19 @@
     <string name="pass_changed_success">Contraseña cambiada con éxito</string>
     <string name="reauth_needed">Es necesario volver a autenticarse</string>
     <string name="texto_tarifas_horarios_titulo">Cómo hacerse socio y tarifas</string>
-    <string name="texto_tarifas_horarios">
-        Cómo hacerse socio\n
-        En la recepción se te proporcionará una hoja que deberás rellenar y firmar, como prueba de aceptación de las normas así como mecanismo de inscripción en calidad de socio del club privado THE RING PRIVATE.\n\n
-        Te comprometes, por escrito, a su cumplimiento y, en beneficio de todos, se advierte también que cualquier transgresión de las normas se considera un incumplimiento MUY GRAVE, y será motivo de expulsión inmediata.\n\n
-        Además, ya puedes descargarte la aplicación oficial de THE RING PRIVATE. Para completar tu inscripción como socio, la primera vez deberá ser verificada en recepción. Solo se considerará socio a quien haya abonado la cuota correspondiente, y la condición de socio se mantendrá únicamente mientras la cuota esté en vigencia. En caso de no disponer de la aplicación, será obligatorio rellenar manualmente la hoja de socio en cada visita.\n\n
-        Ventajas de ser socio\n
-        • Siendo socio, cada vez que acudas al club, sólo tendrás que identificarte.\n\n
-        • Recibirás un carnet de socio que deberás presentar en la entrada cada vez que nos visites.\n\n
-        • Como socio del club, disfrutarás del acceso al mismo, así como de una llave de taquilla para que dejes tus pertenencias.\n\n
-        • En fiestas especiales también disfrutarás de ventajas adicionales.\n\n
-        Modalidades de socio\n
-        Tienes que abonar la cuota actual eligiendo una de las siguientes modalidades:\n\n
-        Socio por un día:\n
-        Viernes: 15€\n
-        Sábado: 15€\n\n
-        Cuotas VIP:\n
-        Socio VIP por 1 mes: 90€\n
-        Socio VIP por 6 meses: 250€
-    </string>
+    <string name="texto_tarifas_horarios">Cómo hacerse socio\nEn la recepción se te proporcionará una hoja que deberás rellenar y firmar, como prueba de aceptación de las normas así como mecanismo de inscripción en calidad de socio del club privado THE RING PRIVATE.\n\nTe comprometes, por escrito, a su cumplimiento y, en beneficio de todos, se advierte también que cualquier transgresión de las normas se considera un incumplimiento MUY GRAVE, y será motivo de expulsión inmediata.\n\nAdemás, ya puedes descargarte la aplicación oficial de THE RING PRIVATE. Para completar tu inscripción como socio, la primera vez deberá ser verificada en recepción. Solo se considerará socio a quien haya abonado la cuota correspondiente, y la condición de socio se mantendrá únicamente mientras la cuota esté en vigencia. En caso de no disponer de la aplicación, será obligatorio rellenar manualmente la hoja de socio en cada visita.\n\nVentajas de ser socio\n• Siendo socio, cada vez que acudas al club, sólo tendrás que identificarte.\n\n• Recibirás un carnet de socio que deberás presentar en la entrada cada vez que nos visites.\n\n• Como socio del club, disfrutarás del acceso al mismo, así como de una llave de taquilla para que dejes tus pertenencias.\n\n• En fiestas especiales también disfrutarás de ventajas adicionales.\n\nModalidades de socio\nTienes que abonar la cuota actual eligiendo una de las siguientes modalidades:\n\nSocio por un día:\nViernes: 15€\nSábado: 15€\n\nCuotas VIP:\nSocio VIP por 1 mes: 90€\nSocio VIP por 6 meses: 250€</string>
 
     <string name="help_support_title">Ayuda y Soporte</string>
-    <string name="help_support_msg">
-        En \"The Ring Private\", estamos comprometidos en brindarte la mejor experiencia posible. Si necesitas ayuda o tienes alguna consulta relacionada con nuestra aplicación o el acceso a nuestro establecimiento, estamos aquí para asistirte.\n\n
-        1. Contacto para Soporte:\n
-        Puedes ponerte en contacto con nuestro equipo de soporte a través de los siguientes canales:\n
-        Correo Electrónico: ringasociacion@gmail.com\n\n
-        2. Preguntas Frecuentes (FAQ):\n
-        Antes de contactar con nuestro equipo de soporte, te recomendamos revisar nuestra sección de Preguntas Frecuentes (FAQ).\n\n
-        3. Feedback y Sugerencias:\n
-        Tu opinión es muy importante para nosotros. Si tienes alguna sugerencia o feedback sobre cómo podemos mejorar nuestra aplicación o servicios, no dudes en hacérnoslo saber.\n
-        Correo Electrónico: ringasociacion@gmail.com\n\n
-        4. Redes Sociales:\n
-        Facebook: https://www.facebook.com/theringprivate\n
-        Instagram: https://www.instagram.com/theringprivate\n\n
-        5. Oficina Física:\n
-        Dirección: C. del Amparo, 75, Centro, 28012 Madrid\n\n
-        Estamos aquí para ayudarte y asegurarnos de que tengas una experiencia excelente con \"The Ring Private\".
-    </string>
+    <string name="help_support_msg">En \"The Ring Private\", estamos comprometidos en brindarte la mejor experiencia posible. Si necesitas ayuda o tienes alguna consulta relacionada con nuestra aplicación o el acceso a nuestro establecimiento, estamos aquí para asistirte.\n\n1. Contacto para Soporte:\nPuedes ponerte en contacto con nuestro equipo de soporte a través de los siguientes canales:\nCorreo Electrónico: ringasociacion@gmail.com\n\n2. Preguntas Frecuentes (FAQ):\nAntes de contactar con nuestro equipo de soporte, te recomendamos revisar nuestra sección de Preguntas Frecuentes (FAQ).\n\n3. Feedback y Sugerencias:\nTu opinión es muy importante para nosotros. Si tienes alguna sugerencia o feedback sobre cómo podemos mejorar nuestra aplicación o servicios, no dudes en hacérnoslo saber.\nCorreo Electrónico: ringasociacion@gmail.com\n\n4. Redes Sociales:\nFacebook: https://www.facebook.com/theringprivate\nInstagram: https://www.instagram.com/theringprivate\n\n5. Oficina Física:\nDirección: C. del Amparo, 75, Centro, 28012 Madrid\n\nEstamos aquí para ayudarte y asegurarnos de que tengas una experiencia excelente con \"The Ring Private\".</string>
 
     <string name="texto_faq_titulo">Preguntas Frecuentes (FAQ)</string>
-    <string name="texto_faq">
-        Registro y Acceso:\n\n
-        ¿Cómo puedo registrarme en la aplicación?\n
-        Técnicamente si estás viendo esto es porque ya te has registrado y/o iniciado sesión.\n\n
-        He olvidado mi contraseña, ¿cómo puedo recuperarla?\n
-        Cuando estás en la página de inicio de sesión, en la parte inferior derecha hay una opción de recuperar la contraseña. Una vez haces click te pedirá que ingreses tu correo al cual llegará un enlace que te permitirá restablecer tu contraseña.\n\n
-        ¿Qué documentos son válidos para el registro?\n
-        Los documentos válidos para el registro son DNI/NIE o Pasaporte.\n\n
-        Problemas Técnicos:\n\n
-        La aplicación no se carga correctamente, ¿qué puedo hacer?\n
-        Cerrarla y volverla a abrir, si el problema persiste desinstalar la aplicación y volverla a instalar.\n\n
-        Privacidad y Seguridad:\n\n
-        ¿Cómo se protegen mis datos personales?\n
-        Los datos personales de los usuarios pasan por procesos de codificación y encriptación. NUNCA COMPARTAS TU CONTRASEÑA O DATOS PERSONALES.\n\n
-        ¿Puedo actualizar mi información personal?\n
-        Para actualizar o cambiar información personal deberá personarse en recepción.
-    </string>
+    <string name="texto_faq">Registro y Acceso:\n\n¿Cómo puedo registrarme en la aplicación?\nTécnicamente si estás viendo esto es porque ya te has registrado y/o iniciado sesión.\n\nHe olvidado mi contraseña, ¿cómo puedo recuperarla?\nCuando estás en la página de inicio de sesión, en la parte inferior derecha hay una opción de recuperar la contraseña. Una vez haces click te pedirá que ingreses tu correo al cual llegará un enlace que te permitirá restablecer tu contraseña.\n\n¿Qué documentos son válidos para el registro?\nLos documentos válidos para el registro son DNI/NIE o Pasaporte.\n\nProblemas Técnicos:\n\nLa aplicación no se carga correctamente, ¿qué puedo hacer?\nCerrarla y volverla a abrir, si el problema persiste desinstalar la aplicación y volverla a instalar.\n\nPrivacidad y Seguridad:\n\n¿Cómo se protegen mis datos personales?\nLos datos personales de los usuarios pasan por procesos de codificación y encriptación. NUNCA COMPARTAS TU CONTRASEÑA O DATOS PERSONALES.\n\n¿Puedo actualizar mi información personal?\nPara actualizar o cambiar información personal deberá personarse en recepción.</string>
 
-    <string name="texto_aviso_legal">
-        1. Identificación del Responsable del Tratamiento\n
-        El responsable es The Ring Private, con domicilio en C. del Amparo, 75, Centro, 28012 Madrid. Correo: ringasociados@gmail.com.\n\n
-        2. Datos Personales Recabados\n
-        Recabamos: Nombre, Apellidos, Correo electrónico y Documento de Identidad (DNI/NIE/Pasaporte).\n\n
-        3. Finalidad del Tratamiento\n
-        Gestionar el registro de los asociados \"The Ring Private\".\n\n
-        4. Legitimación\n
-        Consentimiento del asociado al registrarse.\n\n
-        5. Conservación de los Datos\n
-        Se conservarán mientras sean necesarios para la finalidad o hasta que se solicite su supresión.\n\n
-        6. Derechos de los Usuarios\n
-        Acceso, rectificación, supresión, oposición, limitación y portabilidad. Contactar vía email adjuntando copia de DNI.\n\n
-        7. Seguridad de los Datos\n
-        Medidas técnicas y organizativas para garantizar la seguridad y evitar accesos no autorizados.\n\n
-        8. Modificaciones del Aviso Legal\n
-        Nos reservamos el derecho de modificar esta política para adaptarla a novedades legislativas.\n\n
-        9. Aceptación y Consentimiento\n
-        El usuario declara haber sido informado y acepta el tratamiento de sus datos.\n\n
-        Fecha de última actualización: 08/09/2024
-    </string>
+    <string name="texto_aviso_legal">1. Identificación del Responsable del Tratamiento\nEl responsable es The Ring Private, con domicilio en C. del Amparo, 75, Centro, 28012 Madrid. Correo: ringasociados@gmail.com.\n\n2. Datos Personales Recabados\nRecabamos: Nombre, Apellidos, Correo electrónico y Documento de Identidad (DNI/NIE/Pasaporte).\n\n3. Finalidad del Tratamiento\nGestionar el registro de los asociados \"The Ring Private\".\n\n4. Legitimación\nConsentimiento del asociado al registrarse.\n\n5. Conservación de los Datos\nSe conservarán mientras sean necesarios para la finalidad o hasta que se solicite su supresión.\n\n6. Derechos de los Usuarios\nAcceso, rectificación, supresión, oposición, limitación y portabilidad. Contactar vía email adjuntando copia de DNI.\n\n7. Seguridad de los Datos\nMedidas técnicas y organizativas para garantizar la seguridad y evitar accesos no autorizados.\n\n8. Modificaciones del Aviso Legal\nNos reservamos el derecho de modificar esta política para adaptarla a novedades legislativas.\n\n9. Aceptación y Consentimiento\nEl usuario declara haber sido informado y acepta el tratamiento de sus datos.\n\nFecha de última actualización: 08/09/2024</string>
 
     <string name="notif_evento_quedada_titulo">Quedada The Ring</string>
     <string name="notif_evento_quedada_msg">Quedada el 22/04/2026 a las 18:00h - Evento Especial</string>
 
     <string name="texto_manual_usuario_titulo">Manual de Usuario</string>
-    <string name="texto_manual_usuario">
-        Bienvenido a la aplicación oficial de THE RING PRIVATE.\n\n
-        1. REGISTRO E INICIO DE SESIÓN\n
-        Para acceder, debes estar registrado con tu DNI y correo. Si olvidas tu contraseña, puedes recuperarla desde la pantalla de inicio.\n\n
-        2. CÓDIGO QR\n
-        En la pantalla de inicio dispones de un código QR personal. Este código es tu identificación para acceder al club. Pásalo por el lector en recepción.\n\n
-        3. NOTIFICACIONES\n
-        Mantente al tanto de todos los eventos y quedadas especiales en la sección de notificaciones.\n\n
-        4. PERFIL Y AJUSTES\n
-        Puedes personalizar tu apodo en el perfil y cambiar el idioma o la apariencia (modo oscuro/claro) en los ajustes.\n\n
-        5. NORMAS\n
-        Es obligatorio cumplir las normas del club, las cuales puedes consultar en cualquier momento en su sección correspondiente.\n\n
-        6. SEGURIDAD\n
-        Puedes eliminar tu cuenta permanentemente desde los ajustes si así lo deseas.
-    </string>
+    <string name="texto_manual_usuario">Bienvenido a la aplicación oficial de THE RING PRIVATE.\n\n1. REGISTRO E INICIO DE SESIÓN\nPara acceder, debes estar registrado con tu DNI y correo. Si olvidas tu contraseña, puedes recuperarla desde la pantalla de inicio.\n\n2. CÓDIGO QR\nEn la pantalla de inicio dispones de un código QR personal. Este código es tu identificación para acceder al club. Pásalo por el lector en recepción.\n\n3. NOTIFICACIONES\nMantente al tanto de todos los eventos y quedadas especiales en la sección de notificaciones.\n\n4. PERFIL Y AJUSTES\nPuedes personalizar tu apodo en el perfil y cambiar el idioma o la apariencia (modo oscuro/claro) en los ajustes.\n\n5. NORMAS\nEs obligatorio cumplir las normas del club, las cuales puedes consultar en cualquier momento en su sección correspondiente.\n\n6. SEGURIDAD\nPuedes cerrar sesión en este dispositivo desde los ajustes. Si lo deseas, también puedes eliminar tu cuenta permanentemente desde los ajustes.</string>
 </resources>

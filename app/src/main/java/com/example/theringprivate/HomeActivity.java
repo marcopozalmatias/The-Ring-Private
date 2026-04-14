@@ -50,22 +50,28 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class HomeActivity extends AppCompatActivity {
 
     private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
+    private final String GLOBAL_NOTIFICATIONS_PATH = "NotificacionesGlobal";
+    private final String GLOBAL_NOTIFICATION_ID = "evento_quedada_01";
     private SoftRevealFrameLayout layoutQrOverlay;
     private FloatingActionButton fabQr;
     private SoftRevealFrameLayout fragmentContainerMask;
     private RecyclerView rvNotifHome;
     private NotificacionesHomeAdapter adapterNotifHome;
+    private final List<Notificacion> listaNotificacionesTodas = new ArrayList<>();
     private List<Notificacion> listaNotificaciones = new ArrayList<>();
+    private final Set<String> notificacionesEliminadas = new HashSet<>();
     private View fabWhatsapp;
     private View ultimoBotonPulsado = null;
     private Handler qrHandler = new Handler(Looper.getMainLooper());
@@ -214,8 +220,7 @@ public class HomeActivity extends AppCompatActivity {
     private void setupNotificationsHome() {
         if (rvNotifHome != null) {
             rvNotifHome.setLayoutManager(new LinearLayoutManager(this));
-            adapterNotifHome = new NotificacionesHomeAdapter(listaNotificaciones, notif -> 
-                FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe).child("notificaciones").child(notif.getId()).removeValue());
+            adapterNotifHome = new NotificacionesHomeAdapter(listaNotificaciones, this::eliminarNotificacionPersistente);
             rvNotifHome.setAdapter(adapterNotifHome);
         }
     }
@@ -290,38 +295,102 @@ public class HomeActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null || user.getEmail() == null) return;
         currentUserEmailSafe = user.getEmail().replace(".", "_");
-        
-        // --- INVENTAR NOTIFICACIÓN DE EVENTO (PARA PRUEBAS) ---
-        Notificacion notifPrueba = new Notificacion(
-            "evento_quedada_01",
-            getString(R.string.notif_evento_quedada_titulo),
-            getString(R.string.notif_evento_quedada_msg),
-            "EVENTO",
-            System.currentTimeMillis(),
-            false
-        );
-        FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe).child("notificaciones").child(notifPrueba.getId()).setValue(notifPrueba);
-        // -----------------------------------------------------
-
         DatabaseReference ref = FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe);
+
+        asegurarNotificacionGlobalPorDefecto();
+
+        ref.child("notificacionesEliminadas").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                notificacionesEliminadas.clear();
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    notificacionesEliminadas.add(data.getKey());
+                }
+                actualizarListaNotificacionesHome();
+            }
+
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+
         ref.child("notificaciones").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                listaNotificaciones.clear();
+                listaNotificacionesTodas.clear();
                 for (DataSnapshot data : snapshot.getChildren()) {
                     Notificacion n = data.getValue(Notificacion.class);
                     if (n != null) {
                         n.setId(data.getKey());
-                        listaNotificaciones.add(n);
+                        listaNotificacionesTodas.add(n);
                     }
                 }
-                Collections.sort(listaNotificaciones, (a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
-                if (adapterNotifHome != null) adapterNotifHome.actualizar(listaNotificaciones);
-                View tvNoNotif = findViewById(R.id.tvNoNotifHome);
-                if (tvNoNotif != null) tvNoNotif.setVisibility(listaNotificaciones.isEmpty() ? View.VISIBLE : View.GONE);
+                actualizarListaNotificacionesHome();
             }
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
+
+        sincronizarNotificacionesGlobales(ref);
+    }
+
+    private void asegurarNotificacionGlobalPorDefecto() {
+        DatabaseReference globalRef = FirebaseDatabase.getInstance(DB_URL).getReference(GLOBAL_NOTIFICATIONS_PATH).child(GLOBAL_NOTIFICATION_ID);
+        globalRef.get().addOnSuccessListener(snapshot -> {
+            if (!snapshot.exists()) {
+                Notificacion notif = new Notificacion(
+                        GLOBAL_NOTIFICATION_ID,
+                        getString(R.string.notif_evento_quedada_titulo),
+                        getString(R.string.notif_evento_quedada_msg),
+                        "EVENTO",
+                        System.currentTimeMillis(),
+                        false
+                );
+                globalRef.setValue(notif);
+            }
+        });
+    }
+
+    private void sincronizarNotificacionesGlobales(DatabaseReference userRef) {
+        FirebaseDatabase.getInstance(DB_URL).getReference(GLOBAL_NOTIFICATIONS_PATH).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    Notificacion notif = data.getValue(Notificacion.class);
+                    String notifId = data.getKey();
+                    if (notif == null || notifId == null) continue;
+                    notif.setId(notifId);
+
+                    userRef.child("notificacionesEliminadas").child(notifId).get().addOnSuccessListener(deletedSnap -> {
+                        if (deletedSnap.exists()) return;
+                        userRef.child("notificaciones").child(notifId).get().addOnSuccessListener(localSnap -> {
+                            if (!localSnap.exists()) {
+                                userRef.child("notificaciones").child(notifId).setValue(notif);
+                            }
+                        });
+                    });
+                }
+            }
+
+            @Override public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    private void actualizarListaNotificacionesHome() {
+        listaNotificaciones.clear();
+        for (Notificacion n : listaNotificacionesTodas) {
+            if (n != null && n.getId() != null && !notificacionesEliminadas.contains(n.getId())) {
+                listaNotificaciones.add(n);
+            }
+        }
+        Collections.sort(listaNotificaciones, (a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
+        if (adapterNotifHome != null) adapterNotifHome.actualizar(listaNotificaciones);
+        View tvNoNotif = findViewById(R.id.tvNoNotifHome);
+        if (tvNoNotif != null) tvNoNotif.setVisibility(listaNotificaciones.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void eliminarNotificacionPersistente(Notificacion notif) {
+        if (notif == null || notif.getId() == null || currentUserEmailSafe.isEmpty()) return;
+        DatabaseReference userRef = FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe);
+        userRef.child("notificaciones").child(notif.getId()).removeValue();
+        userRef.child("notificacionesEliminadas").child(notif.getId()).setValue(true);
     }
 
     private void iniciarGeneracionQR() {

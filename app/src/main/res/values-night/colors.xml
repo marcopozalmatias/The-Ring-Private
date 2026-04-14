@@ -4,6 +4,7 @@
     <color name="backgroundColor">#000000</color>
     <color name="cardBackground">#1A1A1A</color>
     <color name="textColorPrimary">#FFFFFF</color>
+    <color name="settingsIconTint">#FFFFFF</color>
     <color name="textColorSecondary">#CCCCCC</color>
     <color name="dividerColor">#2A2A2A</color>
     <color name="qrOverlayBackground">#EB000000</color>

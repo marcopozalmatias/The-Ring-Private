@@ -13,8 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,13 +22,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.android.gms.tasks.Tasks;
 
 import java.util.Locale;
 
@@ -223,8 +222,8 @@ public class SettingsFragment extends Fragment {
 
         if (btnVerify != null) {
             btnVerify.setOnClickListener(v -> {
-                String dniInput = etDni != null ? etDni.getText().toString().trim().toUpperCase() : "";
-                String emailInput = etEmail != null ? etEmail.getText().toString().trim() : "";
+                String dniInput = safeText(etDni).toUpperCase();
+                String emailInput = safeText(etEmail);
 
                 if (dniInput.isEmpty() || emailInput.isEmpty()) {
                     Toast.makeText(requireContext(), getString(R.string.error_datos_incompletos), Toast.LENGTH_SHORT).show();
@@ -251,7 +250,7 @@ public class SettingsFragment extends Fragment {
 
         if (btnChange != null) {
             btnChange.setOnClickListener(v -> {
-                String newPass = etNewPass != null ? etNewPass.getText().toString().trim() : "";
+                String newPass = safeText(etNewPass);
                 if (newPass.length() < 6) {
                     Toast.makeText(requireContext(), getString(R.string.min_6_chars), Toast.LENGTH_SHORT).show();
                     return;
@@ -320,8 +319,8 @@ public class SettingsFragment extends Fragment {
         if (btnCancel != null) btnCancel.setOnClickListener(v -> dialog.dismiss());
         if (btnConfirm != null) {
             btnConfirm.setOnClickListener(v -> {
-                String inputUser = etUser != null ? etUser.getText().toString().trim() : "";
-                String inputPass = etPass != null ? etPass.getText().toString().trim() : "";
+                String inputUser = safeText(etUser);
+                String inputPass = safeText(etPass);
 
                 if (inputUser.isEmpty() || inputPass.isEmpty()) {
                     Toast.makeText(requireContext(), getString(R.string.error_datos_incompletos), Toast.LENGTH_SHORT).show();
@@ -339,7 +338,13 @@ public class SettingsFragment extends Fragment {
                             if (correoReal != null) {
                                 verificarYConfirmarEliminacion(user, correoReal, inputPass, dialog);
                             } else {
-                                Toast.makeText(requireContext(), getString(R.string.error_usuario_no_encontrado), Toast.LENGTH_SHORT).show();
+                                // Fallback: usa el email de la sesión actual para permitir borrado aunque MapeoDNI esté roto.
+                                String emailSesion = user.getEmail();
+                                if (emailSesion != null && !emailSesion.isEmpty()) {
+                                    verificarYConfirmarEliminacion(user, emailSesion, inputPass, dialog);
+                                } else {
+                                    Toast.makeText(requireContext(), getString(R.string.error_usuario_no_encontrado), Toast.LENGTH_SHORT).show();
+                                }
                             }
                         });
                     }
@@ -349,11 +354,16 @@ public class SettingsFragment extends Fragment {
         dialog.show();
     }
 
+    private String safeText(TextInputEditText editText) {
+        return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
+    }
+
     private void verificarYConfirmarEliminacion(FirebaseUser user, String email, String pass, Dialog dialogAnterior) {
         user.reauthenticate(EmailAuthProvider.getCredential(email, pass)).addOnCompleteListener(authTask -> {
             if (authTask.isSuccessful()) {
                 dialogAnterior.dismiss();
-                mostrarDialogoFinalConfirmacionEliminar(user, email);
+                String canonicalEmail = user.getEmail() != null ? user.getEmail() : email;
+                mostrarDialogoFinalConfirmacionEliminar(user, canonicalEmail);
             } else {
                 Toast.makeText(requireContext(), getString(R.string.error_credenciales), Toast.LENGTH_SHORT).show();
             }
@@ -375,15 +385,75 @@ public class SettingsFragment extends Fragment {
         if (btnFinalAceptoDelete != null) {
             btnFinalAceptoDelete.setOnClickListener(v -> {
                 String emailSafe = email.replace(".", "_");
-                FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(emailSafe).removeValue().addOnCompleteListener(task -> {
-                    user.delete().addOnCompleteListener(deleteTask -> {
-                        if (deleteTask.isSuccessful()) {
-                            Toast.makeText(requireContext(), "Cuenta eliminada correctamente", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                            Intent intent = new Intent(requireContext(), MainActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
+                FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(emailSafe).child("perfil").get().addOnSuccessListener(snapshot -> {
+                    String dni = snapshot.child("dni").getValue(String.class);
+                    String apodo = snapshot.child("apodo").getValue(String.class);
+
+                    var rootRef = FirebaseDatabase.getInstance(DB_URL).getReference();
+                    var dniByEmailTask = rootRef.child("MapeoDNI").orderByValue().equalTo(email).get();
+                    var apodosByEmailSafeTask = rootRef.child("Apodos").orderByValue().equalTo(emailSafe).get();
+
+                    Tasks.whenAllComplete(dniByEmailTask, apodosByEmailSafeTask).addOnCompleteListener(queryTask -> {
+                        var updates = new java.util.HashMap<String, Object>();
+                        updates.put("Usuarios/" + emailSafe, null);
+                        updates.put("TokensQR/" + emailSafe, null);
+
+                        if (dni != null && !dni.isEmpty()) updates.put("MapeoDNI/" + dni, null);
+                        if (apodo != null && !apodo.isEmpty()) updates.put("Apodos/" + apodo, null);
+
+                        if (dniByEmailTask.isSuccessful() && dniByEmailTask.getResult() != null) {
+                            for (var child : dniByEmailTask.getResult().getChildren()) {
+                                if (child.getKey() != null) updates.put("MapeoDNI/" + child.getKey(), null);
+                            }
                         }
+                        if (apodosByEmailSafeTask.isSuccessful() && apodosByEmailSafeTask.getResult() != null) {
+                            for (var child : apodosByEmailSafeTask.getResult().getChildren()) {
+                                if (child.getKey() != null) updates.put("Apodos/" + child.getKey(), null);
+                            }
+                        }
+
+                        rootRef.updateChildren(updates).addOnCompleteListener(dbDeleteTask -> {
+                            if (!dbDeleteTask.isSuccessful()) {
+                                Toast.makeText(requireContext(), "Error al borrar datos del usuario", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            user.delete().addOnCompleteListener(deleteTask -> {
+                                if (deleteTask.isSuccessful()) {
+                                    Toast.makeText(requireContext(), "Cuenta eliminada correctamente", Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
+                                    Intent intent = new Intent(requireContext(), MainActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                } else {
+                                    Toast.makeText(requireContext(), "Datos eliminados, pero falló Auth. Inicia sesión e inténtalo de nuevo.", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        });
+                    });
+                }).addOnFailureListener(e -> {
+                    var rootRef = FirebaseDatabase.getInstance(DB_URL).getReference();
+                    var updates = new java.util.HashMap<String, Object>();
+                    updates.put("Usuarios/" + emailSafe, null);
+                    updates.put("TokensQR/" + emailSafe, null);
+                    rootRef.child("MapeoDNI").orderByValue().equalTo(email).get().addOnSuccessListener(dniSnap -> {
+                        for (var child : dniSnap.getChildren()) {
+                            if (child.getKey() != null) updates.put("MapeoDNI/" + child.getKey(), null);
+                        }
+                        rootRef.child("Apodos").orderByValue().equalTo(emailSafe).get().addOnSuccessListener(apodoSnap -> {
+                            for (var child : apodoSnap.getChildren()) {
+                                if (child.getKey() != null) updates.put("Apodos/" + child.getKey(), null);
+                            }
+                            rootRef.updateChildren(updates).addOnCompleteListener(anyDbTask -> user.delete().addOnCompleteListener(deleteTask -> {
+                                if (deleteTask.isSuccessful()) {
+                                    Toast.makeText(requireContext(), "Cuenta eliminada correctamente", Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
+                                    Intent intent = new Intent(requireContext(), MainActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                }
+                            }));
+                        });
                     });
                 });
             });
@@ -393,7 +463,7 @@ public class SettingsFragment extends Fragment {
 
     private void mostrarTextoLegal(int resIdTitulo, int resIdContenido) {
         Dialog dialog = new Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_fullscreen_legal, null);
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_fullscreen_legal, new FrameLayout(requireContext()), false);
         TextView txtTituloLegal = dialogView.findViewById(R.id.txtTituloLegal);
         TextView txtContenidoLegal = dialogView.findViewById(R.id.txtContenidoLegal);
         ImageView btnCerrarCruceta = dialogView.findViewById(R.id.btnCerrarCruceta);

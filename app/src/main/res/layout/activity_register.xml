@@ -90,7 +90,9 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/register_name_hint"
                         android:inputType="textPersonName|textCapWords"
-                        android:textColor="@color/textColorPrimary" />
+                        android:textColor="@color/textColorPrimary"
+                        android:importantForAutofill="yes"
+                        android:autofillHints="name" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -113,7 +115,9 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/register_lastname_hint"
                         android:inputType="textPersonName|textCapWords"
-                        android:textColor="@color/textColorPrimary" />
+                        android:textColor="@color/textColorPrimary"
+                        android:importantForAutofill="yes"
+                        android:autofillHints="familyName" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -136,7 +140,9 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/register_dni_hint"
                         android:inputType="textCapCharacters"
-                        android:textColor="@color/textColorPrimary" />
+                        android:textColor="@color/textColorPrimary"
+                        android:importantForAutofill="yes"
+                        android:autofillHints="username" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -159,7 +165,9 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/profile_email"
                         android:inputType="textEmailAddress"
-                        android:textColor="@color/textColorPrimary" />
+                        android:textColor="@color/textColorPrimary"
+                        android:importantForAutofill="yes"
+                        android:autofillHints="emailAddress" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -184,7 +192,9 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/profile_password"
                         android:inputType="textPassword"
-                        android:textColor="@color/textColorPrimary" />
+                        android:textColor="@color/textColorPrimary"
+                        android:importantForAutofill="yes"
+                        android:autofillHints="newPassword" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout

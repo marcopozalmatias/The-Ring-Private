@@ -162,7 +162,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="18dp">
-                        <ImageView android:id="@+id/ic2" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@android:drawable/ic_lock_lock" app:tint="@color/textColorPrimary" />
+                        <ImageView android:id="@+id/ic2" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@android:drawable/ic_lock_lock" app:tint="@color/settingsIconTint" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:layout_toEndOf="@id/ic2" android:text="@string/ajuste_cambiar_pass" android:textColor="@color/textColorPrimary" android:textSize="16sp" />
                     </RelativeLayout>
 
@@ -178,7 +178,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="18dp">
-                        <ImageView android:id="@+id/icLang" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@drawable/idioma" />
+                        <ImageView android:id="@+id/icLang" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@drawable/idioma" app:tint="@color/settingsIconTint" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:layout_toEndOf="@id/icLang" android:text="@string/settings_change_lang_btn" android:textColor="@color/textColorPrimary" android:textSize="16sp" />
                     </RelativeLayout>
 
@@ -193,7 +193,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="18dp">
-                        <ImageView android:id="@+id/icTheme" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@drawable/modo_oscuro" />
+                        <ImageView android:id="@+id/icTheme" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@drawable/modo_oscuro" app:tint="@color/settingsIconTint" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:layout_toEndOf="@id/icTheme" android:text="@string/settings_change_theme_btn" android:textColor="@color/textColorPrimary" android:textSize="16sp" />
                     </RelativeLayout>
 
@@ -232,7 +232,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="18dp">
-                        <ImageView android:id="@+id/icRates" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@android:drawable/ic_menu_today" app:tint="@color/textColorPrimary" />
+                        <ImageView android:id="@+id/icRates" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@drawable/tarifas" app:tint="@color/settingsIconTint" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:layout_toEndOf="@id/icRates" android:text="@string/settings_rates" android:textColor="@color/textColorPrimary" android:textSize="16sp" />
                     </RelativeLayout>
 
@@ -247,7 +247,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="18dp">
-                        <ImageView android:id="@+id/ic4" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@android:drawable/ic_menu_sort_by_size" app:tint="@color/textColorPrimary" />
+                        <ImageView android:id="@+id/ic4" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@drawable/terminoscondiciones" app:tint="@color/settingsIconTint" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:layout_toEndOf="@id/ic4" android:text="@string/settings_terms" android:textColor="@color/textColorPrimary" android:textSize="16sp" />
                     </RelativeLayout>
 
@@ -262,7 +262,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="18dp">
-                        <ImageView android:id="@+id/ic5" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@android:drawable/ic_menu_info_details" app:tint="@color/textColorPrimary" />
+                        <ImageView android:id="@+id/ic5" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@drawable/avisolegal" app:tint="@color/settingsIconTint" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:layout_toEndOf="@id/ic5" android:text="@string/ajuste_aviso_legal" android:textColor="@color/textColorPrimary" android:textSize="16sp" />
                     </RelativeLayout>
 
@@ -277,7 +277,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="18dp">
-                        <ImageView android:id="@+id/ic6" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@android:drawable/ic_menu_help" app:tint="@color/textColorPrimary" />
+                        <ImageView android:id="@+id/ic6" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@drawable/ayuda" app:tint="@color/settingsIconTint" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:layout_toEndOf="@id/ic6" android:text="@string/settings_help" android:textColor="@color/textColorPrimary" android:textSize="16sp" />
                     </RelativeLayout>
 
@@ -292,7 +292,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="18dp">
-                        <ImageView android:id="@+id/ic7" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@android:drawable/ic_menu_search" app:tint="@color/textColorPrimary" />
+                        <ImageView android:id="@+id/ic7" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@drawable/preguntasfrecuentes" app:tint="@color/settingsIconTint" />
                         <TextView android:id="@+id/ic_faq_text" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:layout_toEndOf="@id/ic7" android:text="@string/settings_faq" android:textColor="@color/textColorPrimary" android:textSize="16sp" />
                     </RelativeLayout>
                 </LinearLayout>
@@ -330,7 +330,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="18dp">
-                        <ImageView android:id="@+id/ic8" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@android:drawable/ic_lock_power_off" app:tint="@color/textColorPrimary" />
+                        <ImageView android:id="@+id/ic8" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@android:drawable/ic_lock_power_off" app:tint="@color/settingsIconTint" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:layout_toEndOf="@id/ic8" android:text="@string/ajuste_cerrar_sesion" android:textColor="@color/textColorPrimary" android:textSize="16sp" />
                     </RelativeLayout>
 
@@ -345,7 +345,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="18dp">
-                        <ImageView android:id="@+id/ic9" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@android:drawable/ic_delete" app:tint="#FF4C4C" />
+                        <ImageView android:id="@+id/ic9" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@android:drawable/ic_delete" app:tint="@color/settingsIconTint" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:layout_toEndOf="@id/ic9" android:text="@string/eliminar_cuenta" android:textColor="#FF4C4C" android:textStyle="bold" android:textSize="16sp" />
                     </RelativeLayout>
 
@@ -360,7 +360,7 @@
                         android:background="?attr/selectableItemBackground"
                         android:paddingHorizontal="20dp"
                         android:paddingVertical="18dp">
-                        <ImageView android:id="@+id/ic10" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@android:drawable/ic_menu_agenda" app:tint="@color/textColorPrimary" />
+                        <ImageView android:id="@+id/ic10" android:layout_width="22dp" android:layout_height="22dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:src="@drawable/manualusuario" app:tint="@color/settingsIconTint" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerVertical="true" android:layout_marginStart="14dp" android:layout_toEndOf="@id/ic10" android:text="@string/settings_user_manual" android:textColor="@color/textColorPrimary" android:textSize="16sp" />
                     </RelativeLayout>
                 </LinearLayout>

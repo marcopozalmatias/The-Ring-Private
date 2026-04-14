@@ -155,7 +155,9 @@ public class NotificationsFragment extends Fragment {
     private RecyclerView recycler;
     private LinearLayout layoutEmptyState;
     private NotificacionesAdapter adapter;
+    private final List<Notificacion> listaNotificacionesTodas = new ArrayList<>();
     private List<Notificacion> listaNotificaciones = new ArrayList<>();
+    private final Set<String> notificacionesEliminadas = new HashSet<>();
     private String filtroActual = "Todas";
 
     private ImageView btnToggleEditMode, btnDeleteSelected;
@@ -243,18 +245,35 @@ public class NotificationsFragment extends Fragment {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             currentUserEmailSafe = user.getEmail().replace(".", "_");
-            database = FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe).child("notificaciones");
+            DatabaseReference userRef = FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe);
+            database = userRef.child("notificaciones");
+
+            userRef.child("notificacionesEliminadas").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    notificacionesEliminadas.clear();
+                    for (DataSnapshot data : snapshot.getChildren()) {
+                        notificacionesEliminadas.add(data.getKey());
+                    }
+                    actualizarUI();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {}
+            });
 
             database.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (!isAdded()) return;
-                    listaNotificaciones.clear();
+                    listaNotificacionesTodas.clear();
                     for (DataSnapshot data : snapshot.getChildren()) {
                         Notificacion notif = data.getValue(Notificacion.class);
-                        if (notif != null) listaNotificaciones.add(notif);
+                        if (notif != null) {
+                            notif.setId(data.getKey());
+                            listaNotificacionesTodas.add(notif);
+                        }
                     }
-                    Collections.sort(listaNotificaciones, (a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
                     actualizarUI();
                 }
 
@@ -303,6 +322,13 @@ public class NotificationsFragment extends Fragment {
     }
 
     private void actualizarUI() {
+        listaNotificaciones.clear();
+        for (Notificacion n : listaNotificacionesTodas) {
+            if (n != null && n.getId() != null && !notificacionesEliminadas.contains(n.getId())) {
+                listaNotificaciones.add(n);
+            }
+        }
+        Collections.sort(listaNotificaciones, (a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
         List<Notificacion> listaFiltrada = obtenerListaFiltrada();
         adapter.actualizarLista(listaFiltrada);
         if (listaFiltrada.isEmpty()) {
@@ -370,6 +396,7 @@ public class NotificationsFragment extends Fragment {
             List<String> idsABorrar = new ArrayList<>(adapter.selectedIds);
             for (String id : idsABorrar) {
                 database.child(id).removeValue();
+                FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe).child("notificacionesEliminadas").child(id).setValue(true);
             }
             Toast.makeText(requireContext(), "Eliminadas " + count + " notificaciones", Toast.LENGTH_SHORT).show();
             salirModoEdicion();

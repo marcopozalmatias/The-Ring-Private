@@ -9,6 +9,7 @@
     <color name="backgroundColor">#F5F5F5</color>
     <color name="cardBackground">#FFFFFF</color>
     <color name="textColorPrimary">#212121</color>
+    <color name="settingsIconTint">#111111</color>
     <color name="textColorSecondary">#555555</color>
     <color name="dividerColor">#DDDDDD</color>
     <color name="qrOverlayBackground">#F2F5F5F5</color>

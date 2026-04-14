@@ -29,7 +29,8 @@
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/idioma"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="8dp"
+                app:tint="@color/settingsIconTint"/>
 
             <TextView
                 android:id="@+id/tvLangTitle"
@@ -111,7 +112,8 @@
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/modo_oscuro"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="8dp"
+                app:tint="@color/settingsIconTint"/>
 
             <TextView
                 android:id="@+id/tvThemeTitle"
@@ -190,7 +192,7 @@
             android:layout_height="24dp"
             android:src="@drawable/ajustetransparente"
             android:layout_marginEnd="10dp"
-            app:tint="@color/rojo_ring"/>
+            app:tint="@color/settingsIconTint"/>
 
         <TextView
             android:layout_width="wrap_content"

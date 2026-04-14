@@ -8,10 +8,10 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
@@ -26,7 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
@@ -34,6 +33,11 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.CreatePasswordRequest;
+import androidx.credentials.CreateCredentialResponse;
+import androidx.credentials.exceptions.CreateCredentialException;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -119,18 +123,18 @@ public class RegisterActivity extends AppCompatActivity {
         if (btnBackToLogin != null) btnBackToLogin.setOnClickListener(v -> finish());
         if (etNombre != null) setupCapitalizeWatcher(etNombre);
         if (etApellidos != null) setupCapitalizeWatcher(etApellidos);
-        if (tvTermsLink != null) tvTermsLink.setOnClickListener(v -> mostrarTextoLegal(getString(R.string.settings_terms), getString(R.string.texto_terminos)));
+        if (tvTermsLink != null) tvTermsLink.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_terminos_titulo, R.string.texto_terminos));
 
         if (btnRegister != null) {
             btnRegister.setOnClickListener(v -> {
                 resetErrors(tilNombre, tilApellidos, tilDni, tilEmail, tilPassword);
                 if (tvTermsError != null) tvTermsError.setVisibility(View.GONE);
 
-                String nombre = etNombre != null ? etNombre.getText().toString().trim() : "";
-                String apellidos = etApellidos != null ? etApellidos.getText().toString().trim() : "";
-                String dni = etDni != null ? etDni.getText().toString().trim().toUpperCase() : "";
-                String email = etEmail != null ? etEmail.getText().toString().trim() : "";
-                String password = etPassword != null ? etPassword.getText().toString().trim() : "";
+                String nombre = safeText(etNombre);
+                String apellidos = safeText(etApellidos);
+                String dni = safeText(etDni).toUpperCase();
+                String email = safeText(etEmail);
+                String password = safeText(etPassword);
                 String apodoBase = nombre.replace(" ", "").toLowerCase();
 
                 boolean isValid = true;
@@ -138,19 +142,38 @@ public class RegisterActivity extends AppCompatActivity {
                 if (apellidos.isEmpty()) { if (tilApellidos != null) tilApellidos.setError(getString(R.string.error_obligatorio)); isValid = false; }
                 if (!dni.matches("^[0-9]{8}[A-Z]$")) { if (tilDni != null) tilDni.setError(getString(R.string.error_dni_invalido)); isValid = false; }
                 if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) { if (tilEmail != null) tilEmail.setError(getString(R.string.error_email_invalido)); isValid = false; }
-                if (password.length() < 6) { if (tilPassword != null) tilPassword.setError(getString(R.string.min_6_chars)); isValid = false; }
+                if (!esPasswordSegura(password)) { if (tilPassword != null) tilPassword.setError(getString(R.string.error_password_segura)); isValid = false; }
                 if (cbTerms != null && !cbTerms.isChecked()) { if (tvTermsError != null) tvTermsError.setVisibility(View.VISIBLE); isValid = false; }
 
                 if (!isValid) return;
                 
                 // Comprobar si el DNI ya existe antes de procesar
                 FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).get().addOnCompleteListener(dniTask -> {
-                    if (dniTask.isSuccessful() && dniTask.getResult().exists()) {
-                         if (tilDni != null) tilDni.setError(getString(R.string.error_datos_no_coinciden)); // O un error más específico si existiera
-                         Toast.makeText(this, "Este DNI ya está registrado", Toast.LENGTH_SHORT).show();
-                    } else {
-                         generarApodoUnico(apodoBase, apodoFinal -> realizarRegistro(email, password, nombre, apellidos, dni, apodoFinal));
+                    if (!dniTask.isSuccessful() || !dniTask.getResult().exists()) {
+                        generarApodoUnico(apodoBase, apodoFinal -> realizarRegistro(email, password, nombre, apellidos, dni, apodoFinal));
+                        return;
                     }
+
+                    String correoMapeado = dniTask.getResult().getValue(String.class);
+                    if (correoMapeado == null || correoMapeado.isEmpty()) {
+                        FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
+                        generarApodoUnico(apodoBase, apodoFinal -> realizarRegistro(email, password, nombre, apellidos, dni, apodoFinal));
+                        return;
+                    }
+
+                    String emailSafeMapeado = correoMapeado.replace(".", "_");
+                    FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(emailSafeMapeado).child("perfil").get().addOnSuccessListener(perfilSnapshot -> {
+                        if (perfilSnapshot.exists()) {
+                            if (tilDni != null) tilDni.setError(getString(R.string.error_dni_ya_registrado));
+                            Toast.makeText(this, getString(R.string.error_dni_ya_registrado), Toast.LENGTH_SHORT).show();
+                        } else {
+                            FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
+                            generarApodoUnico(apodoBase, apodoFinal -> realizarRegistro(email, password, nombre, apellidos, dni, apodoFinal));
+                        }
+                    }).addOnFailureListener(e -> {
+                        FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
+                        generarApodoUnico(apodoBase, apodoFinal -> realizarRegistro(email, password, nombre, apellidos, dni, apodoFinal));
+                    });
                 });
             });
         }
@@ -175,15 +198,29 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void generarApodoUnico(String base, ApodoCallback callback) {
         FirebaseDatabase.getInstance(DB_URL).getReference("Apodos").child(base).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                if (task.getResult().exists()) {
+            if (!task.isSuccessful() || !task.getResult().exists()) {
+                callback.onApodoGenerated(base);
+                return;
+            }
+
+            String emailSafe = task.getResult().getValue(String.class);
+            if (emailSafe == null || emailSafe.isEmpty()) {
+                FirebaseDatabase.getInstance(DB_URL).getReference("Apodos").child(base).removeValue();
+                callback.onApodoGenerated(base);
+                return;
+            }
+
+            FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(emailSafe).child("perfil").get().addOnSuccessListener(snapshot -> {
+                if (snapshot.exists()) {
                     generarApodoUnico(base + (int)(Math.random() * 100), callback);
                 } else {
+                    FirebaseDatabase.getInstance(DB_URL).getReference("Apodos").child(base).removeValue();
                     callback.onApodoGenerated(base);
                 }
-            } else {
+            }).addOnFailureListener(e -> {
+                FirebaseDatabase.getInstance(DB_URL).getReference("Apodos").child(base).removeValue();
                 callback.onApodoGenerated(base);
-            }
+            });
         });
     }
 
@@ -199,8 +236,10 @@ public class RegisterActivity extends AppCompatActivity {
                 db.getReference("Usuarios").child(emailSafe).setValue(userData).addOnCompleteListener(dbTask -> {
                     db.getReference("Apodos").child(apodo).setValue(emailSafe);
                     db.getReference("MapeoDNI").child(dni).setValue(email);
-                    startActivity(new Intent(this, HomeActivity.class));
-                    finish();
+                    solicitarGuardadoCredenciales(email, pass, () -> {
+                        startActivity(new Intent(this, HomeActivity.class));
+                        finish();
+                    });
                 });
             } else {
                 if (task.getException() instanceof FirebaseAuthUserCollisionException) {
@@ -248,17 +287,54 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void resetErrors(TextInputLayout... layouts) { for (TextInputLayout l : layouts) if (l != null) l.setError(null); }
 
-    private void mostrarTextoLegal(String titulo, String contenido) {
+    private String safeText(TextInputEditText editText) {
+        return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
+    }
+
+    private boolean esPasswordSegura(String password) {
+        return password != null
+                && password.length() >= 6
+                && password.matches(".*[A-Z].*")
+                && password.matches(".*[^A-Za-z0-9].*");
+    }
+
+    private void solicitarGuardadoCredenciales(String email, String password, Runnable onDone) {
+        try {
+            CredentialManager credentialManager = CredentialManager.create(this);
+            CreatePasswordRequest request = new CreatePasswordRequest(email, password);
+            credentialManager.createCredentialAsync(
+                    this,
+                    request,
+                    new CancellationSignal(),
+                    ContextCompat.getMainExecutor(this),
+                    new CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>() {
+                        @Override
+                        public void onResult(CreateCredentialResponse result) {
+                            onDone.run();
+                        }
+
+                        @Override
+                        public void onError(CreateCredentialException e) {
+                            onDone.run();
+                        }
+                    }
+            );
+        } catch (Exception e) {
+            onDone.run();
+        }
+    }
+
+    private void mostrarTextoLegal(int resIdTitulo, int resIdContenido) {
         Dialog dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        View view = LayoutInflater.from(this).inflate(R.layout.layout_fullscreen_legal, null);
+        View view = LayoutInflater.from(this).inflate(R.layout.layout_fullscreen_legal, null, false);
         TextView txtTituloLegal = view.findViewById(R.id.txtTituloLegal);
         TextView txtContenidoLegal = view.findViewById(R.id.txtContenidoLegal);
         ImageView btnCerrarCruceta = view.findViewById(R.id.btnCerrarCruceta);
         Button btnCerrarAbajo = view.findViewById(R.id.btnCerrarAbajo);
 
-        if (txtTituloLegal != null) txtTituloLegal.setText(titulo);
-        if (txtContenidoLegal != null) txtContenidoLegal.setText(contenido);
-        
+        if (txtTituloLegal != null) TranslationHelper.translateTextView(txtTituloLegal, resIdTitulo);
+        if (txtContenidoLegal != null) TranslationHelper.translateTextView(txtContenidoLegal, resIdContenido);
+
         if (btnCerrarCruceta != null) btnCerrarCruceta.setOnClickListener(v -> dialog.dismiss());
         
         if (btnCerrarAbajo != null) {

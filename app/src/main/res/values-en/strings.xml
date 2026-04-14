@@ -35,6 +35,8 @@
     <string name="error_dni_invalido">Invalid DNI</string>
     <string name="error_email_invalido">Invalid Email</string>
     <string name="error_email_existe">This email is already linked to an account</string>
+    <string name="error_dni_ya_registrado">This ID is already registered</string>
+    <string name="error_password_segura">Password must have at least 6 characters, 1 uppercase letter, and 1 special character</string>
     <string name="min_6_chars">Minimum 6 characters</string>
 
     <string name="settings_terms">Terms and Conditions</string>

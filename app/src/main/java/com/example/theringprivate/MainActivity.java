@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         auth = FirebaseAuth.getInstance();
+        limpiarMapeosDniHuerfanos();
 
         View rootLayout = findViewById(R.id.layoutLogin);
         View cardLogin = findViewById(R.id.cardLogin);
@@ -107,9 +108,9 @@ public class MainActivity extends AppCompatActivity {
                 if (tilDni != null) tilDni.setError(null);
                 if (tilPassword != null) tilPassword.setError(null);
                 
-                String input = etUser != null ? etUser.getText().toString().trim() : "";
-                String password = etPassword != null ? etPassword.getText().toString().trim() : "";
-                
+                String input = safeText(etUser);
+                String password = safeText(etPassword);
+
                 if (input.isEmpty()) {
                     if (tilDni != null) tilDni.setError(getString(R.string.error_dni_vacio));
                     return;
@@ -158,6 +159,31 @@ public class MainActivity extends AppCompatActivity {
         recreate();
     }
 
+    private void limpiarMapeosDniHuerfanos() {
+        FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").get().addOnSuccessListener(snapshot -> {
+            for (var data : snapshot.getChildren()) {
+                String dni = data.getKey();
+                String email = data.getValue(String.class);
+                if (dni == null) continue;
+                if (email == null || email.isEmpty()) {
+                    FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
+                    continue;
+                }
+
+                String emailSafe = email.replace(".", "_");
+                FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(emailSafe).child("perfil").get().addOnSuccessListener(perfil -> {
+                    if (!perfil.exists()) {
+                        FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
+                    }
+                }).addOnFailureListener(e -> FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue());
+            }
+        });
+    }
+
+    private String safeText(TextInputEditText editText) {
+        return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
+    }
+
     private void iniciarSesionFirebase(String email, String password, TextInputLayout tilDni, TextInputLayout tilPassword) {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
@@ -189,8 +215,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (btnVerify != null) {
             btnVerify.setOnClickListener(v -> {
-                String dniInput = etDni != null ? etDni.getText().toString().trim().toUpperCase() : "";
-                String emailInput = etEmail != null ? etEmail.getText().toString().trim() : "";
+                String dniInput = safeText(etDni).toUpperCase();
+                String emailInput = safeText(etEmail);
                 if (dniInput.isEmpty() || emailInput.isEmpty()) {
                     Toast.makeText(this, getString(R.string.error_datos_incompletos), Toast.LENGTH_SHORT).show();
                     return;
