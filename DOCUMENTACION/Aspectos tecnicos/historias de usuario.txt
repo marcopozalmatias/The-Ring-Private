@@ -1,0 +1,16 @@
+HISTORIAS DE USUARIO - THE RING PRIVATE
+
+1. Como nuevo usuario, quiero registrarme con mis datos reales, aceptar los términos y crear una contraseña segura para poder acceder a la aplicación.
+
+2. Como usuario registrado, quiero iniciar sesión con mi correo o DNI y mi contraseña para entrar a mi cuenta sin repetir el registro.
+
+3. Como socio, quiero abrir un QR personal que cambie cada vez que lo cierro y lo abro para evitar capturas de pantalla reutilizables.
+
+4. Como usuario, quiero eliminar solo las notificaciones que ya no me interesan para que no me aparezcan de nuevo en mi cuenta.
+
+5. Como usuario, quiero cambiar el idioma y la apariencia de la aplicación para usarla cómodamente según mis preferencias.
+
+6. Como usuario, quiero consultar tarifas, términos, aviso legal, ayuda, preguntas frecuentes y manual de usuario desde ajustes para entender cómo funciona la app.
+
+7. Como usuario, quiero cerrar sesión y eliminar mi cuenta de forma segura para controlar mis datos personales.
+

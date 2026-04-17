@@ -1,0 +1,1 @@
+La aplicación está vinculada a una cuenta de firebase para que la base de datos sea completamente funcional Una vez que la aplicacion esté enganchada a la base de datos de la empresa todas las notas en las que diga firebase habrá que cambiarlas para que todo quede reciente
