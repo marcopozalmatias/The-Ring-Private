@@ -98,6 +98,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // --- Lógica del Botón de Idioma ---
         LinearLayout btnChangeLang = findViewById(R.id.btnChangeLangReg);
+        LinearLayout btnManualReg = findViewById(R.id.btnManualReg);
         TextView tvFlag = findViewById(R.id.tvCurrentFlagReg);
         String currentLang = getSharedPreferences("Settings", Context.MODE_PRIVATE).getString("My_Lang", "es");
         if (tvFlag != null) tvFlag.setText(currentLang.equals("es") ? "🇬🇧 EN" : "🇪🇸 ES");
@@ -123,7 +124,12 @@ public class RegisterActivity extends AppCompatActivity {
         if (btnBackToLogin != null) btnBackToLogin.setOnClickListener(v -> finish());
         if (etNombre != null) setupCapitalizeWatcher(etNombre);
         if (etApellidos != null) setupCapitalizeWatcher(etApellidos);
-        if (tvTermsLink != null) tvTermsLink.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_terminos_titulo, R.string.texto_terminos));
+        if (tvTermsLink != null) {
+            tvTermsLink.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_terminos_titulo, R.string.texto_terminos, true));
+        }
+        if (btnManualReg != null) {
+            btnManualReg.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_manual_usuario_titulo, R.string.texto_manual_usuario, false));
+        }
 
         if (btnRegister != null) {
             btnRegister.setOnClickListener(v -> {
@@ -135,7 +141,6 @@ public class RegisterActivity extends AppCompatActivity {
                 String dni = safeText(etDni).toUpperCase();
                 String email = safeText(etEmail);
                 String password = safeText(etPassword);
-                String apodoBase = nombre.replace(" ", "").toLowerCase();
 
                 boolean isValid = true;
                 if (nombre.isEmpty()) { if (tilNombre != null) tilNombre.setError(getString(R.string.error_obligatorio)); isValid = false; }
@@ -150,14 +155,14 @@ public class RegisterActivity extends AppCompatActivity {
                 // Comprobar si el DNI ya existe antes de procesar
                 FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).get().addOnCompleteListener(dniTask -> {
                     if (!dniTask.isSuccessful() || !dniTask.getResult().exists()) {
-                        generarApodoUnico(apodoBase, apodoFinal -> realizarRegistro(email, password, nombre, apellidos, dni, apodoFinal));
+                        realizarRegistro(email, password, nombre, apellidos, dni);
                         return;
                     }
 
                     String correoMapeado = dniTask.getResult().getValue(String.class);
                     if (correoMapeado == null || correoMapeado.isEmpty()) {
                         FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
-                        generarApodoUnico(apodoBase, apodoFinal -> realizarRegistro(email, password, nombre, apellidos, dni, apodoFinal));
+                        realizarRegistro(email, password, nombre, apellidos, dni);
                         return;
                     }
 
@@ -168,11 +173,11 @@ public class RegisterActivity extends AppCompatActivity {
                             Toast.makeText(this, getString(R.string.error_dni_ya_registrado), Toast.LENGTH_SHORT).show();
                         } else {
                             FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
-                            generarApodoUnico(apodoBase, apodoFinal -> realizarRegistro(email, password, nombre, apellidos, dni, apodoFinal));
+                            realizarRegistro(email, password, nombre, apellidos, dni);
                         }
                     }).addOnFailureListener(e -> {
                         FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
-                        generarApodoUnico(apodoBase, apodoFinal -> realizarRegistro(email, password, nombre, apellidos, dni, apodoFinal));
+                        realizarRegistro(email, password, nombre, apellidos, dni);
                     });
                 });
             });
@@ -196,45 +201,16 @@ public class RegisterActivity extends AppCompatActivity {
         recreate();
     }
 
-    private void generarApodoUnico(String base, ApodoCallback callback) {
-        FirebaseDatabase.getInstance(DB_URL).getReference("Apodos").child(base).get().addOnCompleteListener(task -> {
-            if (!task.isSuccessful() || !task.getResult().exists()) {
-                callback.onApodoGenerated(base);
-                return;
-            }
-
-            String emailSafe = task.getResult().getValue(String.class);
-            if (emailSafe == null || emailSafe.isEmpty()) {
-                FirebaseDatabase.getInstance(DB_URL).getReference("Apodos").child(base).removeValue();
-                callback.onApodoGenerated(base);
-                return;
-            }
-
-            FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(emailSafe).child("perfil").get().addOnSuccessListener(snapshot -> {
-                if (snapshot.exists()) {
-                    generarApodoUnico(base + (int)(Math.random() * 100), callback);
-                } else {
-                    FirebaseDatabase.getInstance(DB_URL).getReference("Apodos").child(base).removeValue();
-                    callback.onApodoGenerated(base);
-                }
-            }).addOnFailureListener(e -> {
-                FirebaseDatabase.getInstance(DB_URL).getReference("Apodos").child(base).removeValue();
-                callback.onApodoGenerated(base);
-            });
-        });
-    }
-
-    private void realizarRegistro(String email, String pass, String nom, String ape, String dni, String apodo) {
+    private void realizarRegistro(String email, String pass, String nom, String ape, String dni) {
         auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 String emailSafe = email.replace(".", "_");
                 Map<String, Object> perfil = new HashMap<>();
                 perfil.put("nombreReal", nom + " " + ape); perfil.put("dni", dni);
-                perfil.put("correo", email); perfil.put("apodo", apodo); perfil.put("rol", "user");
+                perfil.put("correo", email); perfil.put("rol", "user");
                 Map<String, Object> userData = new HashMap<>(); userData.put("perfil", perfil);
                 FirebaseDatabase db = FirebaseDatabase.getInstance(DB_URL);
                 db.getReference("Usuarios").child(emailSafe).setValue(userData).addOnCompleteListener(dbTask -> {
-                    db.getReference("Apodos").child(apodo).setValue(emailSafe);
                     db.getReference("MapeoDNI").child(dni).setValue(email);
                     solicitarGuardadoCredenciales(email, pass, () -> {
                         startActivity(new Intent(this, HomeActivity.class));
@@ -324,7 +300,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    private void mostrarTextoLegal(int resIdTitulo, int resIdContenido) {
+    private void mostrarTextoLegal(int resIdTitulo, int resIdContenido, boolean aceptarTerminosAlCerrar) {
         Dialog dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         View view = LayoutInflater.from(this).inflate(R.layout.layout_fullscreen_legal, null, false);
         TextView txtTituloLegal = view.findViewById(R.id.txtTituloLegal);
@@ -339,7 +315,7 @@ public class RegisterActivity extends AppCompatActivity {
         
         if (btnCerrarAbajo != null) {
             btnCerrarAbajo.setOnClickListener(v -> {
-                if (cbTerms != null) cbTerms.setChecked(true);
+                if (aceptarTerminosAlCerrar && cbTerms != null) cbTerms.setChecked(true);
                 dialog.dismiss();
             });
         }
@@ -348,5 +324,4 @@ public class RegisterActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private interface ApodoCallback { void onApodoGenerated(String apodo); }
 }

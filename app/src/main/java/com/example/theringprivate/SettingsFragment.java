@@ -28,7 +28,6 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.android.gms.tasks.Tasks;
 
 import java.util.Locale;
 
@@ -387,28 +386,20 @@ public class SettingsFragment extends Fragment {
                 String emailSafe = email.replace(".", "_");
                 FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(emailSafe).child("perfil").get().addOnSuccessListener(snapshot -> {
                     String dni = snapshot.child("dni").getValue(String.class);
-                    String apodo = snapshot.child("apodo").getValue(String.class);
 
                     var rootRef = FirebaseDatabase.getInstance(DB_URL).getReference();
                     var dniByEmailTask = rootRef.child("MapeoDNI").orderByValue().equalTo(email).get();
-                    var apodosByEmailSafeTask = rootRef.child("Apodos").orderByValue().equalTo(emailSafe).get();
 
-                    Tasks.whenAllComplete(dniByEmailTask, apodosByEmailSafeTask).addOnCompleteListener(queryTask -> {
+                    dniByEmailTask.addOnCompleteListener(queryTask -> {
                         var updates = new java.util.HashMap<String, Object>();
                         updates.put("Usuarios/" + emailSafe, null);
                         updates.put("TokensQR/" + emailSafe, null);
 
                         if (dni != null && !dni.isEmpty()) updates.put("MapeoDNI/" + dni, null);
-                        if (apodo != null && !apodo.isEmpty()) updates.put("Apodos/" + apodo, null);
 
                         if (dniByEmailTask.isSuccessful() && dniByEmailTask.getResult() != null) {
                             for (var child : dniByEmailTask.getResult().getChildren()) {
                                 if (child.getKey() != null) updates.put("MapeoDNI/" + child.getKey(), null);
-                            }
-                        }
-                        if (apodosByEmailSafeTask.isSuccessful() && apodosByEmailSafeTask.getResult() != null) {
-                            for (var child : apodosByEmailSafeTask.getResult().getChildren()) {
-                                if (child.getKey() != null) updates.put("Apodos/" + child.getKey(), null);
                             }
                         }
 
@@ -440,20 +431,15 @@ public class SettingsFragment extends Fragment {
                         for (var child : dniSnap.getChildren()) {
                             if (child.getKey() != null) updates.put("MapeoDNI/" + child.getKey(), null);
                         }
-                        rootRef.child("Apodos").orderByValue().equalTo(emailSafe).get().addOnSuccessListener(apodoSnap -> {
-                            for (var child : apodoSnap.getChildren()) {
-                                if (child.getKey() != null) updates.put("Apodos/" + child.getKey(), null);
+                        rootRef.updateChildren(updates).addOnCompleteListener(anyDbTask -> user.delete().addOnCompleteListener(deleteTask -> {
+                            if (deleteTask.isSuccessful()) {
+                                Toast.makeText(requireContext(), "Cuenta eliminada correctamente", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                                Intent intent = new Intent(requireContext(), MainActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
                             }
-                            rootRef.updateChildren(updates).addOnCompleteListener(anyDbTask -> user.delete().addOnCompleteListener(deleteTask -> {
-                                if (deleteTask.isSuccessful()) {
-                                    Toast.makeText(requireContext(), "Cuenta eliminada correctamente", Toast.LENGTH_SHORT).show();
-                                    dialog.dismiss();
-                                    Intent intent = new Intent(requireContext(), MainActivity.class);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                }
-                            }));
-                        });
+                        }));
                     });
                 });
             });

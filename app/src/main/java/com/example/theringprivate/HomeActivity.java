@@ -64,6 +64,8 @@ public class HomeActivity extends AppCompatActivity {
     private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
     private final String GLOBAL_NOTIFICATIONS_PATH = "NotificacionesGlobal";
     private final String GLOBAL_NOTIFICATION_ID = "evento_quedada_01";
+    private static final long QR_REFRESH_MS = 15000L;
+    private static final long QR_TOKEN_TTL_MS = 60000L;
     private SoftRevealFrameLayout layoutQrOverlay;
     private FloatingActionButton fabQr;
     private SoftRevealFrameLayout fragmentContainerMask;
@@ -77,6 +79,7 @@ public class HomeActivity extends AppCompatActivity {
     private Handler qrHandler = new Handler(Looper.getMainLooper());
     private boolean isQrVisible = false;
     private String currentUserEmailSafe = "";
+    private String qrSessionNonce = "";
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -394,16 +397,18 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void iniciarGeneracionQR() {
+        // Nueva sesion QR: al cerrar/abrir se invalida la anterior y cambia el contenido.
+        qrSessionNonce = UUID.randomUUID().toString();
         isQrVisible = true;
         generarYMostrarQR();
-        qrHandler.postDelayed(qrRunnable, 15000);
+        qrHandler.postDelayed(qrRunnable, QR_REFRESH_MS);
     }
 
     private final Runnable qrRunnable = new Runnable() {
         @Override public void run() {
             if (isQrVisible) {
                 generarYMostrarQR();
-                qrHandler.postDelayed(this, 15000);
+                qrHandler.postDelayed(this, QR_REFRESH_MS);
             }
         }
     };
@@ -413,23 +418,77 @@ public class HomeActivity extends AppCompatActivity {
         ProgressBar progressQr = findViewById(R.id.progressQr);
         if (imgQr != null) imgQr.animate().alpha(0.2f).setDuration(200).start();
         if (progressQr != null) progressQr.setVisibility(View.VISIBLE);
-        
-        // Obtener datos del usuario para el QR
-        FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe).child("perfil").get().addOnSuccessListener(snapshot -> {
-            if (snapshot.exists()) {
-                String dni = snapshot.child("dni").getValue(String.class);
-                String nombre = snapshot.child("nombreReal").getValue(String.class);
-                
-                String qrData = "DNI: " + (dni != null ? dni : "N/A") + "\nNombre: " + (nombre != null ? nombre : "N/A");
-                
-                Bitmap bitmap = generarQR(qrData);
-                if (isQrVisible && imgQr != null) {
-                    imgQr.setImageBitmap(bitmap);
-                    imgQr.animate().alpha(1f).setDuration(400).start();
+
+        if (currentUserEmailSafe.isEmpty()) {
+            if (progressQr != null) progressQr.setVisibility(View.GONE);
+            return;
+        }
+
+        // Leemos TODO el perfil para incluir todos los datos del cliente en el QR.
+        FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe).child("perfil")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (!snapshot.exists()) {
+                        if (progressQr != null) progressQr.setVisibility(View.GONE);
+                        return;
+                    }
+
+                    long issuedAt = System.currentTimeMillis();
+                    long expiresAt = issuedAt + QR_TOKEN_TTL_MS;
+                    String qrToken = UUID.randomUUID().toString();
+
+                    String qrData = construirPayloadQr(snapshot, qrToken, issuedAt, expiresAt);
+                    guardarTokenQr(qrToken, issuedAt, expiresAt);
+
+                    Bitmap bitmap = generarQR(qrData);
+                    if (isQrVisible && imgQr != null) {
+                        imgQr.setImageBitmap(bitmap);
+                        imgQr.animate().alpha(1f).setDuration(400).start();
+                    }
                     if (progressQr != null) progressQr.setVisibility(View.GONE);
-                }
-            }
-        });
+                })
+                .addOnFailureListener(e -> {
+                    if (progressQr != null) progressQr.setVisibility(View.GONE);
+                });
+    }
+
+    /**
+     * Construye el payload del QR con metadatos de seguridad y todos los campos del perfil.
+     */
+    private String construirPayloadQr(DataSnapshot perfilSnapshot, String qrToken, long issuedAt, long expiresAt) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("token=").append(qrToken).append("\n");
+        builder.append("session=").append(qrSessionNonce).append("\n");
+        builder.append("issuedAt=").append(issuedAt).append("\n");
+        builder.append("expiresAt=").append(expiresAt).append("\n");
+        builder.append("emailSafe=").append(currentUserEmailSafe).append("\n");
+
+        for (DataSnapshot child : perfilSnapshot.getChildren()) {
+            String key = child.getKey();
+            Object value = child.getValue();
+            if (key == null) continue;
+            builder.append(key).append("=").append(value != null ? String.valueOf(value) : "").append("\n");
+        }
+
+        return builder.toString().trim();
+    }
+
+    /**
+     * Persiste un token efimero para poder invalidarlo al cerrar QR y facilitar validaciones externas.
+     */
+    private void guardarTokenQr(String qrToken, long issuedAt, long expiresAt) {
+        if (currentUserEmailSafe.isEmpty()) return;
+
+        Map<String, Object> tokenData = new HashMap<>();
+        tokenData.put("token", qrToken);
+        tokenData.put("session", qrSessionNonce);
+        tokenData.put("issuedAt", issuedAt);
+        tokenData.put("expiresAt", expiresAt);
+
+        FirebaseDatabase.getInstance(DB_URL)
+                .getReference("TokensQR")
+                .child(currentUserEmailSafe)
+                .setValue(tokenData);
     }
 
     private Bitmap generarQR(String datos) {
@@ -516,8 +575,10 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void cerrarPantallaQrConOndaDifuminada() {
+        // Al cerrar, invalidamos token y sesion para forzar QR nuevo en la siguiente apertura.
         if (!currentUserEmailSafe.isEmpty()) FirebaseDatabase.getInstance(DB_URL).getReference("TokensQR").child(currentUserEmailSafe).removeValue();
         isQrVisible = false;
+        qrSessionNonce = "";
         qrHandler.removeCallbacks(qrRunnable);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         if (layoutQrOverlay != null) {

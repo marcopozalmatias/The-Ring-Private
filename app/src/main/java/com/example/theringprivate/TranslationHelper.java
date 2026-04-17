@@ -154,16 +154,23 @@ public class TranslationHelper {
     }
 
     /**
-     * Traduce un recurso de texto obteniendo siempre la versión en español como origen,
-     * garantizando que la traducción automática sea completa y no use placeholders.
+     * Traduce un recurso de texto usando primero la versión localizada actual.
+     * Si falla la carga localizada, aplica traducción automática como respaldo.
      */
     public static void translateTextView(TextView textView, int resId) {
         try {
             Context context = textView.getContext();
+            String localizedText = context.getString(resId);
+            if (localizedText != null && !localizedText.trim().isEmpty()) {
+                textView.setText(localizedText);
+                return;
+            }
+
+            // Fallback conservador: si el recurso localizado estuviera vacio, traducir desde ES.
             Configuration conf = new Configuration(context.getResources().getConfiguration());
             conf.setLocale(new Locale("es"));
-            Context localizedContext = context.createConfigurationContext(conf);
-            String spanishText = localizedContext.getString(resId);
+            Context spanishContext = context.createConfigurationContext(conf);
+            String spanishText = spanishContext.getString(resId);
             translateTextView(textView, spanishText);
         } catch (Exception e) {
             textView.setText(resId);

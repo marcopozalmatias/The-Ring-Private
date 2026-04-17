@@ -1,0 +1,10 @@
+THE RING PRIVATE - PRESENTACIÓN
+
+The Ring Private es una aplicación Android creada para facilitar la identificación y gestión de socios del club. Su objetivo principal es ofrecer una experiencia de acceso rápida, ordenada y más cómoda para el usuario, centralizando en un solo lugar el registro, el inicio de sesión, el código QR identificativo, las notificaciones y la configuración personal.
+
+La aplicación permite registrarse con sus datos, iniciar sesión con correo o DNI, recuperar la contraseña si se olvida, consultar el QR personal, visualizar avisos del club, cambiar idioma, alternar entre modo claro y oscuro, revisar información legal, leer el manual de usuario y gestionar la cuenta de forma segura.
+
+Además, la app está conectada a nuestra base de datos para autenticación y almacenamiento de datos, lo que permite una gestión centralizada de usuarios y notificaciones. También incorpora traducción automática de textos, generación de QR dinámica y medidas de mantenimiento pensadas para facilitar futuras mejoras.
+
+En resumen, The Ring Private sirve para digitalizar el acceso y la comunicación con los socios, simplificando tareas que antes se hacían de forma manual.
+

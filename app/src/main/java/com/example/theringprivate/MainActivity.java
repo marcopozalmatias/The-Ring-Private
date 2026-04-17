@@ -9,8 +9,12 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -95,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         TextView tvRegister = findViewById(R.id.tvRegister);
         TextView tvForgotPassword = findViewById(R.id.tvForgotPassword);
         LinearLayout btnChangeLang = findViewById(R.id.btnChangeLangLogin);
+        LinearLayout btnManualLogin = findViewById(R.id.btnManualLogin);
         TextView tvFlag = findViewById(R.id.tvCurrentFlag);
 
         // Lógica para mostrar el idioma CONTRARIO
@@ -136,6 +141,9 @@ public class MainActivity extends AppCompatActivity {
         if (tvRegister != null) tvRegister.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
         if (tvForgotPassword != null) tvForgotPassword.setOnClickListener(v -> mostrarDialogoRecuperacionInterna());
         if (btnChangeLang != null) btnChangeLang.setOnClickListener(v -> mostrarDialogoIdiomas());
+        if (btnManualLogin != null) {
+            btnManualLogin.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_manual_usuario_titulo, R.string.texto_manual_usuario));
+        }
     }
 
     private void mostrarDialogoIdiomas() {
@@ -250,6 +258,23 @@ public class MainActivity extends AppCompatActivity {
                 }
             }));
         }
+        dialog.show();
+    }
+
+    private void mostrarTextoLegal(int resIdTitulo, int resIdContenido) {
+        Dialog dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        View view = LayoutInflater.from(this).inflate(R.layout.layout_fullscreen_legal, new FrameLayout(this), false);
+        TextView txtTituloLegal = view.findViewById(R.id.txtTituloLegal);
+        TextView txtContenidoLegal = view.findViewById(R.id.txtContenidoLegal);
+        ImageView btnCerrarCruceta = view.findViewById(R.id.btnCerrarCruceta);
+        Button btnCerrarAbajo = view.findViewById(R.id.btnCerrarAbajo);
+
+        if (txtTituloLegal != null) TranslationHelper.translateTextView(txtTituloLegal, resIdTitulo);
+        if (txtContenidoLegal != null) TranslationHelper.translateTextView(txtContenidoLegal, resIdContenido);
+        if (btnCerrarCruceta != null) btnCerrarCruceta.setOnClickListener(v -> dialog.dismiss());
+        if (btnCerrarAbajo != null) btnCerrarAbajo.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.setContentView(view);
         dialog.show();
     }
 }
