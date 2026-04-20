@@ -1,6 +1,6 @@
 HISTORIAS DE USUARIO - THE RING PRIVATE
 
-1. Como nuevo usuario, quiero registrarme con mis datos reales, aceptar los términos y crear una contraseña segura para poder acceder a la aplicación.
+1. Como nuevo usuario, quiero registrarme con mis datos, aceptar los términos y crear una contraseña para poder acceder a la aplicación.
 
 2. Como usuario registrado, quiero iniciar sesión con mi correo o DNI y mi contraseña para entrar a mi cuenta sin repetir el registro.
 

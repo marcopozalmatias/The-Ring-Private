@@ -1,85 +1,43 @@
-# Manual de Empleados - The Ring Private
+# Manual completo para empleados - The Ring Private
 
-## 1. Finalidad del sistema
-The Ring Private es una aplicación Android destinada a la gestión de socios del club. Permite registrar usuarios, autenticar accesos, mostrar un QR identificativo, gestionar notificaciones, consultar información legal y mantener la cuenta del usuario bajo control.
+## 1. De que va la app
+The Ring Private es una aplicacion Android para gestionar socios del club. Su objetivo operativo es permitir registro, inicio de sesion, identificacion por QR, consulta de notificaciones y gestion de cuenta desde el movil.
 
-## 2. Responsable y desarrollo
+## 2. Quien la ha desarrollado
 - **Empresa desarrolladora:** Promotora de negocios Darias
-- **Entorno de desarrollo:** Android Studio
-- **Tecnología principal de la app:** Java
-- **Configuración del proyecto:** Gradle con Kotlin DSL
 
-## 3. Tecnologías y servicios usados
-- Firebase Authentication para inicio de sesión y creación de cuentas.
-- Firebase Realtime Database para guardar perfiles, DNI mapeado, tokens QR y notificaciones.
-- ZXing para generar y mostrar códigos QR.
-- ML Kit Translate para textos traducibles.
-- AndroidX, Material Components, Credential Manager y Biometric para la interfaz y el soporte de sistema.
+## 3. Como funciona la app (Java, Kotlin o ambas)
+- La logica principal de pantallas y flujos de negocio esta implementada en **Java**.
+- El sistema de compilacion y configuracion del proyecto usa **Gradle con Kotlin DSL** (`.kts`).
+- En pruebas del proyecto hay tambien ficheros **Kotlin**.
 
-## 4. Funciones relevantes para mantenimiento
-### 4.1 Acceso de usuario
-- `MainActivity`: pantalla de inicio de sesión.
-- `RegisterActivity`: alta de usuario y validación de campos.
-- Recuperación de contraseña por correo.
+Resumen: la app funciona con **Java en funcionalidad principal** y **Kotlin DSL en configuracion de build**.
 
-### 4.2 Funciones de perfil y cuenta
-- `ProfileFragment`: consulta de datos del usuario y cambio de contraseña.
-- `SettingsFragment`: idioma, apariencia, manuales, información legal y eliminación de cuenta.
-- Eliminación de cuenta con borrado de datos en Firebase y limpieza de mapeos.
+## 4. Funciones relevantes para mantenimiento futuro
+Estas son las funciones que un equipo de mantenimiento debe conocer primero:
+- **Registro y validacion de usuario** (nombre, DNI, correo, contrasena segura y terminos).
+- **Inicio de sesion por correo o DNI** con resolucion de DNI contra base de datos.
+- **Recuperacion y cambio de contrasena**.
+- **QR dinamico por sesion** con refresco y expiracion de token.
+- **Notificaciones por usuario** (eliminacion independiente por cuenta).
+- **Ajustes de idioma y apariencia** (claro/oscuro).
+- **Borrado de cuenta con limpieza de datos** asociados en Firebase.
 
-### 4.3 Funciones de home
-- `HomeActivity`: pantalla principal.
-- QR dinámico por sesión.
-- Gestión de notificaciones individuales por usuario.
-- Acceso a WhatsApp de soporte.
+## 5. Software con el que se ha desarrollado
+- **Android Studio** (entorno principal).
+- **Gradle** (compilacion y dependencias).
+- **Firebase Console** (Auth, Realtime Database y Functions).
 
-### 4.4 Utilidades compartidas
-- `TranslationHelper`: traducción automática de textos de recursos.
-- `Notificacion`: modelo de notificación.
-- `NormasFragment` y `NotificationsFragment`: visualización de secciones de contenido.
+## 6. En que equipos puede funcionar
+La aplicacion esta pensada para **telefonos Android de cualquier marca** (Samsung, Xiaomi, Motorola, Oppo, Vivo, Realme, Pixel, etc.), siempre que cumplan la version minima de Android y requisitos de hardware.
 
-## 5. Flujo técnico principal
-1. El usuario entra en la pantalla de inicio de sesión.
-2. Se valida contra Firebase Authentication.
-3. Si accede correctamente, se abre `HomeActivity`.
-4. En Home se cargan notificaciones y QR del usuario.
-5. En ajustes se puede cambiar idioma, apariencia, consultar manuales o eliminar cuenta.
+## 7. Hardware minimo recomendado
+Para un funcionamiento estable se recomienda:
+- **RAM:** 2 GB minimo (recomendado 3 GB o mas).
+- **Almacenamiento libre:** minimo 200 MB.
+- **Procesador:** ARM64 o equivalente con rendimiento basico estable.
+- **Conexion:** Internet activa para autenticacion, QR, notificaciones y sincronizacion.
 
-## 6. Modelo de datos
-La base de datos de Firebase se organiza por nodo de usuario:
-- `Usuarios/{emailSafe}/perfil`
-- `MapeoDNI/{dni}`
-- `TokensQR/{emailSafe}`
-- `NotificacionesGlobal/{id}`
-
-Al eliminar una cuenta, se limpian también los datos asociados para evitar registros huérfanos.
-
-## 7. Qué sistema operativo y equipos soporta
-- Funciona en dispositivos Android de distintas marcas y gamas.
-- Compatibilidad mínima recomendada: Android 7.0 (API 24).
-- Compromiso actual de compatibilidad: Android 15+ con librerías actualizadas y revisión de páginas de 16 KB.
-
-## 8. Requisitos mínimos de hardware
-- **RAM:** 2 GB mínimo.
-- **Almacenamiento libre:** 200 MB recomendado.
-- **Procesador:** gama media o equivalente, con soporte ARM de 64 bits.
-- **Conectividad:** Internet obligatoria para login, Firebase, QR, notificaciones y traducción.
-
-## 9. Software de desarrollo
-- Android Studio.
-- Gradle.
-- Firebase Console.
-- Herramientas de compilación Android SDK.
-
-## 10. Recomendaciones de mantenimiento
-- Revisar `strings.xml` en español e inglés cuando se añadan textos nuevos.
-- Mantener la estructura Firebase consistente entre registro, inicio de sesión y eliminación.
-- Comprobar los permisos y cambios de autenticación si se modifican los diálogos de cuenta.
-- Verificar que el QR sigue siendo dinámico al cambiar cualquier dato del perfil.
-- Revisar compatibilidad de librerías nativas antes de publicar nuevas versiones.
-
-## 11. Observaciones para recepción y soporte
-- El usuario final no ve la complejidad interna: solo debe poder registrarse, iniciar sesión, consultar su QR y gestionar su cuenta.
-- En soporte conviene comprobar primero autenticación, datos de perfil y existencia de nodos en Realtime Database.
-- Si se actualizan datos desde administración, debe cuidarse la coherencia entre autenticación y base de datos.
-
+## 8. Version de Android compatible
+- **Version minima compatible actual:** Android 7.0 (API 24).
+- **Version objetivo de compilacion/publicacion:** Android 15 (API 35).

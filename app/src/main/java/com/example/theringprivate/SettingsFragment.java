@@ -31,10 +31,13 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Locale;
 
+// Fragmento que agrupa la configuración del usuario, el acceso a textos legales y las acciones de cuenta.
 public class SettingsFragment extends Fragment {
 
+    // URL de la base de datos compartida por el panel de ajustes.
     private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
 
+    // El fragmento usa un layout propio donde se muestran los accesos a ajustes y textos legales.
     public SettingsFragment() {
         super(R.layout.activity_settings);
     }
@@ -43,6 +46,7 @@ public class SettingsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // El botón superior vuelve al contenido anterior usando la animación del contenedor principal.
         View btnHomeBack = view.findViewById(R.id.btnHomeBack);
         if (btnHomeBack != null) {
             btnHomeBack.setOnClickListener(v -> {
@@ -52,6 +56,7 @@ public class SettingsFragment extends Fragment {
             });
         }
 
+        // Si hay usuario autenticado, mostramos su información base en el encabezado.
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             String nombreCompleto = user.getDisplayName();
@@ -72,6 +77,7 @@ public class SettingsFragment extends Fragment {
             }
         }
 
+        // El acceso rápido del encabezado lleva al perfil completo.
         View btnEditProfileHeader = view.findViewById(R.id.btnEditProfileHeader);
         if (btnEditProfileHeader != null) {
             btnEditProfileHeader.setOnClickListener(v -> {
@@ -85,63 +91,75 @@ public class SettingsFragment extends Fragment {
             });
         }
 
+        // Acción para cambiar contraseña después de verificar identidad.
         View optionChangePassword = view.findViewById(R.id.optionChangePassword);
         if (optionChangePassword != null) {
             optionChangePassword.setOnClickListener(v -> mostrarDialogoVerificarYCambiarPass());
         }
 
         // Nuevas opciones internas de Idioma y Apariencia
+        // Selector de idioma interno del panel de ajustes.
         View optionInternalLang = view.findViewById(R.id.optionInternalLang);
         if (optionInternalLang != null) {
             optionInternalLang.setOnClickListener(v -> mostrarDialogoIdiomasInterno());
         }
 
+        // Selector de tema claro u oscuro.
         View optionInternalTheme = view.findViewById(R.id.optionInternalTheme);
         if (optionInternalTheme != null) {
             optionInternalTheme.setOnClickListener(v -> mostrarDialogoTemasInterno());
         }
 
+        // Apertura del texto legal de tarifas.
         View optionRates = view.findViewById(R.id.optionRates);
         if (optionRates != null) {
             optionRates.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_tarifas_horarios_titulo, R.string.texto_tarifas_horarios));
         }
 
+        // Apertura de términos y condiciones.
         View optionTerms = view.findViewById(R.id.optionTerms);
         if (optionTerms != null) {
             optionTerms.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_terminos_titulo, R.string.texto_terminos));
         }
 
+        // Apertura del aviso legal.
         View optionPrivacy = view.findViewById(R.id.optionPrivacy);
         if (optionPrivacy != null) {
             optionPrivacy.setOnClickListener(v -> mostrarTextoLegal(R.string.ajuste_aviso_legal, R.string.texto_aviso_legal));
         }
 
+        // Apertura de ayuda y soporte.
         View optionHelp = view.findViewById(R.id.optionHelp);
         if (optionHelp != null) {
             optionHelp.setOnClickListener(v -> mostrarTextoLegal(R.string.help_support_title, R.string.help_support_msg));
         }
 
+        // Apertura de preguntas frecuentes.
         View optionFaq = view.findViewById(R.id.optionFaq);
         if (optionFaq != null) {
             optionFaq.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_faq_titulo, R.string.texto_faq));
         }
 
+        // Cierre de sesión con confirmación.
         View optionLogoutItem = view.findViewById(R.id.optionLogoutItem);
         if (optionLogoutItem != null) {
             optionLogoutItem.setOnClickListener(v -> mostrarDialogoCerrarSesion());
         }
 
+        // Eliminación definitiva de la cuenta y de los datos asociados.
         View optionDeleteAccount = view.findViewById(R.id.optionDeleteAccount);
         if (optionDeleteAccount != null) {
             optionDeleteAccount.setOnClickListener(v -> mostrarDialogoEliminarCuenta());
         }
 
+        // Acceso al manual de usuario desde el propio panel de ajustes.
         View optionUserManual = view.findViewById(R.id.optionUserManual);
         if (optionUserManual != null) {
             optionUserManual.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_manual_usuario_titulo, R.string.texto_manual_usuario));
         }
     }
 
+    // Muestra únicamente el bloque de idioma del desplegable reutilizable.
     private void mostrarDialogoIdiomasInterno() {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.activity_settings_dropdown);
@@ -163,6 +181,7 @@ public class SettingsFragment extends Fragment {
         dialog.show();
     }
 
+    // Muestra únicamente el bloque de tema del desplegable reutilizable.
     private void mostrarDialogoTemasInterno() {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.activity_settings_dropdown);
@@ -184,6 +203,7 @@ public class SettingsFragment extends Fragment {
         dialog.show();
     }
 
+    // Guarda el idioma seleccionado y recrea el fragmento anfitrión.
     private void cambiarIdioma(String lang) {
         SharedPreferences prefs = requireActivity().getSharedPreferences("Settings", Context.MODE_PRIVATE);
         prefs.edit().putString("My_Lang", lang).apply();
@@ -197,12 +217,14 @@ public class SettingsFragment extends Fragment {
         requireActivity().recreate();
     }
 
+    // Persiste el tema elegido y aplica el modo visual correcto.
     private void cambiarTema(boolean dark) {
         SharedPreferences prefs = requireActivity().getSharedPreferences("Settings", Context.MODE_PRIVATE);
         prefs.edit().putBoolean("DarkMode", dark).apply();
         AppCompatDelegate.setDefaultNightMode(dark ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
     }
 
+    // Diálogo para verificar identidad antes de permitir el cambio de contraseña.
     private void mostrarDialogoVerificarYCambiarPass() {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.dialog_forgot_password);
@@ -219,6 +241,7 @@ public class SettingsFragment extends Fragment {
         TextInputEditText etNewPass = dialog.findViewById(R.id.etNewPassword);
         MaterialButton btnChange = dialog.findViewById(R.id.btnChangePasswordNow);
 
+        // Primer paso: validar DNI y correo contra la base de datos.
         if (btnVerify != null) {
             btnVerify.setOnClickListener(v -> {
                 String dniInput = safeText(etDni).toUpperCase();
@@ -247,6 +270,7 @@ public class SettingsFragment extends Fragment {
             });
         }
 
+        // Segundo paso: actualizar la contraseña cuando la identidad ya está confirmada.
         if (btnChange != null) {
             btnChange.setOnClickListener(v -> {
                 String newPass = safeText(etNewPass);
@@ -271,6 +295,7 @@ public class SettingsFragment extends Fragment {
         dialog.show();
     }
 
+    // Muestra una confirmación explícita antes de cerrar sesión.
     private void mostrarDialogoCerrarSesion() {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.dialog_logout);
@@ -294,6 +319,7 @@ public class SettingsFragment extends Fragment {
         dialog.show();
     }
 
+    // Muestra el diálogo de borrado definitivo de la cuenta.
     private void mostrarDialogoEliminarCuenta() {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.dialog_delete_account);
@@ -308,6 +334,7 @@ public class SettingsFragment extends Fragment {
         MaterialButton btnConfirm = dialog.findViewById(R.id.btnConfirmDelete);
         View btnOlvidado = dialog.findViewById(R.id.btnOlvidadoPassDelete);
 
+        // Si el usuario no recuerda su contraseña, lo redirigimos al flujo de recuperación.
         if (btnOlvidado != null) {
             btnOlvidado.setOnClickListener(v -> {
                 dialog.dismiss();
@@ -316,6 +343,7 @@ public class SettingsFragment extends Fragment {
         }
 
         if (btnCancel != null) btnCancel.setOnClickListener(v -> dialog.dismiss());
+        // La confirmación inicia la comprobación de credenciales y la posterior eliminación.
         if (btnConfirm != null) {
             btnConfirm.setOnClickListener(v -> {
                 String inputUser = safeText(etUser);
@@ -328,6 +356,7 @@ public class SettingsFragment extends Fragment {
 
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if (user != null) {
+                    // Permitimos borrar usando correo o DNI según lo que escriba el usuario.
                     if (inputUser.contains("@")) {
                         verificarYConfirmarEliminacion(user, inputUser, inputPass, dialog);
                     } else {
@@ -353,10 +382,12 @@ public class SettingsFragment extends Fragment {
         dialog.show();
     }
 
+    // Extrae texto de forma segura desde un campo editable.
     private String safeText(TextInputEditText editText) {
         return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
     }
 
+    // Reautentica al usuario antes de permitir la eliminación de la cuenta.
     private void verificarYConfirmarEliminacion(FirebaseUser user, String email, String pass, Dialog dialogAnterior) {
         user.reauthenticate(EmailAuthProvider.getCredential(email, pass)).addOnCompleteListener(authTask -> {
             if (authTask.isSuccessful()) {
@@ -369,6 +400,7 @@ public class SettingsFragment extends Fragment {
         });
     }
 
+    // Última confirmación antes de borrar perfil, mapeos y credenciales de Auth.
     private void mostrarDialogoFinalConfirmacionEliminar(FirebaseUser user, String email) {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.dialog_final_delete_confirm);
@@ -404,11 +436,13 @@ public class SettingsFragment extends Fragment {
                         }
 
                         rootRef.updateChildren(updates).addOnCompleteListener(dbDeleteTask -> {
-                            if (!dbDeleteTask.isSuccessful()) {
+                                // Si falla la eliminación en base de datos no borramos Auth para evitar inconsistencias.
+                                if (!dbDeleteTask.isSuccessful()) {
                                 Toast.makeText(requireContext(), "Error al borrar datos del usuario", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
+                            // Solo cuando la base de datos ya está limpia eliminamos la cuenta de Authentication.
                             user.delete().addOnCompleteListener(deleteTask -> {
                                 if (deleteTask.isSuccessful()) {
                                     Toast.makeText(requireContext(), "Cuenta eliminada correctamente", Toast.LENGTH_SHORT).show();
@@ -447,6 +481,7 @@ public class SettingsFragment extends Fragment {
         dialog.show();
     }
 
+    // Abre textos legales y manuales con el mismo formato visual que el resto de la app.
     private void mostrarTextoLegal(int resIdTitulo, int resIdContenido) {
         Dialog dialog = new Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_fullscreen_legal, new FrameLayout(requireContext()), false);

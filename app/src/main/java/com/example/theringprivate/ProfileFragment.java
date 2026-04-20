@@ -1,5 +1,6 @@
 package com.example.theringprivate;
 
+// Fragmento donde el usuario consulta sus datos de perfil y puede cambiar la contraseña.
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -26,10 +27,11 @@ import com.google.firebase.database.ValueEventListener;
 
 public class ProfileFragment extends Fragment {
 
+    // URL de la base de datos usada para leer el perfil.
     private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
-    private DatabaseReference database;
     private String currentUserEmailSafe = "";
 
+    // El layout del perfil ya contiene toda la información visible al usuario.
     public ProfileFragment() {
         super(R.layout.fragment_profile);
     }
@@ -38,7 +40,7 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // BOTÓN ATRÁS INTELIGENTE
+        // Botón atrás con comportamiento adaptado al historial de fragmentos.
         ImageView btnBackProfile = view.findViewById(R.id.btnBackProfile);
         if (btnBackProfile != null) {
             btnBackProfile.setOnClickListener(v -> {
@@ -56,8 +58,10 @@ public class ProfileFragment extends Fragment {
         TextView tvEmail = view.findViewById(R.id.tvEmail);
         TextView tvNombreReal = view.findViewById(R.id.tvNombreReal);
 
+        // Acceso al flujo de cambio de contraseña desde el propio perfil.
         MaterialButton btnChangePass = view.findViewById(R.id.btnChangePassProfile);
 
+        // Leemos el usuario actual para poder mostrar sus datos reales.
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             String rawEmail = user.getEmail() != null ? user.getEmail() : "";
@@ -67,16 +71,20 @@ public class ProfileFragment extends Fragment {
             currentUserEmailSafe = rawEmail.replace(".", "_");
         }
 
-        database = FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe).child("perfil");
+        // Referencia directa al nodo de perfil del usuario autenticado.
+        DatabaseReference database = FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe).child("perfil");
 
+        // Escuchamos cambios en el perfil para refrescar nombre y DNI en tiempo real.
         database.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!isAdded()) return;
+                // Obtenemos el nombre visible almacenado en la base de datos.
                 String nombre = snapshot.child("nombreReal").getValue(String.class);
                 if (nombre == null && user != null) nombre = user.getDisplayName();
                 if (nombre == null) nombre = getString(R.string.user_label);
 
+                // También mostramos el DNI que figura en el perfil.
                 String dniBD = snapshot.child("dni").getValue(String.class);
                 if (dniBD == null) dniBD = getString(R.string.socio_label);
 
@@ -88,11 +96,13 @@ public class ProfileFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {}
         });
         
+        // Botón para cambiar la contraseña sin salir de la pantalla de perfil.
         if (btnChangePass != null) {
             btnChangePass.setOnClickListener(v -> mostrarDialogoVerificarYCambiarPass());
         }
     }
 
+    // Flujo de verificación de identidad y cambio de contraseña.
     private void mostrarDialogoVerificarYCambiarPass() {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.dialog_forgot_password);
@@ -109,10 +119,11 @@ public class ProfileFragment extends Fragment {
         TextInputEditText etNewPass = dialog.findViewById(R.id.etNewPassword);
         MaterialButton btnChange = dialog.findViewById(R.id.btnChangePasswordNow);
 
+        // Primer paso: verificar DNI y correo.
         if (btnVerify != null) {
             btnVerify.setOnClickListener(v -> {
-                String dniInput = etDni != null ? etDni.getText().toString().trim().toUpperCase() : "";
-                String emailInput = etEmail != null ? etEmail.getText().toString().trim() : "";
+                String dniInput = safeText(etDni).toUpperCase();
+                String emailInput = safeText(etEmail);
 
                 if (dniInput.isEmpty() || emailInput.isEmpty()) {
                     Toast.makeText(requireContext(), getString(R.string.error_datos_incompletos), Toast.LENGTH_SHORT).show();
@@ -121,25 +132,26 @@ public class ProfileFragment extends Fragment {
 
                 String emailSafe = emailInput.replace(".", "_");
                 FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(emailSafe).child("perfil").get()
-                    .addOnSuccessListener(snapshot -> {
-                        if (snapshot.exists()) {
-                            String dniDB = snapshot.child("dni").getValue(String.class);
-                            if (dniInput.equals(dniDB)) {
-                                if (layoutStep1 != null) layoutStep1.setVisibility(View.GONE);
-                                if (layoutStep2 != null) layoutStep2.setVisibility(View.VISIBLE);
+                        .addOnSuccessListener(snapshot -> {
+                            if (snapshot.exists()) {
+                                String dniDB = snapshot.child("dni").getValue(String.class);
+                                if (dniInput.equals(dniDB)) {
+                                    if (layoutStep1 != null) layoutStep1.setVisibility(View.GONE);
+                                    if (layoutStep2 != null) layoutStep2.setVisibility(View.VISIBLE);
+                                } else {
+                                    Toast.makeText(requireContext(), getString(R.string.error_datos_no_coinciden), Toast.LENGTH_SHORT).show();
+                                }
                             } else {
-                                Toast.makeText(requireContext(), getString(R.string.error_datos_no_coinciden), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), getString(R.string.error_usuario_no_encontrado), Toast.LENGTH_SHORT).show();
                             }
-                        } else {
-                            Toast.makeText(requireContext(), getString(R.string.error_usuario_no_encontrado), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                        });
             });
         }
 
+        // Segundo paso: si el usuario es válido, permitimos actualizar la contraseña.
         if (btnChange != null) {
             btnChange.setOnClickListener(v -> {
-                String newPass = etNewPass != null ? etNewPass.getText().toString().trim() : "";
+                String newPass = safeText(etNewPass);
                 if (newPass.length() < 6) {
                     Toast.makeText(requireContext(), getString(R.string.min_6_chars), Toast.LENGTH_SHORT).show();
                     return;
@@ -159,5 +171,10 @@ public class ProfileFragment extends Fragment {
             });
         }
         dialog.show();
+    }
+
+    // Devuelve texto seguro de un campo editable o una cadena vacía si el campo no contiene nada.
+    private String safeText(TextInputEditText editText) {
+        return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
     }
 }

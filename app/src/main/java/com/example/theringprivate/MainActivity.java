@@ -31,13 +31,17 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Locale;
 
+// Pantalla de entrada de la aplicación donde se inicia sesión, se cambia el idioma y se abre el manual.
 public class MainActivity extends AppCompatActivity {
 
+    // Servicio de autenticación de Firebase para iniciar sesión con correo y contraseña.
     private FirebaseAuth auth;
+    // URL base de la Realtime Database usada por la app.
     private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
 
     @Override
     protected void attachBaseContext(Context newBase) {
+        // Leemos el idioma guardado antes de crear la vista para que toda la pantalla nazca localizada.
         SharedPreferences prefs = newBase.getSharedPreferences("Settings", Context.MODE_PRIVATE);
         String lang = prefs.getString("My_Lang", "es");
         Locale locale = new Locale(lang);
@@ -49,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        // Si ya existe una sesión activa, saltamos directamente a la pantalla principal.
         super.onStart();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -59,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // --- Aplicar Tema Guardado ---
+        // Aplicamos el tema antes de inflar la vista para evitar un cambio visual brusco.
         SharedPreferences prefs = getSharedPreferences("Settings", Context.MODE_PRIVATE);
         boolean isDarkMode = prefs.getBoolean("DarkMode", false);
         AppCompatDelegate.setDefaultNightMode(isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
@@ -67,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Inicializamos Firebase Auth y saneamos mapeos de DNI que puedan haber quedado huérfanos.
         auth = FirebaseAuth.getInstance();
         limpiarMapeosDniHuerfanos();
 
@@ -74,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         View cardLogin = findViewById(R.id.cardLogin);
         View ivLogo = findViewById(R.id.ivLogo);
 
+        // Ajuste dinámico para que el teclado no tape el formulario de acceso.
         if (rootLayout != null) {
             rootLayout.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
                 Rect r = new Rect();
@@ -108,11 +115,14 @@ public class MainActivity extends AppCompatActivity {
             tvFlag.setText(currentLang.equals("es") ? "🇬🇧 EN" : "🇪🇸 ES");
         }
 
+        // El botón de login desencadena la validación y el acceso a Firebase.
         if (btnLogin != null) {
             btnLogin.setOnClickListener(v -> {
+                // Limpiamos cualquier error previo antes de volver a validar.
                 if (tilDni != null) tilDni.setError(null);
                 if (tilPassword != null) tilPassword.setError(null);
                 
+                // Leemos y normalizamos la información introducida por el usuario.
                 String input = safeText(etUser);
                 String password = safeText(etPassword);
 
@@ -125,9 +135,11 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 
+                // Si el usuario escribe un correo, usamos ese dato directamente.
                 if (input.contains("@")) {
                     iniciarSesionFirebase(input, password, tilDni, tilPassword);
                 } else {
+                    // Si escribe DNI, primero lo convertimos al correo real guardado en la base de datos.
                     String dni = input.toUpperCase();
                     FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).get().addOnSuccessListener(snapshot -> {
                         String correoReal = snapshot.getValue(String.class);
@@ -138,19 +150,25 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+        // Acceso a la pantalla de registro.
         if (tvRegister != null) tvRegister.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
+        // Recuperación de contraseña desde la misma pantalla de login.
         if (tvForgotPassword != null) tvForgotPassword.setOnClickListener(v -> mostrarDialogoRecuperacionInterna());
+        // Selector de idioma en la pantalla inicial.
         if (btnChangeLang != null) btnChangeLang.setOnClickListener(v -> mostrarDialogoIdiomas());
+        // Botón de manual para que un usuario nuevo aprenda a usar la app sin salir de login.
         if (btnManualLogin != null) {
             btnManualLogin.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_manual_usuario_titulo, R.string.texto_manual_usuario));
         }
     }
 
+    // Muestra el selector de idioma desde la pantalla de login.
     private void mostrarDialogoIdiomas() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.activity_settings_dropdown);
         if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         
+        // Conectamos los dos idiomas soportados por la interfaz.
         dialog.findViewById(R.id.btnLangEs).setOnClickListener(v -> { cambiarIdioma("es"); dialog.dismiss(); });
         dialog.findViewById(R.id.btnLangEn).setOnClickListener(v -> { cambiarIdioma("en"); dialog.dismiss(); });
         
@@ -162,11 +180,13 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    // Guarda el idioma elegido y reconstruye la actividad para refrescar textos.
     private void cambiarIdioma(String lang) {
         getSharedPreferences("Settings", Context.MODE_PRIVATE).edit().putString("My_Lang", lang).apply();
         recreate();
     }
 
+    // Limpia mapeos de DNI que apunten a correos ya inexistentes en Usuarios.
     private void limpiarMapeosDniHuerfanos() {
         FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").get().addOnSuccessListener(snapshot -> {
             for (var data : snapshot.getChildren()) {
@@ -188,10 +208,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Extrae texto seguro de un campo evitando nulos.
     private String safeText(TextInputEditText editText) {
         return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
     }
 
+    // Intenta iniciar sesión y, si falla, marca los campos con el error correspondiente.
     private void iniciarSesionFirebase(String email, String password, TextInputLayout tilDni, TextInputLayout tilPassword) {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
@@ -204,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Diálogo de recuperación de contraseña integrado en la pantalla de login.
     private void mostrarDialogoRecuperacionInterna() {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_forgot_password);
@@ -221,6 +244,7 @@ public class MainActivity extends AppCompatActivity {
 
         final String[] emailConfirmado = {""};
 
+        // Primer paso: comprobación de identidad con DNI y correo.
         if (btnVerify != null) {
             btnVerify.setOnClickListener(v -> {
                 String dniInput = safeText(etDni).toUpperCase();
@@ -248,6 +272,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+        // Segundo paso: envío del correo de reseteo una vez confirmada la identidad.
         if (btnChange != null) {
             btnChange.setOnClickListener(v -> auth.sendPasswordResetEmail(emailConfirmado[0]).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
@@ -261,6 +286,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    // Abre textos legales y el manual en pantalla completa con traducción automática.
     private void mostrarTextoLegal(int resIdTitulo, int resIdContenido) {
         Dialog dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
         View view = LayoutInflater.from(this).inflate(R.layout.layout_fullscreen_legal, new FrameLayout(this), false);

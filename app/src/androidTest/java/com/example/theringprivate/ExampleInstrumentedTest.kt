@@ -9,12 +9,13 @@ import org.junit.runner.RunWith
 import org.junit.Assert.*
 
 /**
- * Instrumented test, which will execute on an Android device.
+ * Prueba instrumentada mínima que valida el package name de la app sobre un dispositivo o emulador Android.
  *
- * See [testing documentation](http://d.android.com/tools/testing).
+ * Se conserva como plantilla de verificación del entorno de instrumentación.
  */
 @RunWith(AndroidJUnit4::class)
 class ExampleInstrumentedTest {
+    // Verificamos que la app instalada expone el package name esperado.
     @Test
     fun useAppContext() {
         // Context of the app under test.

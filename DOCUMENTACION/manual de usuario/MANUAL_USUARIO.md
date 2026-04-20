@@ -12,7 +12,7 @@ Bienvenido a la aplicación oficial de **The Ring Private**. Esta guía explica 
 ## 2. Inicio de sesión
 1. Introduce tu correo o DNI y tu contraseña.
 2. Pulsa **Iniciar sesión**.
-3. Si olvidaste tu contraseña, pulsa **Olvidaste tu contraseña** y sigue el proceso de recuperación por correo.
+3. Si olvidaste tu contraseña, pulsa **Olvidaste tu contraseña** y sigue el proceso de recuperación dentro de la app.
 
 ## 3. Pantalla principal (Home)
 En Home verás dos bloques principales:

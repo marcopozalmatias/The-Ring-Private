@@ -59,26 +59,46 @@ import java.util.Set;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+// Pantalla principal tras el login, donde conviven el QR, las notificaciones y la navegación a perfiles y ajustes.
 public class HomeActivity extends AppCompatActivity {
 
+    // URL de la base de datos compartida por toda la app.
     private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
+    // Nodo global desde el que se replica una notificación inicial a cada usuario nuevo.
     private final String GLOBAL_NOTIFICATIONS_PATH = "NotificacionesGlobal";
+    // Identificador fijo de la notificación global por defecto.
     private final String GLOBAL_NOTIFICATION_ID = "evento_quedada_01";
+    // Tiempo entre refrescos del QR para que el contenido cambie sin intervención manual.
     private static final long QR_REFRESH_MS = 15000L;
+    // Vida útil de cada token temporal asociado al QR.
     private static final long QR_TOKEN_TTL_MS = 60000L;
+    // Capa visual que anima la apertura y cierre de la pantalla del QR.
     private SoftRevealFrameLayout layoutQrOverlay;
+    // Botón flotante que abre el QR personal del usuario.
     private FloatingActionButton fabQr;
+    // Máscara que se usa para animar la apertura y cierre de los fragmentos laterales.
     private SoftRevealFrameLayout fragmentContainerMask;
+    // Recycler principal donde se pintan las notificaciones visibles en la portada.
     private RecyclerView rvNotifHome;
+    // Adaptador interno específico para la lista reducida de notificaciones de inicio.
     private NotificacionesHomeAdapter adapterNotifHome;
+    // Copia en memoria de todas las notificaciones que llegan desde la base de datos del usuario.
     private final List<Notificacion> listaNotificacionesTodas = new ArrayList<>();
+    // Lista visible ya filtrada y ordenada para la UI.
     private List<Notificacion> listaNotificaciones = new ArrayList<>();
+    // Identificadores de notificaciones que el usuario ha eliminado de forma permanente.
     private final Set<String> notificacionesEliminadas = new HashSet<>();
+    // Botón flotante de contacto rápido con soporte por WhatsApp.
     private View fabWhatsapp;
+    // Último botón pulsado para centrar correctamente la animación de salida.
     private View ultimoBotonPulsado = null;
+    // Handler principal que reprograma el refresco periódico del QR.
     private Handler qrHandler = new Handler(Looper.getMainLooper());
+    // Indica si la pantalla del QR está abierta para decidir si se sigue refrescando.
     private boolean isQrVisible = false;
+    // Correo actual transformado para poder usarse como clave en Firebase.
     private String currentUserEmailSafe = "";
+    // Valor aleatorio que cambia en cada apertura del QR para invalidar capturas antiguas.
     private String qrSessionNonce = "";
 
     @Override
@@ -94,6 +114,7 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Aplicamos el tema almacenado antes de mostrar cualquier elemento visual.
         SharedPreferences prefs = getSharedPreferences("Settings", Context.MODE_PRIVATE);
         boolean isDarkMode = prefs.getBoolean("DarkMode", false);
         AppCompatDelegate.setDefaultNightMode(isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
@@ -101,6 +122,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        // Ajustamos márgenes con insets para respetar barras del sistema y navegación.
         View mainCoordinator = findViewById(R.id.main_coordinator);
         if (mainCoordinator != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainCoordinator, (v, insets) -> {
@@ -117,6 +139,7 @@ public class HomeActivity extends AppCompatActivity {
         rvNotifHome = findViewById(R.id.rvNotificacionesHome);
         fabWhatsapp = findViewById(R.id.fabWhatsapp);
 
+        // Preparamos la lista de notificaciones, el acceso a WhatsApp y la carga del usuario.
         setupNotificationsHome();
         setupDraggableWhatsapp();
         cargarDatosUsuario();
@@ -131,21 +154,25 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        // El botón superior abre el pequeño menú de ajustes rápidos.
         View btnAjustesTop = findViewById(R.id.btnAjustesTop);
         if (btnAjustesTop != null) btnAjustesTop.setOnClickListener(this::mostrarDesplegableAjustesHome);
         
+        // Navegación hacia el perfil personal.
         View btnNavPerfil = findViewById(R.id.btnNavPerfil);
         if (btnNavPerfil != null) {
             btnNavPerfil.setOnClickListener(v -> lanzarAnimacionGota(v, () -> 
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ProfileFragment()).addToBackStack(null).commit()));
         }
 
+        // Navegación hacia el documento de normas.
         View btnNavNormas = findViewById(R.id.btnNavNormas);
         if (btnNavNormas != null) {
             btnNavNormas.setOnClickListener(v -> lanzarAnimacionGota(v, () -> 
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new NormasFragment()).addToBackStack(null).commit()));
         }
 
+        // El botón flotante del QR abre la vista y dispara su generación inmediata.
         if (fabQr != null) {
             fabQr.setOnClickListener(v -> {
                 abrirPantallaQrConOndaDifuminada();
@@ -153,6 +180,7 @@ public class HomeActivity extends AppCompatActivity {
             });
         }
 
+        // Cerramos la vista del QR con la misma animación suave con la que se abrió.
         if (btnCerrarQr != null) btnCerrarQr.setOnClickListener(v -> cerrarPantallaQrConOndaDifuminada());
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -168,6 +196,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    // Muestra el desplegable rápido de ajustes desde la portada.
     private void mostrarDesplegableAjustesHome(View anchor) {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.activity_settings_dropdown);
@@ -187,6 +216,7 @@ public class HomeActivity extends AppCompatActivity {
             tvLangTitle.setText(lang.equals("es") ? "Idioma (Language)" : "Language (Idioma)");
         }
 
+        // El desplegable permite cambiar idioma y tema sin entrar al panel completo.
         View btnLangEs = dialog.findViewById(R.id.btnLangEs);
         if (btnLangEs != null) btnLangEs.setOnClickListener(v -> { cambiarIdioma("es"); dialog.dismiss(); });
         
@@ -210,16 +240,19 @@ public class HomeActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    // Cambia el idioma global de la app y reconstruye la actividad actual.
     private void cambiarIdioma(String lang) {
         getSharedPreferences("Settings", Context.MODE_PRIVATE).edit().putString("My_Lang", lang).apply();
         recreate();
     }
 
+    // Guarda el tema claro u oscuro y aplica el modo nocturno de inmediato.
     private void cambiarTema(boolean dark) {
         getSharedPreferences("Settings", Context.MODE_PRIVATE).edit().putBoolean("DarkMode", dark).apply();
         AppCompatDelegate.setDefaultNightMode(dark ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
     }
 
+    // Inicializa el RecyclerView que muestra las notificaciones resumidas en la portada.
     private void setupNotificationsHome() {
         if (rvNotifHome != null) {
             rvNotifHome.setLayoutManager(new LinearLayoutManager(this));
@@ -228,6 +261,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Permite arrastrar el acceso rápido a WhatsApp sin perder la capacidad de pulsarlo.
     private void setupDraggableWhatsapp() {
         if (fabWhatsapp != null) {
             fabWhatsapp.setOnTouchListener(new View.OnTouchListener() {
@@ -287,6 +321,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Abre WhatsApp con el número y el mensaje definidos por la aplicación.
     private void abrirWhatsappAdmin() {
         String numero = "34600000000";
         String mensaje = getString(R.string.whatsapp_admin_msg);
@@ -294,14 +329,17 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(new Intent(Intent.ACTION_VIEW, uri));
     }
 
+    // Carga el perfil y las notificaciones del usuario conectado.
     private void cargarDatosUsuario() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null || user.getEmail() == null) return;
         currentUserEmailSafe = user.getEmail().replace(".", "_");
         DatabaseReference ref = FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe);
 
+        // Garantizamos que siempre exista la notificación inicial que se replica a usuarios nuevos.
         asegurarNotificacionGlobalPorDefecto();
 
+        // Escuchamos la lista de notificaciones eliminadas para que el filtrado sea persistente por cuenta.
         ref.child("notificacionesEliminadas").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -315,6 +353,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
 
+        // Escuchamos el nodo de notificaciones propio de este usuario.
         ref.child("notificaciones").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -331,9 +370,11 @@ public class HomeActivity extends AppCompatActivity {
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
 
+        // Sincronizamos las notificaciones globales con el usuario solo si aún no las ha borrado.
         sincronizarNotificacionesGlobales(ref);
     }
 
+    // Crea la notificación global inicial si todavía no existe en la base de datos.
     private void asegurarNotificacionGlobalPorDefecto() {
         DatabaseReference globalRef = FirebaseDatabase.getInstance(DB_URL).getReference(GLOBAL_NOTIFICATIONS_PATH).child(GLOBAL_NOTIFICATION_ID);
         globalRef.get().addOnSuccessListener(snapshot -> {
@@ -351,6 +392,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    // Replica cada notificación global a la carpeta de este usuario respetando lo que ya haya borrado.
     private void sincronizarNotificacionesGlobales(DatabaseReference userRef) {
         FirebaseDatabase.getInstance(DB_URL).getReference(GLOBAL_NOTIFICATIONS_PATH).addValueEventListener(new ValueEventListener() {
             @Override
@@ -376,6 +418,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    // Cruza las notificaciones actuales con las eliminadas y actualiza la vista.
     private void actualizarListaNotificacionesHome() {
         listaNotificaciones.clear();
         for (Notificacion n : listaNotificacionesTodas) {
@@ -389,6 +432,7 @@ public class HomeActivity extends AppCompatActivity {
         if (tvNoNotif != null) tvNoNotif.setVisibility(listaNotificaciones.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
+    // Elimina la notificación solo para esta cuenta y marca su ID como eliminado de forma persistente.
     private void eliminarNotificacionPersistente(Notificacion notif) {
         if (notif == null || notif.getId() == null || currentUserEmailSafe.isEmpty()) return;
         DatabaseReference userRef = FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe);
@@ -396,6 +440,7 @@ public class HomeActivity extends AppCompatActivity {
         userRef.child("notificacionesEliminadas").child(notif.getId()).setValue(true);
     }
 
+    // Inicia una nueva sesión QR: cada apertura genera un nonce distinto y un token nuevo.
     private void iniciarGeneracionQR() {
         // Nueva sesion QR: al cerrar/abrir se invalida la anterior y cambia el contenido.
         qrSessionNonce = UUID.randomUUID().toString();
@@ -404,6 +449,7 @@ public class HomeActivity extends AppCompatActivity {
         qrHandler.postDelayed(qrRunnable, QR_REFRESH_MS);
     }
 
+    // Tarea repetitiva que refresca el QR mientras la pantalla siga abierta.
     private final Runnable qrRunnable = new Runnable() {
         @Override public void run() {
             if (isQrVisible) {
@@ -413,12 +459,14 @@ public class HomeActivity extends AppCompatActivity {
         }
     };
 
+    // Construye el código QR con los datos del perfil del usuario y lo pinta en pantalla.
     private void generarYMostrarQR() {
         ImageView imgQr = findViewById(R.id.imgQrCodePantalla);
         ProgressBar progressQr = findViewById(R.id.progressQr);
         if (imgQr != null) imgQr.animate().alpha(0.2f).setDuration(200).start();
         if (progressQr != null) progressQr.setVisibility(View.VISIBLE);
 
+        // Si todavía no conocemos al usuario, no tiene sentido generar el QR.
         if (currentUserEmailSafe.isEmpty()) {
             if (progressQr != null) progressQr.setVisibility(View.GONE);
             return;
@@ -433,10 +481,12 @@ public class HomeActivity extends AppCompatActivity {
                         return;
                     }
 
+                    // Generamos metadatos temporales para que el QR sea válido solo durante un intervalo corto.
                     long issuedAt = System.currentTimeMillis();
                     long expiresAt = issuedAt + QR_TOKEN_TTL_MS;
                     String qrToken = UUID.randomUUID().toString();
 
+                    // Empaquetamos todos los datos del perfil dentro del contenido del QR.
                     String qrData = construirPayloadQr(snapshot, qrToken, issuedAt, expiresAt);
                     guardarTokenQr(qrToken, issuedAt, expiresAt);
 
@@ -455,6 +505,7 @@ public class HomeActivity extends AppCompatActivity {
     /**
      * Construye el payload del QR con metadatos de seguridad y todos los campos del perfil.
      */
+    // Construye el texto final que se codifica en el QR usando todos los campos del perfil.
     private String construirPayloadQr(DataSnapshot perfilSnapshot, String qrToken, long issuedAt, long expiresAt) {
         StringBuilder builder = new StringBuilder();
         builder.append("token=").append(qrToken).append("\n");
@@ -476,6 +527,7 @@ public class HomeActivity extends AppCompatActivity {
     /**
      * Persiste un token efimero para poder invalidarlo al cerrar QR y facilitar validaciones externas.
      */
+    // Guarda el token efímero del QR para poder invalidarlo cuando el usuario cierre la pantalla.
     private void guardarTokenQr(String qrToken, long issuedAt, long expiresAt) {
         if (currentUserEmailSafe.isEmpty()) return;
 
@@ -491,12 +543,14 @@ public class HomeActivity extends AppCompatActivity {
                 .setValue(tokenData);
     }
 
+    // Convierte el texto final en un bitmap de código QR.
     private Bitmap generarQR(String datos) {
         try {
             return new BarcodeEncoder().createBitmap(new MultiFormatWriter().encode(datos, BarcodeFormat.QR_CODE, 500, 500));
         } catch (Exception e) { return null; }
     }
 
+    // Ejecuta una animación circular desde el botón pulsado y luego cambia de pantalla.
     private void lanzarAnimacionGota(View btn, Runnable accion) {
         ultimoBotonPulsado = btn;
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
@@ -525,6 +579,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Cierra el fragmento activo usando una animación inversa a la de apertura.
     public void cerrarFragmentoAnimado() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         if (ultimoBotonPulsado == null) {
@@ -555,6 +610,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Abre la pantalla del QR con la misma animación circular usada en los fragmentos.
     private void abrirPantallaQrConOndaDifuminada() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         if (layoutQrOverlay != null) {
@@ -574,6 +630,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Cierra el QR, invalida su token y limpia el estado para obligar a crear uno nuevo la próxima vez.
     private void cerrarPantallaQrConOndaDifuminada() {
         // Al cerrar, invalidamos token y sesion para forzar QR nuevo en la siguiente apertura.
         if (!currentUserEmailSafe.isEmpty()) FirebaseDatabase.getInstance(DB_URL).getReference("TokensQR").child(currentUserEmailSafe).removeValue();

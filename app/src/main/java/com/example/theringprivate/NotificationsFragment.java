@@ -38,12 +38,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+// Adaptador que pinta cada notificación y cambia entre modo lectura y modo edición.
 class NotificacionesAdapter extends RecyclerView.Adapter<NotificacionesAdapter.ViewHolder> {
 
+    // Lista actual que se muestra en pantalla.
     private List<Notificacion> lista;
+    // Acción que se ejecuta al tocar una notificación en modo normal.
     private final OnItemClickListener onItemClickListener;
+    // Notifica cuando cambian las selecciones de borrado múltiple.
     private final OnSelectionChangedListener onSelectionChangedListener;
+    // Controla si la lista está en modo de selección múltiple.
     public boolean isEditMode = false;
+    // IDs seleccionados para eliminar en lote.
     public final Set<String> selectedIds = new HashSet<>();
 
     public interface OnItemClickListener {
@@ -54,6 +60,7 @@ class NotificacionesAdapter extends RecyclerView.Adapter<NotificacionesAdapter.V
         void onSelectionChanged();
     }
 
+    // El adaptador recibe la lista y los callbacks necesarios para abrir o seleccionar elementos.
     public NotificacionesAdapter(List<Notificacion> lista, OnItemClickListener onItemClickListener, OnSelectionChangedListener onSelectionChangedListener) {
         this.lista = lista;
         this.onItemClickListener = onItemClickListener;
@@ -66,6 +73,7 @@ class NotificacionesAdapter extends RecyclerView.Adapter<NotificacionesAdapter.V
         public TextView tvTitulo, tvTiempo;
         public CheckBox cbNotificacion;
 
+        // Capturamos las vistas del item para poder rellenarlas y reaccionar al toque.
         public ViewHolder(View view) {
             super(view);
             root = view;
@@ -87,10 +95,13 @@ class NotificacionesAdapter extends RecyclerView.Adapter<NotificacionesAdapter.V
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Notificacion notif = lista.get(position);
+        // El título se muestra tal cual llega desde el modelo.
         holder.tvTitulo.setText(notif.getTitulo());
+        // Formateamos la hora para que el usuario entienda cuándo se publicó.
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm", Locale.getDefault());
         holder.tvTiempo.setText(sdf.format(new Date(notif.getTimestamp())));
 
+        // El icono cambia según el tipo para dar pistas visuales rápidas.
         if ("mensaje".equals(notif.getTipo())) {
             holder.imgIcono.setImageResource(android.R.drawable.sym_action_chat);
             holder.imgIcono.setImageTintList(ColorStateList.valueOf(Color.parseColor("#4287f5")));
@@ -99,6 +110,7 @@ class NotificacionesAdapter extends RecyclerView.Adapter<NotificacionesAdapter.V
             holder.imgIcono.setImageTintList(ColorStateList.valueOf(Color.parseColor("#A30000")));
         }
 
+        // Atenuamos ligeramente las notificaciones ya leídas para diferenciarlas.
         if (!notif.isLeida()) {
             holder.tvTitulo.setAlpha(1.0f);
             holder.root.setAlpha(1.0f);
@@ -107,6 +119,7 @@ class NotificacionesAdapter extends RecyclerView.Adapter<NotificacionesAdapter.V
             holder.root.setAlpha(0.7f);
         }
 
+        // En modo edición enseñamos casillas; en modo normal enseñamos el chevrón de detalle.
         if (isEditMode) {
             holder.cbNotificacion.setVisibility(View.VISIBLE);
             holder.imgArrow.setVisibility(View.GONE);
@@ -130,11 +143,13 @@ class NotificacionesAdapter extends RecyclerView.Adapter<NotificacionesAdapter.V
         return lista.size();
     }
 
+    // Sustituye la lista interna por otra nueva y refresca toda la vista.
     public void actualizarLista(List<Notificacion> nuevaLista) {
         this.lista = nuevaLista;
         notifyDataSetChanged();
     }
 
+    // Marca o desmarca todas las notificaciones visibles en el filtro actual.
     public void seleccionarTodo(boolean seleccionar, List<Notificacion> listaFiltrada) {
         if (seleccionar) {
             for (Notificacion n : listaFiltrada) selectedIds.add(n.getId());
@@ -146,18 +161,29 @@ class NotificacionesAdapter extends RecyclerView.Adapter<NotificacionesAdapter.V
     }
 }
 
+// Fragmento que muestra la bandeja de notificaciones con filtros, modo edición y borrado múltiple.
 public class NotificationsFragment extends Fragment {
 
+    // URL de la base de datos usada para leer y escribir notificaciones del usuario.
     private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
+    // Referencia al nodo de notificaciones del usuario autenticado.
     private DatabaseReference database;
+    // Correo transformado para usarlo como clave en la base de datos.
     private String currentUserEmailSafe = "";
 
+    // Lista principal que muestra el historial de notificaciones.
     private RecyclerView recycler;
+    // Vista que aparece cuando no hay notificaciones para mostrar.
     private LinearLayout layoutEmptyState;
+    // Adaptador de la lista de notificaciones.
     private NotificacionesAdapter adapter;
+    // Todo lo que llega de Firebase sin filtrar.
     private final List<Notificacion> listaNotificacionesTodas = new ArrayList<>();
+    // Lista ya filtrada y ordenada para la interfaz.
     private List<Notificacion> listaNotificaciones = new ArrayList<>();
+    // IDs de notificaciones eliminadas por este usuario para ocultarlas de forma persistente.
     private final Set<String> notificacionesEliminadas = new HashSet<>();
+    // Filtro activo: todas, alertas o mensajes.
     private String filtroActual = "Todas";
 
     private ImageView btnToggleEditMode, btnDeleteSelected;
@@ -165,6 +191,7 @@ public class NotificationsFragment extends Fragment {
     private TextView tvTituloHeader;
     private View scrollFiltros;
 
+    // El fragmento carga directamente el layout de notificaciones.
     public NotificationsFragment() {
         super(R.layout.fragment_notifications);
     }
@@ -173,12 +200,14 @@ public class NotificationsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Referencias visuales principales del panel.
         btnToggleEditMode = view.findViewById(R.id.btnToggleEditMode);
         btnDeleteSelected = view.findViewById(R.id.btnDeleteSelected);
         cbSelectAll = view.findViewById(R.id.cbSelectAll);
         tvTituloHeader = view.findViewById(R.id.tvTituloHeader);
         scrollFiltros = view.findViewById(R.id.scrollFiltros);
 
+        // Botón atrás: si estamos editando, salimos de edición; si no, volvemos al contenido anterior.
         view.findViewById(R.id.btnBackNotif).setOnClickListener(v -> {
             if (adapter.isEditMode) {
                 salirModoEdicion();
@@ -193,11 +222,13 @@ public class NotificationsFragment extends Fragment {
             }
         });
 
+        // Alterna entre modo lectura y modo edición.
         btnToggleEditMode.setOnClickListener(v -> {
             if (!adapter.isEditMode) entrarModoEdicion();
             else salirModoEdicion();
         });
 
+        // Borra en lote las notificaciones que el usuario haya marcado.
         btnDeleteSelected.setOnClickListener(v -> {
             if (adapter.selectedIds.isEmpty()) {
                 Toast.makeText(requireContext(), "Selecciona al menos una notificación", Toast.LENGTH_SHORT).show();
@@ -206,12 +237,14 @@ public class NotificationsFragment extends Fragment {
             }
         });
 
+        // La casilla global marca o desmarca todas las notificaciones visibles.
         cbSelectAll.setOnCheckedChangeListener((buttonView, isChecked) -> adapter.seleccionarTodo(isChecked, obtenerListaFiltrada()));
 
         TextView filterTodas = view.findViewById(R.id.filterTodas);
         TextView filterAlertas = view.findViewById(R.id.filterAlertas);
         TextView filterMensajes = view.findViewById(R.id.filterMensajes);
 
+        // Reutilizamos un único listener para actualizar el filtro visual y lógico.
         View.OnClickListener filtroClickListener = v -> {
             filterTodas.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#2A2A2A")));
             filterTodas.setTextColor(Color.parseColor("#AAAAAA"));
@@ -235,6 +268,7 @@ public class NotificationsFragment extends Fragment {
         filterAlertas.setOnClickListener(filtroClickListener);
         filterMensajes.setOnClickListener(filtroClickListener);
 
+        // Preparamos la lista y el estado vacío.
         recycler = view.findViewById(R.id.recyclerNotificaciones);
         layoutEmptyState = view.findViewById(R.id.layoutEmptyState);
 
@@ -242,6 +276,7 @@ public class NotificationsFragment extends Fragment {
         adapter = new NotificacionesAdapter(listaNotificaciones, this::mostrarNotificacionDetalle, this::actualizarContadorSeleccion);
         recycler.setAdapter(adapter);
 
+        // Solo cargamos datos si realmente hay una sesión activa.
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             currentUserEmailSafe = user.getEmail().replace(".", "_");
@@ -283,6 +318,7 @@ public class NotificationsFragment extends Fragment {
         }
     }
 
+    // Activa selección múltiple y oculta los filtros para centrarse en el borrado.
     private void entrarModoEdicion() {
         adapter.isEditMode = true;
         adapter.selectedIds.clear();
@@ -296,6 +332,7 @@ public class NotificationsFragment extends Fragment {
         scrollFiltros.setVisibility(View.GONE);
     }
 
+    // Devuelve la interfaz a su estado normal de lectura.
     private void salirModoEdicion() {
         adapter.isEditMode = false;
         adapter.selectedIds.clear();
@@ -308,6 +345,7 @@ public class NotificationsFragment extends Fragment {
         scrollFiltros.setVisibility(View.VISIBLE);
     }
 
+    // Actualiza el título superior según cuántos elementos se han marcado.
     private void actualizarContadorSeleccion() {
         int count = adapter.selectedIds.size();
         tvTituloHeader.setText(count > 0 ? count + " seleccionadas" : "Seleccionar");
@@ -321,6 +359,7 @@ public class NotificationsFragment extends Fragment {
         }
     }
 
+    // Reconstruye la lista visible teniendo en cuenta filtros y notificaciones ya eliminadas.
     private void actualizarUI() {
         listaNotificaciones.clear();
         for (Notificacion n : listaNotificacionesTodas) {
@@ -341,6 +380,7 @@ public class NotificationsFragment extends Fragment {
         }
     }
 
+    // Devuelve solo las notificaciones que cumplen el filtro activo.
     private List<Notificacion> obtenerListaFiltrada() {
         if ("Todas".equals(filtroActual)) return listaNotificaciones;
         List<Notificacion> filtrada = new ArrayList<>();
@@ -350,6 +390,7 @@ public class NotificationsFragment extends Fragment {
         return filtrada;
     }
 
+    // Abre el detalle de una notificación concreta y la marca como leída.
     private void mostrarNotificacionDetalle(Notificacion notif) {
         database.child(notif.getId()).child("leida").setValue(true);
 
@@ -374,6 +415,7 @@ public class NotificationsFragment extends Fragment {
         dialog.show();
     }
 
+    // Diálogo de confirmación para borrar varias notificaciones a la vez.
     private void mostrarDialogoBorrarSeleccionadas() {
         int count = adapter.selectedIds.size();
         Dialog dialog = new Dialog(requireContext());
