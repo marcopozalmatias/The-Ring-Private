@@ -1,6 +1,10 @@
 {
   "name": "theringprivate-functions",
   "private": true,
+  "scripts": {
+    "publish:global": "node scripts/send-global-notification.js",
+    "deploy": "firebase deploy --only functions"
+  },
   "engines": {
     "node": "20"
   },

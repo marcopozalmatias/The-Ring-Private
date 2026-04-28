@@ -58,16 +58,16 @@ import java.util.UUID;
 import java.util.Set;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 // Pantalla principal tras el login, donde conviven el QR, las notificaciones y la navegación a perfiles y ajustes.
 public class HomeActivity extends AppCompatActivity {
 
     // URL de la base de datos compartida por toda la app.
     private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
-    // Nodo global desde el que se replica una notificación inicial a cada usuario nuevo.
+    // Nodo global desde el que se replican avisos de dirección a cada usuario.
     private final String GLOBAL_NOTIFICATIONS_PATH = "NotificacionesGlobal";
-    // Identificador fijo de la notificación global por defecto.
-    private final String GLOBAL_NOTIFICATION_ID = "evento_quedada_01";
     // Tiempo entre refrescos del QR para que el contenido cambie sin intervención manual.
     private static final long QR_REFRESH_MS = 15000L;
     // Vida útil de cada token temporal asociado al QR.
@@ -336,9 +336,6 @@ public class HomeActivity extends AppCompatActivity {
         currentUserEmailSafe = user.getEmail().replace(".", "_");
         DatabaseReference ref = FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe);
 
-        // Garantizamos que siempre exista la notificación inicial que se replica a usuarios nuevos.
-        asegurarNotificacionGlobalPorDefecto();
-
         // Escuchamos la lista de notificaciones eliminadas para que el filtrado sea persistente por cuenta.
         ref.child("notificacionesEliminadas").addValueEventListener(new ValueEventListener() {
             @Override
@@ -372,24 +369,6 @@ public class HomeActivity extends AppCompatActivity {
 
         // Sincronizamos las notificaciones globales con el usuario solo si aún no las ha borrado.
         sincronizarNotificacionesGlobales(ref);
-    }
-
-    // Crea la notificación global inicial si todavía no existe en la base de datos.
-    private void asegurarNotificacionGlobalPorDefecto() {
-        DatabaseReference globalRef = FirebaseDatabase.getInstance(DB_URL).getReference(GLOBAL_NOTIFICATIONS_PATH).child(GLOBAL_NOTIFICATION_ID);
-        globalRef.get().addOnSuccessListener(snapshot -> {
-            if (!snapshot.exists()) {
-                Notificacion notif = new Notificacion(
-                        GLOBAL_NOTIFICATION_ID,
-                        getString(R.string.notif_evento_quedada_titulo),
-                        getString(R.string.notif_evento_quedada_msg),
-                        "EVENTO",
-                        System.currentTimeMillis(),
-                        false
-                );
-                globalRef.setValue(notif);
-            }
-        });
     }
 
     // Replica cada notificación global a la carpeta de este usuario respetando lo que ya haya borrado.
@@ -502,26 +481,40 @@ public class HomeActivity extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Construye el payload del QR con metadatos de seguridad y todos los campos del perfil.
-     */
-    // Construye el texto final que se codifica en el QR usando todos los campos del perfil.
+    // Construye el texto final en JSON para incluir todos los datos del perfil y metadatos de validez.
     private String construirPayloadQr(DataSnapshot perfilSnapshot, String qrToken, long issuedAt, long expiresAt) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("token=").append(qrToken).append("\n");
-        builder.append("session=").append(qrSessionNonce).append("\n");
-        builder.append("issuedAt=").append(issuedAt).append("\n");
-        builder.append("expiresAt=").append(expiresAt).append("\n");
-        builder.append("emailSafe=").append(currentUserEmailSafe).append("\n");
+        try {
+            JSONObject payload = new JSONObject();
+            payload.put("token", qrToken);
+            payload.put("session", qrSessionNonce);
+            payload.put("issuedAt", issuedAt);
+            payload.put("expiresAt", expiresAt);
+            payload.put("emailSafe", currentUserEmailSafe);
 
-        for (DataSnapshot child : perfilSnapshot.getChildren()) {
-            String key = child.getKey();
-            Object value = child.getValue();
-            if (key == null) continue;
-            builder.append(key).append("=").append(value != null ? String.valueOf(value) : "").append("\n");
+            Object perfilRaw = perfilSnapshot.getValue();
+            if (perfilRaw != null) {
+                // Si hay estructuras anidadas en perfil, también se serializan completas.
+                payload.put("perfil", new JSONObject((Map<?, ?>) perfilRaw));
+            } else {
+                payload.put("perfil", new JSONObject());
+            }
+            return payload.toString();
+        } catch (JSONException | ClassCastException e) {
+            // Fallback legible para escáneres simples si el JSON no pudiera construirse.
+            StringBuilder fallback = new StringBuilder();
+            fallback.append("token=").append(qrToken).append("\n")
+                    .append("session=").append(qrSessionNonce).append("\n")
+                    .append("issuedAt=").append(issuedAt).append("\n")
+                    .append("expiresAt=").append(expiresAt).append("\n")
+                    .append("emailSafe=").append(currentUserEmailSafe).append("\n");
+            for (DataSnapshot child : perfilSnapshot.getChildren()) {
+                String key = child.getKey();
+                if (key == null) continue;
+                Object value = child.getValue();
+                fallback.append(key).append("=").append(value != null ? String.valueOf(value) : "").append("\n");
+            }
+            return fallback.toString().trim();
         }
-
-        return builder.toString().trim();
     }
 
     /**
