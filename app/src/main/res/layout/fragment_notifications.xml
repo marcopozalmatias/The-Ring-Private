@@ -31,6 +31,7 @@
                 android:layout_height="32dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="?attr/homeAsUpIndicator"
+                android:contentDescription="@string/notif_back_desc"
                 app:tint="@color/textColorPrimary" />
 
             <TextView
@@ -39,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_weight="1"
-                android:text="Notificaciones"
+                android:text="@string/menu_notificaciones"
                 android:textColor="@color/textColorPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -48,7 +49,7 @@
                 android:id="@+id/cbSelectAll"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Todo"
+                android:text="@string/notif_select_all"
                 android:textColor="@color/textColorPrimary"
                 android:buttonTint="#A30000"
                 android:visibility="gone"
@@ -61,6 +62,7 @@
                 android:layout_marginEnd="12dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="@string/notif_delete_selected_desc"
                 app:tint="#A30000"
                 android:visibility="gone" />
 
@@ -70,6 +72,7 @@
                 android:layout_height="28dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_edit"
+                android:contentDescription="@string/notif_toggle_edit_desc"
                 app:tint="@color/textColorSecondary" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -103,7 +106,7 @@
                     android:backgroundTint="#A30000"
                     android:paddingHorizontal="20dp"
                     android:paddingVertical="8dp"
-                    android:text="Todas"
+                    android:text="@string/notif_filter_all"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:layout_marginEnd="8dp"/>
@@ -116,7 +119,7 @@
                     android:backgroundTint="@color/cardBackground"
                     android:paddingHorizontal="20dp"
                     android:paddingVertical="8dp"
-                    android:text="Alertas"
+                    android:text="@string/notif_filter_alerts"
                     android:textColor="@color/textColorSecondary"
                     android:textStyle="bold"
                     android:layout_marginEnd="8dp"/>
@@ -129,7 +132,7 @@
                     android:backgroundTint="@color/cardBackground"
                     android:paddingHorizontal="20dp"
                     android:paddingVertical="8dp"
-                    android:text="Mensajes"
+                    android:text="@string/notif_filter_messages"
                     android:textColor="@color/textColorSecondary"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -160,6 +163,7 @@
                     android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:src="@android:drawable/ic_popup_reminder"
+                    android:contentDescription="@null"
                     app:tint="@color/textColorSecondary"
                     android:alpha="0.3"
                     android:layout_marginBottom="16dp"/>
@@ -167,7 +171,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Todo al día"
+                    android:text="@string/notif_empty_title"
                     android:textColor="@color/textColorPrimary"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -176,7 +180,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="No tienes notificaciones pendientes."
+                    android:text="@string/notif_empty"
                     android:textColor="@color/textColorSecondary"
                     android:textSize="16sp" />
             </LinearLayout>

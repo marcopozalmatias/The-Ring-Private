@@ -1,30 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingHorizontal="12dp"
-    android:paddingVertical="8dp">
+    android:orientation="horizontal"
+    android:padding="14dp"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_notification_item">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="14dp"
-        android:gravity="center_vertical"
-        android:background="@drawable/bg_notification_item">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+        android:layout_weight="1"
+        android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvTituloNotifHome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TÍTULO"
+                tools:text="@string/notif_home_title_preview"
                 android:textColor="@color/rojo_ring"
                 android:textSize="13sp"
                 android:textStyle="bold"
@@ -36,22 +31,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
-                android:text="Mensaje de la notificación"
+                tools:text="@string/notif_home_message_preview"
                 android:textColor="@color/textColorPrimary"
                 android:textSize="14sp" />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/btnDeleteNotifHome"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="10dp"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
-            app:tint="@color/textColorSecondary"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
-            android:alpha="0.5"/>
-
-    </LinearLayout>
+    <ImageView
+        android:id="@+id/btnDeleteNotifHome"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="10dp"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:contentDescription="@string/notif_delete_home_desc"
+        app:tint="@color/textColorSecondary"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:alpha="0.5"/>
 </LinearLayout>

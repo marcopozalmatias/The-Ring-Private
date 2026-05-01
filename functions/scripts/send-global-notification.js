@@ -60,7 +60,7 @@ async function main() {
     throw new Error(`No existe el archivo de credenciales: ${credentialsPath}`);
   }
 
-  const databaseURL = process.env.FIREBASE_DATABASE_URL || 'https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/';
+  const databaseURL = process.env.FIREBASE_DATABASE_URL || 'https://laasociacion-57649-default-rtdb.firebaseio.com';
 
   admin.initializeApp({
     credential: admin.credential.applicationDefault(),

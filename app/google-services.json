@@ -1,21 +1,41 @@
 {
   "project_info": {
-    "project_number": "115221503000",
-    "project_id": "the-ring-private",
-    "storage_bucket": "the-ring-private.firebasestorage.app"
+    "project_number": "554282786135",
+    "firebase_url": "https://laasociacion-57649-default-rtdb.firebaseio.com",
+    "project_id": "laasociacion-57649",
+    "storage_bucket": "laasociacion-57649.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:115221503000:android:ba4ca92c8aac4b127b776d",
+        "mobilesdk_app_id": "1:554282786135:android:4762863f3a3efe9fea3212",
         "android_client_info": {
-          "package_name": "com.example.theringprivate"
+          "package_name": "com.cspjmg.sgasociacion"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCmVZczyfrj8O2YLELnwktma3fXHU8pJm8"
+          "current_key": "AIzaSyDmk_jDn3fqR4i-XVSQc2GGB8jEQzot6m4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:554282786135:android:344a598057090b8eea3212",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmk_jDn3fqR4i-XVSQc2GGB8jEQzot6m4"
         }
       ],
       "services": {

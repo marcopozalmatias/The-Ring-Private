@@ -31,7 +31,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -165,7 +164,7 @@ class NotificacionesAdapter extends RecyclerView.Adapter<NotificacionesAdapter.V
 public class NotificationsFragment extends Fragment {
 
     // URL de la base de datos usada para leer y escribir notificaciones del usuario.
-    private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
+    private final String DB_URL = "https://laasociacion-57649-default-rtdb.firebaseio.com";
     // Referencia al nodo de notificaciones del usuario autenticado.
     private DatabaseReference database;
     // Correo transformado para usarlo como clave en la base de datos.
@@ -231,7 +230,7 @@ public class NotificationsFragment extends Fragment {
         // Borra en lote las notificaciones que el usuario haya marcado.
         btnDeleteSelected.setOnClickListener(v -> {
             if (adapter.selectedIds.isEmpty()) {
-                Toast.makeText(requireContext(), "Selecciona al menos una notificación", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.notif_select_one), Toast.LENGTH_SHORT).show();
             } else {
                 mostrarDialogoBorrarSeleccionadas();
             }
@@ -279,7 +278,8 @@ public class NotificationsFragment extends Fragment {
         // Solo cargamos datos si realmente hay una sesión activa.
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            currentUserEmailSafe = user.getEmail().replace(".", "_");
+            String email = user.getEmail();
+            currentUserEmailSafe = email != null ? email.replace(".", "_") : "";
             DatabaseReference userRef = FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe);
             database = userRef.child("notificaciones");
 
@@ -324,7 +324,7 @@ public class NotificationsFragment extends Fragment {
         adapter.selectedIds.clear();
         adapter.notifyDataSetChanged();
 
-        tvTituloHeader.setText("Seleccionar");
+        tvTituloHeader.setText(R.string.notif_select_mode);
         btnToggleEditMode.setImageResource(android.R.drawable.ic_menu_close_clear_cancel);
         btnDeleteSelected.setVisibility(View.VISIBLE);
         cbSelectAll.setVisibility(View.VISIBLE);
@@ -338,7 +338,7 @@ public class NotificationsFragment extends Fragment {
         adapter.selectedIds.clear();
         adapter.notifyDataSetChanged();
 
-        tvTituloHeader.setText("Notificaciones");
+        tvTituloHeader.setText(R.string.menu_notificaciones);
         btnToggleEditMode.setImageResource(android.R.drawable.ic_menu_edit);
         btnDeleteSelected.setVisibility(View.GONE);
         cbSelectAll.setVisibility(View.GONE);
@@ -348,7 +348,7 @@ public class NotificationsFragment extends Fragment {
     // Actualiza el título superior según cuántos elementos se han marcado.
     private void actualizarContadorSeleccion() {
         int count = adapter.selectedIds.size();
-        tvTituloHeader.setText(count > 0 ? count + " seleccionadas" : "Seleccionar");
+        tvTituloHeader.setText(count > 0 ? getString(R.string.notif_selected_count, count) : getString(R.string.notif_select_mode));
 
         List<Notificacion> filtrada = obtenerListaFiltrada();
         boolean todosSeleccionados = count == filtrada.size() && count > 0;
@@ -367,7 +367,7 @@ public class NotificationsFragment extends Fragment {
                 listaNotificaciones.add(n);
             }
         }
-        Collections.sort(listaNotificaciones, (a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
+        listaNotificaciones.sort((a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
         List<Notificacion> listaFiltrada = obtenerListaFiltrada();
         adapter.actualizarLista(listaFiltrada);
         if (listaFiltrada.isEmpty()) {
@@ -408,7 +408,7 @@ public class NotificationsFragment extends Fragment {
 
         tvTitle.setText(notif.getTitulo());
         tvMsg.setText(notif.getMensaje());
-        btnOk.setText("Cerrar");
+        btnOk.setText(R.string.notif_close_button);
         btnCancel.setVisibility(View.GONE);
 
         btnOk.setOnClickListener(v -> dialog.dismiss());
@@ -427,8 +427,8 @@ public class NotificationsFragment extends Fragment {
 
         TextView tvTitle = dialog.findViewById(R.id.tvDialogTitle);
         TextView tvMsg = dialog.findViewById(R.id.tvDialogMessage);
-        tvTitle.setText("Borrar Notificaciones");
-        tvMsg.setText("¿Estás seguro de que quieres borrar las " + count + " notificaciones seleccionadas?");
+        tvTitle.setText(R.string.notif_delete_notifications_title);
+        tvMsg.setText(getString(R.string.notif_delete_notifications_message, count));
 
         MaterialButton btnCancel = dialog.findViewById(R.id.btnCancel);
         MaterialButton btnConfirm = dialog.findViewById(R.id.btnConfirm);
@@ -440,7 +440,7 @@ public class NotificationsFragment extends Fragment {
                 database.child(id).removeValue();
                 FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe).child("notificacionesEliminadas").child(id).setValue(true);
             }
-            Toast.makeText(requireContext(), "Eliminadas " + count + " notificaciones", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.notif_deleted_count, count), Toast.LENGTH_SHORT).show();
             salirModoEdicion();
             dialog.dismiss();
         });

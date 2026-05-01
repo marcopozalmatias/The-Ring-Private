@@ -35,7 +35,7 @@ import java.util.Locale;
 public class SettingsFragment extends Fragment {
 
     // URL de la base de datos compartida por el panel de ajustes.
-    private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
+    private final String DB_URL = "https://laasociacion-57649-default-rtdb.firebaseio.com";
 
     // El fragmento usa un layout propio donde se muestran los accesos a ajustes y textos legales.
     public SettingsFragment() {

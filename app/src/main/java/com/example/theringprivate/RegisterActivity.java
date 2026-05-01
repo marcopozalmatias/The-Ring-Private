@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,14 +54,20 @@ import java.util.Map;
 // Pantalla de alta de usuario donde se recogen los datos, se validan y se guardan en Firebase.
 public class RegisterActivity extends AppCompatActivity {
 
+    // Clave del guardado temporal del formulario para no perderlo al cambiar idioma o fallar validaciones.
+    private static final String PREF_REGISTER_DRAFT = "RegisterDraft";
+
     // Instancia de Firebase Auth para crear nuevas cuentas y leer el usuario autenticado.
     private FirebaseAuth auth;
     // URL base de la Realtime Database usada por la aplicación.
-    private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
+    private final String DB_URL = "https://laasociacion-57649-default-rtdb.firebaseio.com";
     // Casilla que obliga al usuario a aceptar las condiciones antes de registrarse.
     private CheckBox cbTerms;
     // Referencia al contenedor del correo para poder mostrar errores desde varios pasos del flujo.
     private TextInputLayout tilEmail;
+    // Botón de registro y barra de progreso para feedback visual.
+    private MaterialButton btnRegister;
+    private ProgressBar pbRegister;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -126,7 +133,8 @@ public class RegisterActivity extends AppCompatActivity {
         cbTerms = findViewById(R.id.cbTerms);
         TextView tvTermsLink = findViewById(R.id.tvTermsLink);
         TextView tvTermsError = findViewById(R.id.tvTermsError);
-        MaterialButton btnRegister = findViewById(R.id.btnRegister);
+        btnRegister = findViewById(R.id.btnRegister);
+        pbRegister = findViewById(R.id.pbRegister);
         ImageView btnBackToLogin = findViewById(R.id.btnBackToLogin);
 
         // El botón de regreso cierra esta pantalla y vuelve al inicio de sesión.
@@ -161,17 +169,42 @@ public class RegisterActivity extends AppCompatActivity {
                 boolean isValid = true;
                 if (nombre.isEmpty()) { if (tilNombre != null) tilNombre.setError(getString(R.string.error_obligatorio)); isValid = false; }
                 if (apellidos.isEmpty()) { if (tilApellidos != null) tilApellidos.setError(getString(R.string.error_obligatorio)); isValid = false; }
-                if (!dni.matches("^[0-9]{8}[A-Z]$")) { if (tilDni != null) tilDni.setError(getString(R.string.error_dni_invalido)); isValid = false; }
+                if (!validarDocumento(dni)) {
+                    if (tilDni != null) {
+                        tilDni.setError(getString(R.string.error_dni_invalido));
+                    }
+                    isValid = false;
+                }
                 if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) { if (tilEmail != null) tilEmail.setError(getString(R.string.error_email_invalido)); isValid = false; }
-                if (!esPasswordSegura(password)) { if (tilPassword != null) tilPassword.setError(getString(R.string.error_password_segura)); isValid = false; }
+                if (!esPasswordSegura(password)) {
+                    if (tilPassword != null) {
+                        tilPassword.setError(getString(R.string.error_password_segura));
+                    }
+                    isValid = false;
+                }
                 if (cbTerms != null && !cbTerms.isChecked()) { if (tvTermsError != null) tvTermsError.setVisibility(View.VISIBLE); isValid = false; }
 
-                if (!isValid) return;
-                
+                if (!isValid) {
+                    guardarBorradorRegistro();
+                    return;
+                }
+
+                // Mostramos progreso y bloqueamos el botón para evitar clics dobles y dar feedback.
+                if (pbRegister != null) pbRegister.setVisibility(View.VISIBLE);
+                if (btnRegister != null) {
+                    btnRegister.setEnabled(false);
+                    btnRegister.setText("");
+                }
+
                 // Comprobamos si el DNI ya existe antes de tocar Auth para evitar registros duplicados.
                 FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).get().addOnCompleteListener(dniTask -> {
-                    if (!dniTask.isSuccessful() || !dniTask.getResult().exists()) {
-                        // Si no hay mapeo o la consulta falla, seguimos con el alta normal.
+                    if (!dniTask.isSuccessful()) {
+                        errorRegistro(getString(R.string.error_procesar));
+                        return;
+                    }
+
+                    if (!dniTask.getResult().exists()) {
+                        // Si no hay mapeo, seguimos con el alta normal.
                         realizarRegistro(email, password, nombre, apellidos, dni);
                         return;
                     }
@@ -186,11 +219,11 @@ public class RegisterActivity extends AppCompatActivity {
 
                     // Convertimos el correo mapeado al formato de clave usado dentro de Firebase Realtime Database.
                     String emailSafeMapeado = correoMapeado.replace(".", "_");
-                    FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(emailSafeMapeado).child("perfil").get().addOnSuccessListener(perfilSnapshot -> {
+                    FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(emailSafeMapeado).get().addOnSuccessListener(perfilSnapshot -> {
                         // Si el perfil existe de verdad, el DNI está ocupado y bloqueamos el alta.
                         if (perfilSnapshot.exists()) {
                             if (tilDni != null) tilDni.setError(getString(R.string.error_dni_ya_registrado));
-                            Toast.makeText(this, getString(R.string.error_dni_ya_registrado), Toast.LENGTH_SHORT).show();
+                            errorRegistro(getString(R.string.error_dni_ya_registrado));
                         } else {
                             // Si el perfil no existe, el mapeo quedó huérfano y se puede reutilizar el DNI.
                             FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
@@ -204,6 +237,12 @@ public class RegisterActivity extends AppCompatActivity {
                 });
             });
         }
+
+        // Recuperamos el último borrador guardado para que un cambio de idioma no vacíe el formulario.
+        restaurarBorradorRegistro();
+
+        // Guardamos el contenido a medida que el usuario escribe para no perderlo si cambia el idioma.
+        configurarGuardadoBorrador(etNombre, etApellidos, etDni, etEmail, etPassword);
     }
 
     // Abre el selector de idioma usando el mismo desplegable reutilizable del resto de pantallas.
@@ -223,40 +262,108 @@ public class RegisterActivity extends AppCompatActivity {
 
     // Guarda el idioma elegido y reconstruye la actividad para que se refresquen los textos.
     private void cambiarIdioma(String lang) {
+        guardarBorradorRegistro();
         getSharedPreferences("Settings", Context.MODE_PRIVATE).edit().putString("My_Lang", lang).apply();
-        recreate();
+        Locale locale = new Locale(lang);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration(getResources().getConfiguration());
+        config.setLocale(locale);
+
+        Intent intent = getIntent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        finish();
+        startActivity(intent);
+        overridePendingTransition(0, 0);
     }
 
     // Crea la cuenta en Firebase Authentication y guarda el perfil base en Realtime Database.
     private void realizarRegistro(String email, String pass, String nom, String ape, String dni) {
         auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                // Guardamos el correo en formato seguro para usarlo como clave de nodo.
+                String uid = task.getResult().getUser() != null ? task.getResult().getUser().getUid() : "";
                 String emailSafe = email.replace(".", "_");
-                Map<String, Object> perfil = new HashMap<>();
-                // El perfil agrupa los datos visibles y necesarios del usuario recién creado.
-                perfil.put("nombreReal", nom + " " + ape); perfil.put("dni", dni);
-                perfil.put("correo", email); perfil.put("rol", "user");
-                Map<String, Object> userData = new HashMap<>(); userData.put("perfil", perfil);
+                Map<String, Object> userData = new HashMap<>();
+                userData.put("name", nom);
+                userData.put("surname", ape);
+                userData.put("dni", dni);
+                userData.put("email", email);
+                userData.put("rol", "user");
+                
                 FirebaseDatabase db = FirebaseDatabase.getInstance(DB_URL);
-                db.getReference("Usuarios").child(emailSafe).setValue(userData).addOnCompleteListener(dbTask -> {
-                    // Asociamos el DNI con el correo para permitir el inicio de sesión por DNI.
-                    db.getReference("MapeoDNI").child(dni).setValue(email);
-                    // Intentamos guardar credenciales en el sistema de autocompletado del dispositivo.
-                    solicitarGuardadoCredenciales(email, pass, () -> {
-                        startActivity(new Intent(this, HomeActivity.class));
-                        finish();
-                    });
+                // Guardamos por UID para coincidir con la nueva estructura
+                db.getReference("usuarios").child(uid).setValue(userData).addOnCompleteListener(dbTask -> {
+                    if (dbTask.isSuccessful()) {
+                        db.getReference("MapeoDNI").child(dni).setValue(email);
+                        limpiarBorradorRegistro();
+                        solicitarGuardadoCredenciales(email, pass, () -> {
+                            startActivity(new Intent(this, HomeActivity.class));
+                            finish();
+                        });
+                    } else {
+                        // Si falla la BD, borramos el usuario de Auth para que pueda reintentar sin errores de "email ya existe".
+                        if (task.getResult().getUser() != null) {
+                            task.getResult().getUser().delete();
+                        }
+                        errorRegistro(getString(R.string.error_procesar));
+                    }
                 });
             } else {
                 if (task.getException() instanceof FirebaseAuthUserCollisionException) {
-                    // Si el correo ya existe, avisamos justo en el campo de email.
                     if (tilEmail != null) tilEmail.setError(getString(R.string.error_email_existe));
+                    errorRegistro(getString(R.string.error_email_existe));
                 } else {
-                    Toast.makeText(this, getString(R.string.error_procesar), Toast.LENGTH_SHORT).show();
+                    errorRegistro(getString(R.string.error_procesar));
                 }
             }
         });
+    }
+
+    // Restablece la interfaz tras un error y muestra un mensaje al usuario.
+    private void errorRegistro(String mensaje) {
+        if (pbRegister != null) pbRegister.setVisibility(View.GONE);
+        if (btnRegister != null) {
+            btnRegister.setEnabled(true);
+            btnRegister.setText(R.string.register_btn_signup);
+        }
+        guardarBorradorRegistro();
+        if (mensaje != null && !mensaje.isEmpty()) {
+            Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Valida que el documento sea un DNI, NIE o Pasaporte válido para evitar registros con datos falsos.
+    private boolean validarDocumento(String documento) {
+        if (documento == null || documento.isEmpty()) return false;
+        String doc = documento.toUpperCase().trim();
+
+        // Patrón para DNI: 8 números y 1 letra de control.
+        if (doc.matches("^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$")) {
+            String numeros = doc.substring(0, 8);
+            char letra = doc.charAt(8);
+            return calcularLetraDni(numeros) == letra;
+        }
+
+        // Patrón para NIE: Letra inicial (X, Y, Z), 7 números y 1 letra final.
+        if (doc.matches("^[XYZ][0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]$")) {
+            String prefijo = doc.substring(0, 1);
+            String resto = doc.substring(1, 8);
+            char letraFinal = doc.charAt(8);
+            String numerosParaCalculo = prefijo.replace("X", "0").replace("Y", "1").replace("Z", "2") + resto;
+            return calcularLetraDni(numerosParaCalculo) == letraFinal;
+        }
+
+        // Patrón para Pasaporte: Suele ser alfanumérico de entre 6 y 12 caracteres.
+        return doc.matches("^[A-Z0-9]{6,12}$");
+    }
+
+    private char calcularLetraDni(String numeros) {
+        String letras = "TRWAGMYFPDXBNJZSQVHLCKE";
+        try {
+            int valor = Integer.parseInt(numeros);
+            return letras.charAt(valor % 23);
+        } catch (NumberFormatException e) {
+            return ' ';
+        }
     }
 
     // Pide el permiso POST_NOTIFICATIONS únicamente en Android 13 o superior.
@@ -298,6 +405,66 @@ public class RegisterActivity extends AppCompatActivity {
     // Limpia todos los mensajes de error visibles en los contenedores del formulario.
     private void resetErrors(TextInputLayout... layouts) { for (TextInputLayout l : layouts) if (l != null) l.setError(null); }
 
+    // Guarda el contenido actual del registro en preferencias temporales.
+    private void guardarBorradorRegistro() {
+        SharedPreferences.Editor editor = getSharedPreferences(PREF_REGISTER_DRAFT, Context.MODE_PRIVATE).edit();
+        editor.putString("nombre", textoCampo(R.id.etRegNombre));
+        editor.putString("apellidos", textoCampo(R.id.etRegApellidos));
+        editor.putString("dni", textoCampo(R.id.etRegDni));
+        editor.putString("email", textoCampo(R.id.etRegEmail));
+        editor.putString("password", textoCampo(R.id.etRegPassword));
+        editor.putBoolean("terms", cbTerms != null && cbTerms.isChecked());
+        editor.commit();
+    }
+
+    // Restaura el contenido guardado si el usuario cambió idioma o la actividad se recreó.
+    private void restaurarBorradorRegistro() {
+        SharedPreferences prefs = getSharedPreferences(PREF_REGISTER_DRAFT, Context.MODE_PRIVATE);
+        TextInputEditText etNombre = findViewById(R.id.etRegNombre);
+        TextInputEditText etApellidos = findViewById(R.id.etRegApellidos);
+        TextInputEditText etDni = findViewById(R.id.etRegDni);
+        TextInputEditText etEmail = findViewById(R.id.etRegEmail);
+        TextInputLayout tilPassword = findViewById(R.id.tilRegPassword);
+        TextInputEditText etPassword = tilPassword != null ? (TextInputEditText) tilPassword.getEditText() : null;
+
+        if (etNombre != null) etNombre.setText(prefs.getString("nombre", ""));
+        if (etApellidos != null) etApellidos.setText(prefs.getString("apellidos", ""));
+        if (etDni != null) etDni.setText(prefs.getString("dni", ""));
+        if (etEmail != null) etEmail.setText(prefs.getString("email", ""));
+        if (etPassword != null) etPassword.setText(prefs.getString("password", ""));
+        if (cbTerms != null) cbTerms.setChecked(prefs.getBoolean("terms", false));
+    }
+
+    // Engancha los cambios del formulario para que el borrador se vaya guardando automáticamente.
+    private void configurarGuardadoBorrador(TextInputEditText etNombre, TextInputEditText etApellidos, TextInputEditText etDni, TextInputEditText etEmail, TextInputEditText etPassword) {
+        TextWatcher watcher = new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) { guardarBorradorRegistro(); }
+        };
+        if (etNombre != null) etNombre.addTextChangedListener(watcher);
+        if (etApellidos != null) etApellidos.addTextChangedListener(watcher);
+        if (etDni != null) etDni.addTextChangedListener(watcher);
+        if (etEmail != null) etEmail.addTextChangedListener(watcher);
+        if (etPassword != null) etPassword.addTextChangedListener(watcher);
+        if (cbTerms != null) cbTerms.setOnCheckedChangeListener((buttonView, isChecked) -> guardarBorradorRegistro());
+    }
+
+    // Devuelve el texto actual de un campo concreto o vacío si no existe.
+    private String textoCampo(int resId) {
+        View view = findViewById(resId);
+        if (view instanceof TextInputEditText) {
+            Editable text = ((TextInputEditText) view).getText();
+            return text != null ? text.toString().trim() : "";
+        }
+        return "";
+    }
+
+    // Elimina el borrador temporal una vez el registro termina correctamente.
+    private void limpiarBorradorRegistro() {
+        getSharedPreferences(PREF_REGISTER_DRAFT, Context.MODE_PRIVATE).edit().clear().apply();
+    }
+
     // Devuelve el texto actual del campo o una cadena vacía si el campo no existe.
     private String safeText(TextInputEditText editText) {
         return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
@@ -321,7 +488,7 @@ public class RegisterActivity extends AppCompatActivity {
                     request,
                     new CancellationSignal(),
                     ContextCompat.getMainExecutor(this),
-                    new CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>() {
+                    new CredentialManagerCallback<>() {
                         @Override
                         public void onResult(CreateCredentialResponse result) {
                             onDone.run();

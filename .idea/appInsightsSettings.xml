@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.example.theringprivate" />
-                  <option name="mobileSdkAppId" value="1:115221503000:android:ba4ca92c8aac4b127b776d" />
-                  <option name="projectId" value="the-ring-private" />
-                  <option name="projectNumber" value="115221503000" />
+                  <option name="appId" value="PLACEHOLDER" />
+                  <option name="mobileSdkAppId" value="" />
+                  <option name="projectId" value="" />
+                  <option name="projectNumber" value="" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#1A1A1A"
     android:orientation="vertical"
     android:padding="24dp"
-    android:gravity="center_horizontal">
+    android:gravity="center_horizontal"
+    tools:ignore="ContentDescription">
 
     <View
         android:layout_width="40dp"
@@ -17,7 +19,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Acceso Seguro Dinámico"
+        android:text="@string/qr_panel_title"
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -26,7 +28,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Este código caduca en 1 minuto"
+        android:text="@string/qr_panel_subtitle"
         android:textColor="#FF4C4C"
         android:textSize="14sp"
         android:layout_marginBottom="24dp" />
@@ -37,6 +39,7 @@
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:cardBackgroundColor="@color/white"
+        tools:ignore="ContentDescription"
         android:layout_marginBottom="32dp">
 
         <ImageView
@@ -44,6 +47,8 @@
             android:layout_width="250dp"
             android:layout_height="250dp"
             android:layout_margin="16dp"
+            android:contentDescription="@string/qr_identificativo"
+            tools:ignore="ContentDescription"
             android:scaleType="fitCenter" />
     </androidx.cardview.widget.CardView>
 
@@ -51,7 +56,7 @@
         android:id="@+id/btnCerrarQr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cerrar"
+        android:text="@android:string/cancel"
         android:backgroundTint="#424242"
         android:textColor="@color/white" />
 </LinearLayout>

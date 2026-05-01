@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -48,7 +49,6 @@ import com.google.zxing.MultiFormatWriter;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -65,9 +65,9 @@ import org.json.JSONObject;
 public class HomeActivity extends AppCompatActivity {
 
     // URL de la base de datos compartida por toda la app.
-    private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
+    private final String DB_URL = "https://laasociacion-57649-default-rtdb.firebaseio.com";
     // Nodo global desde el que se replican avisos de dirección a cada usuario.
-    private final String GLOBAL_NOTIFICATIONS_PATH = "NotificacionesGlobal";
+    private static final String GLOBAL_NOTIFICATIONS_PATH = "NotificacionesGlobal";
     // Tiempo entre refrescos del QR para que el contenido cambie sin intervención manual.
     private static final long QR_REFRESH_MS = 15000L;
     // Vida útil de cada token temporal asociado al QR.
@@ -85,7 +85,7 @@ public class HomeActivity extends AppCompatActivity {
     // Copia en memoria de todas las notificaciones que llegan desde la base de datos del usuario.
     private final List<Notificacion> listaNotificacionesTodas = new ArrayList<>();
     // Lista visible ya filtrada y ordenada para la UI.
-    private List<Notificacion> listaNotificaciones = new ArrayList<>();
+    private final List<Notificacion> listaNotificaciones = new ArrayList<>();
     // Identificadores de notificaciones que el usuario ha eliminado de forma permanente.
     private final Set<String> notificacionesEliminadas = new HashSet<>();
     // Botón flotante de contacto rápido con soporte por WhatsApp.
@@ -93,13 +93,14 @@ public class HomeActivity extends AppCompatActivity {
     // Último botón pulsado para centrar correctamente la animación de salida.
     private View ultimoBotonPulsado = null;
     // Handler principal que reprograma el refresco periódico del QR.
-    private Handler qrHandler = new Handler(Looper.getMainLooper());
+    private final Handler qrHandler = new Handler(Looper.getMainLooper());
     // Indica si la pantalla del QR está abierta para decidir si se sigue refrescando.
     private boolean isQrVisible = false;
     // Correo actual transformado para poder usarse como clave en Firebase.
     private String currentUserEmailSafe = "";
     // Valor aleatorio que cambia en cada apertura del QR para invalidar capturas antiguas.
     private String qrSessionNonce = "";
+    private static final String QR_TAG = "QR_DEBUG";
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -300,6 +301,7 @@ public class HomeActivity extends AppCompatActivity {
                             double distance = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
                             if (distance < clickThreshold) {
                                 abrirWhatsappAdmin();
+                                view.performClick();
                             } else {
                                 if (fabQr != null) {
                                     float qrX = fabQr.getX() + fabQr.getWidth() / 2f;
@@ -332,12 +334,38 @@ public class HomeActivity extends AppCompatActivity {
     // Carga el perfil y las notificaciones del usuario conectado.
     private void cargarDatosUsuario() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null || user.getEmail() == null) return;
-        currentUserEmailSafe = user.getEmail().replace(".", "_");
-        DatabaseReference ref = FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe);
+        if (user == null) return;
+        String email = user.getEmail();
+        String uid = user.getUid();
+        currentUserEmailSafe = email != null ? email.replace(".", "_") : "";
 
+        // Intentamos localizar al usuario por emailSafe (nuevo sistema)
+        FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(currentUserEmailSafe).get().addOnSuccessListener(snap1 -> {
+            if (snap1.exists()) {
+                iniciarEscuchadoresUsuario(FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(currentUserEmailSafe));
+            } else {
+                // Si no, intentamos por UID (sistema antiguo o migración estándar)
+                FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(uid).get().addOnSuccessListener(snap2 -> {
+                    if (snap2.exists()) {
+                        iniciarEscuchadoresUsuario(FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(uid));
+                    } else if (email != null) {
+                        // Fallback final: buscar por el campo correo dentro del perfil
+                        FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").orderByChild("email").equalTo(email).get().addOnSuccessListener(snap3 -> {
+                            if (snap3.exists() && snap3.hasChildren()) {
+                                DataSnapshot match = snap3.getChildren().iterator().next();
+                                iniciarEscuchadoresUsuario(match.getRef());
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    // Configura los listeners de Firebase para el nodo de usuario encontrado.
+    private void iniciarEscuchadoresUsuario(DatabaseReference userRef) {
         // Escuchamos la lista de notificaciones eliminadas para que el filtrado sea persistente por cuenta.
-        ref.child("notificacionesEliminadas").addValueEventListener(new ValueEventListener() {
+        userRef.child("notificacionesEliminadas").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 notificacionesEliminadas.clear();
@@ -346,12 +374,11 @@ public class HomeActivity extends AppCompatActivity {
                 }
                 actualizarListaNotificacionesHome();
             }
-
             @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
 
         // Escuchamos el nodo de notificaciones propio de este usuario.
-        ref.child("notificaciones").addValueEventListener(new ValueEventListener() {
+        userRef.child("notificaciones").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 listaNotificacionesTodas.clear();
@@ -368,7 +395,7 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         // Sincronizamos las notificaciones globales con el usuario solo si aún no las ha borrado.
-        sincronizarNotificacionesGlobales(ref);
+        sincronizarNotificacionesGlobales(userRef);
     }
 
     // Replica cada notificación global a la carpeta de este usuario respetando lo que ya haya borrado.
@@ -405,7 +432,7 @@ public class HomeActivity extends AppCompatActivity {
                 listaNotificaciones.add(n);
             }
         }
-        Collections.sort(listaNotificaciones, (a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
+        listaNotificaciones.sort((a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
         if (adapterNotifHome != null) adapterNotifHome.actualizar(listaNotificaciones);
         View tvNoNotif = findViewById(R.id.tvNoNotifHome);
         if (tvNoNotif != null) tvNoNotif.setVisibility(listaNotificaciones.isEmpty() ? View.VISIBLE : View.GONE);
@@ -414,7 +441,7 @@ public class HomeActivity extends AppCompatActivity {
     // Elimina la notificación solo para esta cuenta y marca su ID como eliminado de forma persistente.
     private void eliminarNotificacionPersistente(Notificacion notif) {
         if (notif == null || notif.getId() == null || currentUserEmailSafe.isEmpty()) return;
-        DatabaseReference userRef = FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe);
+        DatabaseReference userRef = FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(currentUserEmailSafe);
         userRef.child("notificaciones").child(notif.getId()).removeValue();
         userRef.child("notificacionesEliminadas").child(notif.getId()).setValue(true);
     }
@@ -445,40 +472,111 @@ public class HomeActivity extends AppCompatActivity {
         if (imgQr != null) imgQr.animate().alpha(0.2f).setDuration(200).start();
         if (progressQr != null) progressQr.setVisibility(View.VISIBLE);
 
-        // Si todavía no conocemos al usuario, no tiene sentido generar el QR.
-        if (currentUserEmailSafe.isEmpty()) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
             if (progressQr != null) progressQr.setVisibility(View.GONE);
             return;
         }
 
-        // Leemos TODO el perfil para incluir todos los datos del cliente en el QR.
-        FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(currentUserEmailSafe).child("perfil")
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    if (!snapshot.exists()) {
+        String uid = user.getUid();
+        String email = user.getEmail();
+        String emailSafe = email != null ? email.replace(".", "_") : "";
+
+        // Intentamos encontrar los datos del usuario en cualquier formato de nodo (emailSafe, UID o búsqueda por campo)
+        FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(emailSafe).get().addOnSuccessListener(snap1 -> {
+            if (snap1.exists()) {
+                Log.d(QR_TAG, "Usuario encontrado por emailSafe: " + emailSafe);
+                procesarSnapshotParaQR(snap1, progressQr, imgQr);
+            } else {
+                Log.w(QR_TAG, "No se encontró por emailSafe, probando por UID...");
+                FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(uid).get().addOnSuccessListener(snap2 -> {
+                    if (snap2.exists()) {
+                        Log.d(QR_TAG, "Usuario encontrado por UID: " + uid);
+                        procesarSnapshotParaQR(snap2, progressQr, imgQr);
+                    } else if (email != null) {
+                        Log.w(QR_TAG, "No se encontró por UID, buscando por campo correo...");
+                        FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").orderByChild("email").equalTo(email).get().addOnSuccessListener(snap3 -> {
+                            if (snap3.exists() && snap3.hasChildren()) {
+                                Log.d(QR_TAG, "Usuario encontrado por búsqueda de correo");
+                                procesarSnapshotParaQR(snap3.getChildren().iterator().next(), progressQr, imgQr);
+                            } else {
+                                Log.e(QR_TAG, "Usuario no encontrado en ninguna ruta");
+                                if (progressQr != null) progressQr.setVisibility(View.GONE);
+                            }
+                        });
+                    } else {
+                        Log.e(QR_TAG, "Usuario no encontrado y email es nulo");
                         if (progressQr != null) progressQr.setVisibility(View.GONE);
-                        return;
                     }
-
-                    // Generamos metadatos temporales para que el QR sea válido solo durante un intervalo corto.
-                    long issuedAt = System.currentTimeMillis();
-                    long expiresAt = issuedAt + QR_TOKEN_TTL_MS;
-                    String qrToken = UUID.randomUUID().toString();
-
-                    // Empaquetamos todos los datos del perfil dentro del contenido del QR.
-                    String qrData = construirPayloadQr(snapshot, qrToken, issuedAt, expiresAt);
-                    guardarTokenQr(qrToken, issuedAt, expiresAt);
-
-                    Bitmap bitmap = generarQR(qrData);
-                    if (isQrVisible && imgQr != null) {
-                        imgQr.setImageBitmap(bitmap);
-                        imgQr.animate().alpha(1f).setDuration(400).start();
-                    }
-                    if (progressQr != null) progressQr.setVisibility(View.GONE);
-                })
-                .addOnFailureListener(e -> {
-                    if (progressQr != null) progressQr.setVisibility(View.GONE);
                 });
+            }
+        }).addOnFailureListener(e -> {
+            Log.e(QR_TAG, "Error al consultar Usuarios: " + e.getMessage());
+            if (progressQr != null) progressQr.setVisibility(View.GONE);
+        });
+    }
+
+    // Procesa el snapshot del usuario (venga de la ruta normal o del fallback) para generar el QR.
+    private void procesarSnapshotParaQR(DataSnapshot snapshot, ProgressBar progressQr, ImageView imgQr) {
+        if (snapshot == null || !snapshot.exists()) {
+            Log.e(QR_TAG, "Snapshot nulo o vacío en procesarSnapshotParaQR");
+            // Si el snapshot no existe, intentamos generar un QR básico solo con el email del usuario de Auth
+            generarQRBasicoFallback(progressQr, imgQr);
+            return;
+        }
+
+        // Generamos metadatos temporales para que el QR sea válido solo durante un intervalo corto.
+        long issuedAt = System.currentTimeMillis();
+        long expiresAt = issuedAt + QR_TOKEN_TTL_MS;
+        String qrToken = UUID.randomUUID().toString();
+
+        Log.d(QR_TAG, "Generando payload para QR con datos de la DB...");
+        // Empaquetamos todos los datos del perfil dentro del contenido del QR.
+        String qrData = construirPayloadQr(snapshot, qrToken, issuedAt, expiresAt);
+        guardarTokenQr(qrToken, issuedAt, expiresAt);
+
+        Bitmap bitmap = generarQR(qrData);
+        
+        if (isQrVisible && imgQr != null && bitmap != null) {
+            imgQr.setImageBitmap(bitmap);
+            imgQr.animate().alpha(1f).setDuration(400).start();
+            Log.d(QR_TAG, "QR mostrado correctamente");
+        }
+        
+        if (progressQr != null) progressQr.setVisibility(View.GONE);
+    }
+
+    // Genera un QR de emergencia si el usuario no tiene datos aún en la base de datos
+    private void generarQRBasicoFallback(ProgressBar progressQr, ImageView imgQr) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            if (progressQr != null) progressQr.setVisibility(View.GONE);
+            return;
+        }
+
+        String email = user.getEmail();
+        String qrToken = UUID.randomUUID().toString();
+        long issuedAt = System.currentTimeMillis();
+        
+        try {
+            JSONObject payload = new JSONObject();
+            payload.put("token", qrToken);
+            payload.put("email", email);
+            payload.put("status", "pending_db_sync");
+            
+            String qrData = payload.toString();
+            guardarTokenQr(qrToken, issuedAt, issuedAt + QR_TOKEN_TTL_MS);
+            
+            Bitmap bitmap = generarQR(qrData);
+            if (isQrVisible && imgQr != null && bitmap != null) {
+                imgQr.setImageBitmap(bitmap);
+                imgQr.animate().alpha(1f).setDuration(400).start();
+            }
+        } catch (Exception e) {
+            Log.e(QR_TAG, "Error en QR Fallback: " + e.getMessage());
+        }
+        
+        if (progressQr != null) progressQr.setVisibility(View.GONE);
     }
 
     // Construye el texto final en JSON para incluir todos los datos del perfil y metadatos de validez.
@@ -491,15 +589,15 @@ public class HomeActivity extends AppCompatActivity {
             payload.put("expiresAt", expiresAt);
             payload.put("emailSafe", currentUserEmailSafe);
 
-            Object perfilRaw = perfilSnapshot.getValue();
-            if (perfilRaw != null) {
-                // Si hay estructuras anidadas en perfil, también se serializan completas.
-                payload.put("perfil", new JSONObject((Map<?, ?>) perfilRaw));
-            } else {
-                payload.put("perfil", new JSONObject());
-            }
-            return payload.toString();
-        } catch (JSONException | ClassCastException e) {
+            // Intentamos convertir los datos a JSON
+            JSONObject dataJson = snapshotToJson(perfilSnapshot);
+            payload.put("perfil", dataJson);
+            
+            String result = payload.toString();
+            Log.d(QR_TAG, "Payload JSON construido con éxito");
+            return result;
+        } catch (Exception e) {
+            Log.e(QR_TAG, "Error construyendo JSON del QR: " + e.getMessage());
             // Fallback legible para escáneres simples si el JSON no pudiera construirse.
             StringBuilder fallback = new StringBuilder();
             fallback.append("token=").append(qrToken).append("\n")
@@ -507,14 +605,39 @@ public class HomeActivity extends AppCompatActivity {
                     .append("issuedAt=").append(issuedAt).append("\n")
                     .append("expiresAt=").append(expiresAt).append("\n")
                     .append("emailSafe=").append(currentUserEmailSafe).append("\n");
-            for (DataSnapshot child : perfilSnapshot.getChildren()) {
-                String key = child.getKey();
-                if (key == null) continue;
-                Object value = child.getValue();
-                fallback.append(key).append("=").append(value != null ? String.valueOf(value) : "").append("\n");
+            
+            try {
+                for (DataSnapshot child : perfilSnapshot.getChildren()) {
+                    String key = child.getKey();
+                    if (key == null || esNodoTecnicoQr(key)) continue;
+                    Object value = child.getValue();
+                    fallback.append(key).append("=").append(value != null ? String.valueOf(value) : "").append("\n");
+                }
+            } catch (Exception e2) {
+                Log.e(QR_TAG, "Error en fallback de QR: " + e2.getMessage());
             }
             return fallback.toString().trim();
         }
+    }
+
+    // Convierte un snapshot de Firebase a JSON excluyendo nodos técnicos que no deben ir en el QR.
+    private JSONObject snapshotToJson(DataSnapshot snapshot) throws JSONException {
+        JSONObject json = new JSONObject();
+        for (DataSnapshot child : snapshot.getChildren()) {
+            String key = child.getKey();
+            if (key == null || esNodoTecnicoQr(key)) continue;
+            Object value = child.hasChildren() ? snapshotToJson(child) : child.getValue();
+            if (value != null) json.put(key, value);
+        }
+        return json;
+    }
+
+    // Excluimos datos técnicos para que el QR solo lleve información útil del cliente.
+    private boolean esNodoTecnicoQr(String key) {
+        return "notificaciones".equals(key)
+                || "notificacionesEliminadas".equals(key)
+                || "TokensQR".equals(key)
+                || "perfil".equals(key);
     }
 
     /**
@@ -522,7 +645,10 @@ public class HomeActivity extends AppCompatActivity {
      */
     // Guarda el token efímero del QR para poder invalidarlo cuando el usuario cierre la pantalla.
     private void guardarTokenQr(String qrToken, long issuedAt, long expiresAt) {
-        if (currentUserEmailSafe.isEmpty()) return;
+        if (currentUserEmailSafe.isEmpty()) {
+            Log.e(QR_TAG, "No se puede guardar token: currentUserEmailSafe está vacío");
+            return;
+        }
 
         Map<String, Object> tokenData = new HashMap<>();
         tokenData.put("token", qrToken);
@@ -533,7 +659,9 @@ public class HomeActivity extends AppCompatActivity {
         FirebaseDatabase.getInstance(DB_URL)
                 .getReference("TokensQR")
                 .child(currentUserEmailSafe)
-                .setValue(tokenData);
+                .setValue(tokenData)
+                .addOnSuccessListener(aVoid -> Log.d(QR_TAG, "Token guardado correctamente en TokensQR/" + currentUserEmailSafe))
+                .addOnFailureListener(e -> Log.e(QR_TAG, "Error al guardar token en Firebase: " + e.getMessage()));
     }
 
     // Convierte el texto final en un bitmap de código QR.
@@ -605,21 +733,33 @@ public class HomeActivity extends AppCompatActivity {
 
     // Abre la pantalla del QR con la misma animación circular usada en los fragmentos.
     private void abrirPantallaQrConOndaDifuminada() {
+        Log.d(QR_TAG, "Intentando abrir pantalla QR...");
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         if (layoutQrOverlay != null) {
             layoutQrOverlay.setVisibility(View.VISIBLE);
-            layoutQrOverlay.setCenterX(fabQr.getX() + fabQr.getWidth() / 2f);
-            layoutQrOverlay.setCenterY(fabQr.getY() + fabQr.getHeight() / 2f);
+            float cx = fabQr.getX() + fabQr.getWidth() / 2f;
+            float cy = fabQr.getY() + fabQr.getHeight() / 2f;
+            Log.d(QR_TAG, "Centro de animación: " + cx + ", " + cy);
+            layoutQrOverlay.setCenterX(cx);
+            layoutQrOverlay.setCenterY(cy);
+            
+            // Calculamos radio máximo para cubrir toda la pantalla
             float radius = (float) Math.hypot(layoutQrOverlay.getWidth(), layoutQrOverlay.getHeight()) * 2f;
+            if (radius <= 0) radius = 2500f; // Fallback si el width es 0 aún
+            
             ValueAnimator anim = ValueAnimator.ofFloat(0f, radius).setDuration(850);
             anim.addUpdateListener(a -> layoutQrOverlay.setRevealRadius((float) a.getAnimatedValue()));
             anim.addListener(new AnimatorListenerAdapter() {
                 @Override public void onAnimationEnd(Animator animation) {
                     layoutQrOverlay.setRevealRadius(-1f);
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    Log.d(QR_TAG, "Animación de apertura terminada");
                 }
             });
             anim.start();
+        } else {
+            Log.e(QR_TAG, "Error: layoutQrOverlay es nulo");
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         }
     }
 
@@ -648,7 +788,7 @@ public class HomeActivity extends AppCompatActivity {
     // ADAPTADOR INTERNO PARA NOTIFICACIONES EN HOME
     public static class NotificacionesHomeAdapter extends RecyclerView.Adapter<NotificacionesHomeAdapter.ViewHolder> {
         private List<Notificacion> lista;
-        private OnDeleteListener listener;
+        private final OnDeleteListener listener;
 
         public interface OnDeleteListener { void onDelete(Notificacion notif); }
 
@@ -679,7 +819,7 @@ public class HomeActivity extends AppCompatActivity {
 
         @Override public int getItemCount() { return lista.size(); }
 
-        static class ViewHolder extends RecyclerView.ViewHolder {
+        public static class ViewHolder extends RecyclerView.ViewHolder {
             TextView titulo, texto;
             ImageView btnDelete;
             public ViewHolder(@NonNull View itemView) {

@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:paddingBottom="20dp">
+        android:paddingBottom="40dp">
 
         <ImageView
             android:id="@+id/ivLogoReg"
@@ -30,23 +30,23 @@
             android:id="@+id/cardRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="24dp"
+            android:layout_marginHorizontal="0dp"
             app:cardBackgroundColor="@color/cardBackground"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="12dp">
+            app:cardCornerRadius="0dp"
+            app:cardElevation="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingHorizontal="24dp"
-                android:paddingBottom="16dp"
-                android:paddingTop="30dp">
+                android:paddingBottom="24dp"
+                android:paddingTop="20dp">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="24dp">
 
                     <ImageView
                         android:id="@+id/btnBackToLogin"
@@ -75,11 +75,12 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     app:boxBackgroundColor="@color/backgroundColor"
-                    app:boxCornerRadiusBottomEnd="30dp"
-                    app:boxCornerRadiusBottomStart="30dp"
-                    app:boxCornerRadiusTopEnd="30dp"
-                    app:boxCornerRadiusTopStart="30dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
                     app:boxStrokeColor="#A30000"
                     app:hintTextColor="@color/textColorPrimary"
                     app:errorEnabled="true">
@@ -100,11 +101,12 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     app:boxBackgroundColor="@color/backgroundColor"
-                    app:boxCornerRadiusBottomEnd="30dp"
-                    app:boxCornerRadiusBottomStart="30dp"
-                    app:boxCornerRadiusTopEnd="30dp"
-                    app:boxCornerRadiusTopStart="30dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
                     app:boxStrokeColor="#A30000"
                     app:hintTextColor="@color/textColorPrimary"
                     app:errorEnabled="true">
@@ -125,11 +127,12 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     app:boxBackgroundColor="@color/backgroundColor"
-                    app:boxCornerRadiusBottomEnd="30dp"
-                    app:boxCornerRadiusBottomStart="30dp"
-                    app:boxCornerRadiusTopEnd="30dp"
-                    app:boxCornerRadiusTopStart="30dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
                     app:boxStrokeColor="#A30000"
                     app:hintTextColor="@color/textColorPrimary"
                     app:errorEnabled="true">
@@ -150,11 +153,12 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     app:boxBackgroundColor="@color/backgroundColor"
-                    app:boxCornerRadiusBottomEnd="30dp"
-                    app:boxCornerRadiusBottomStart="30dp"
-                    app:boxCornerRadiusTopEnd="30dp"
-                    app:boxCornerRadiusTopStart="30dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
                     app:boxStrokeColor="#A30000"
                     app:hintTextColor="@color/textColorPrimary"
                     app:errorEnabled="true">
@@ -175,15 +179,17 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
                     app:boxBackgroundColor="@color/backgroundColor"
-                    app:boxCornerRadiusBottomEnd="30dp"
-                    app:boxCornerRadiusBottomStart="30dp"
-                    app:boxCornerRadiusTopEnd="30dp"
-                    app:boxCornerRadiusTopStart="30dp"
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
                     app:boxStrokeColor="#A30000"
                     app:hintTextColor="@color/textColorPrimary"
-                    app:passwordToggleEnabled="true"
-                    app:passwordToggleTint="@color/textColorSecondary"
+                    app:endIconMode="password_toggle"
+                    app:endIconTint="@color/textColorSecondary"
+                    app:errorIconDrawable="@null"
                     app:errorEnabled="true">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -202,7 +208,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
 
                     <CheckBox
                         android:id="@+id/cbTerms"
@@ -230,29 +237,42 @@
                     android:text="@string/register_terms_error"
                     android:textColor="#FF0000"
                     android:textSize="12sp"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    android:layout_marginBottom="16dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnRegister"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:layout_marginTop="10dp"
-                    android:backgroundTint="#A30000"
-                    android:text="@string/register_btn_signup"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:letterSpacing="0.05"
-                    android:textStyle="bold"
-                    app:cornerRadius="30dp" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnRegister"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:backgroundTint="#A30000"
+                        android:text="@string/register_btn_signup"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:letterSpacing="0.05"
+                        android:textStyle="bold"
+                        app:cornerRadius="30dp" />
+
+                    <ProgressBar
+                        android:id="@+id/pbRegister"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+                        android:indeterminateTint="@color/white"
+                        android:visibility="gone" />
+                </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="24dp"
                     android:gravity="center"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="8dp"
                     android:weightSum="2">
 
                     <LinearLayout
@@ -266,7 +286,7 @@
                         android:focusable="true"
                         android:gravity="center"
                         android:orientation="horizontal"
-                        android:padding="8dp">
+                        android:padding="12dp">
 
                         <ImageView
                             android:layout_width="20dp"
@@ -295,7 +315,7 @@
                         android:focusable="true"
                         android:gravity="center"
                         android:orientation="horizontal"
-                        android:padding="8dp">
+                        android:padding="12dp">
 
                         <ImageView
                             android:layout_width="20dp"

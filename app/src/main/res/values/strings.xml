@@ -65,10 +65,33 @@
     <string name="whatsapp_admin_msg">Hola, necesito ayuda con la aplicación.</string>
 
     <string name="menu_notificaciones">NOTIFICACIONES</string>
-    <string name="notif_empty">No tienes notificaciones pendientes</string>
+    <string name="notif_empty">No tienes notificaciones pendientes.</string>
+    <string name="notif_empty_title">Todo al día</string>
+    <string name="notif_select_all">Seleccionar todo</string>
+    <string name="notif_filter_all">Todas</string>
+    <string name="notif_filter_alerts">Alertas</string>
+    <string name="notif_filter_messages">Mensajes</string>
+    <string name="notif_select_one">Selecciona al menos una notificación</string>
+    <string name="notif_back_desc">Volver</string>
+    <string name="notif_delete_selected_desc">Borrar notificaciones seleccionadas</string>
+    <string name="notif_toggle_edit_desc">Activar modo edición</string>
+    <string name="notif_delete_home_desc">Eliminar notificación</string>
+    <string name="notif_select_mode">Seleccionar</string>
+    <string name="notif_selected_count">%1$d seleccionadas</string>
+    <string name="notif_delete_notifications_title">Borrar notificaciones</string>
+    <string name="notif_delete_notifications_message">¿Estás seguro de que quieres borrar las %1$d notificaciones seleccionadas?</string>
+    <string name="notif_deleted_count">Eliminadas %1$d notificaciones</string>
+    <string name="notif_close_button">Cerrar</string>
+    <string name="notif_item_title_preview">Título de la alerta</string>
+    <string name="notif_item_time_preview">Hace 2 min</string>
+    <string name="notif_home_title_preview">TÍTULO</string>
+    <string name="notif_home_message_preview">Mensaje de la notificación</string>
+    <string name="qr_panel_title">Este es tu QR.</string>
+    <string name="qr_panel_subtitle">Este código caduca en 1 minuto</string>
+    <string name="qr_panel_close">Volver</string>
     <string name="menu_perfil">PERFIL</string>
     <string name="menu_normas">NORMAS</string>
-    <string name="qr_identificativo">CÓDIGO QR IDENTIFICATIVO</string>
+    <string name="qr_identificativo">Este es tu QR.</string>
     <string name="btn_close">CERRAR</string>
     <string name="ajustes">AJUSTES</string>
     <string name="configuracion">CONFIGURACIÓN</string>
@@ -103,7 +126,7 @@
     <string name="profile_not_linked">Cuenta no vinculada</string>
     <string name="profile_btn_change_pass">Cambiar contraseña de acceso</string>
 
-    <string name="loading">Cargando...</string>
+    <string name="loading">Cargando…</string>
     <string name="user_label">Usuario</string>
     <string name="socio_label">Socio</string>
     <string name="pass_changed_success">Contraseña cambiada con éxito</string>

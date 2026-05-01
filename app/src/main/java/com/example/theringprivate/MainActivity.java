@@ -27,6 +27,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Locale;
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     // Servicio de autenticación de Firebase para iniciar sesión con correo y contraseña.
     private FirebaseAuth auth;
     // URL base de la Realtime Database usada por la app.
-    private final String DB_URL = "https://the-ring-private-default-rtdb.europe-west1.firebasedatabase.app/";
+    private final String DB_URL = "https://laasociacion-57649-default-rtdb.firebaseio.com";
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -143,8 +144,20 @@ public class MainActivity extends AppCompatActivity {
                     String dni = input.toUpperCase();
                     FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).get().addOnSuccessListener(snapshot -> {
                         String correoReal = snapshot.getValue(String.class);
-                        if (correoReal == null) correoReal = dni + "@thering.local";
-                        iniciarSesionFirebase(correoReal, password, tilDni, tilPassword);
+                        if (correoReal == null) {
+                            // Búsqueda inversa en "usuarios" por el campo "dni"
+                            FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").orderByChild("dni").equalTo(dni).get().addOnSuccessListener(userSnap -> {
+                                if (userSnap.exists() && userSnap.hasChildren()) {
+                                    DataSnapshot match = userSnap.getChildren().iterator().next();
+                                    String emailFromDB = match.child("email").getValue(String.class);
+                                    iniciarSesionFirebase(emailFromDB != null ? emailFromDB : dni + "@thering.local", password, tilDni, tilPassword);
+                                } else {
+                                    iniciarSesionFirebase(dni + "@thering.local", password, tilDni, tilPassword);
+                                }
+                            });
+                        } else {
+                            iniciarSesionFirebase(correoReal, password, tilDni, tilPassword);
+                        }
                     }).addOnFailureListener(e -> iniciarSesionFirebase(dni + "@thering.local", password, tilDni, tilPassword));
                 }
             });
@@ -254,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 String emailSafe = emailInput.replace(".", "_");
-                FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(emailSafe).child("perfil").get()
+                FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(emailSafe).get()
                     .addOnSuccessListener(snapshot -> {
                         if (snapshot.exists()) {
                             String dniDB = snapshot.child("dni").getValue(String.class);
@@ -266,7 +279,22 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(this, getString(R.string.error_datos_no_coinciden), Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Toast.makeText(this, getString(R.string.error_usuario_no_encontrado), Toast.LENGTH_SHORT).show();
+                            // Búsqueda por UID o campo dni si emailSafe falla
+                            FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").orderByChild("email").equalTo(emailInput).get().addOnSuccessListener(emailSnap -> {
+                                if (emailSnap.exists() && emailSnap.hasChildren()) {
+                                    DataSnapshot match = emailSnap.getChildren().iterator().next();
+                                    String dniDB = match.child("dni").getValue(String.class);
+                                    if (dniInput.equals(dniDB)) {
+                                        emailConfirmado[0] = emailInput;
+                                        if (layoutStep1 != null) layoutStep1.setVisibility(View.GONE);
+                                        if (layoutStep2 != null) layoutStep2.setVisibility(View.VISIBLE);
+                                    } else {
+                                        Toast.makeText(this, getString(R.string.error_datos_no_coinciden), Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    Toast.makeText(this, getString(R.string.error_usuario_no_encontrado), Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
                     });
             });

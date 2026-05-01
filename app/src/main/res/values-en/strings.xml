@@ -64,11 +64,34 @@
     <string name="whatsapp_admin_msg">Hello, I need help with the application.</string>
 
     <string name="menu_notificaciones">NOTIFICATIONS</string>
-    <string name="notif_empty">You have no pending notifications</string>
+    <string name="notif_empty">You have no pending notifications.</string>
+    <string name="notif_empty_title">All caught up</string>
+    <string name="notif_select_all">Select all</string>
+    <string name="notif_filter_all">All</string>
+    <string name="notif_filter_alerts">Alerts</string>
+    <string name="notif_filter_messages">Messages</string>
+    <string name="notif_select_one">Select at least one notification</string>
+    <string name="notif_back_desc">Back</string>
+    <string name="notif_delete_selected_desc">Delete selected notifications</string>
+    <string name="notif_toggle_edit_desc">Enable edit mode</string>
+    <string name="notif_delete_home_desc">Delete notification</string>
+    <string name="notif_select_mode">Select</string>
+    <string name="notif_selected_count">%1$d selected</string>
+    <string name="notif_delete_notifications_title">Delete notifications</string>
+    <string name="notif_delete_notifications_message">Are you sure you want to delete the %1$d selected notifications?</string>
+    <string name="notif_deleted_count">Deleted %1$d notifications</string>
+    <string name="notif_close_button">Close</string>
+    <string name="notif_item_title_preview">Alert title</string>
+    <string name="notif_item_time_preview">2 min ago</string>
+    <string name="notif_home_title_preview">TITLE</string>
+    <string name="notif_home_message_preview">Notification message</string>
+    <string name="qr_panel_title">This is your QR.</string>
+    <string name="qr_panel_subtitle">This code expires in 1 minute</string>
+    <string name="qr_panel_close">Back</string>
     <string name="menu_perfil">PROFILE</string>
     <string name="menu_normas">RULES</string>
     <string name="qr_identificativo">IDENTIFICATION QR CODE</string>
-    <string name="btn_close">CLOSE</string>
+    <string name="btn_close">Close</string>
     <string name="ajustes">SETTINGS</string>
     <string name="configuracion">CONFIGURATION</string>
     <string name="ajuste_cambiar_pass">Change password</string>
@@ -103,7 +126,7 @@
     <string name="profile_btn_change_pass">Change access password</string>
 
     <!-- Missing keys -->
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="user_label">User</string>
     <string name="socio_label">Member</string>
     <string name="pass_changed_success">Password changed successfully</string>
