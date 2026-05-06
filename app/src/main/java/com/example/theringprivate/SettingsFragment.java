@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -490,8 +491,12 @@ public class SettingsFragment extends Fragment {
         ImageView btnCerrarCruceta = dialogView.findViewById(R.id.btnCerrarCruceta);
         Button btnCerrarAbajo = dialogView.findViewById(R.id.btnCerrarAbajo);
 
-        if (txtTituloLegal != null) TranslationHelper.translateTextView(txtTituloLegal, resIdTitulo);
-        if (txtContenidoLegal != null) TranslationHelper.translateTextView(txtContenidoLegal, resIdContenido);
+        if (txtTituloLegal != null) {
+            txtTituloLegal.setText(Html.fromHtml(getString(resIdTitulo), Html.FROM_HTML_MODE_COMPACT));
+        }
+        if (txtContenidoLegal != null) {
+            txtContenidoLegal.setText(Html.fromHtml(getString(resIdContenido), Html.FROM_HTML_MODE_COMPACT));
+        }
         if (btnCerrarCruceta != null) btnCerrarCruceta.setOnClickListener(v -> dialog.dismiss());
         if (btnCerrarAbajo != null) btnCerrarAbajo.setOnClickListener(v -> dialog.dismiss());
 

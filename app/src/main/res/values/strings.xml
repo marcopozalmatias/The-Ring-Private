@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">The Ring Private</string>
-    <string name="login_user_hint">Correo o DNI</string>
+    <string name="login_user_hint">Correo, DNI, NIE o Pasaporte</string>
     <string name="login_password_hint">Contraseña</string>
     <string name="login_forgot_password">¿Olvidaste tu contraseña?</string>
     <string name="login_btn_signin">Iniciar sesión</string>
@@ -17,14 +17,15 @@
     <string name="register_title">Crea tu cuenta</string>
     <string name="register_name_hint">Nombre</string>
     <string name="register_lastname_hint">Apellidos</string>
-    <string name="register_dni_hint">DNI</string>
+    <string name="register_dni_hint">Documento</string>
+    <string name="register_doc_and_dni_hint">Documento (DNI, Pasaporte, NIE)</string>
     <string name="profile_email">Correo Electrónico</string>
     <string name="profile_password">Contraseña</string>
     <string name="register_terms_accept">Acepto los términos y condiciones</string>
     <string name="register_btn_signup">Registrarse</string>
     <string name="register_terms_error">Debes aceptar los términos</string>
 
-    <string name="error_dni_vacio">Introduce tu DNI o Correo</string>
+    <string name="error_dni_vacio">Introduce tu correo o documento</string>
     <string name="error_pass_vacio">Introduce tu contraseña</string>
     <string name="error_credenciales">Credenciales incorrectas</string>
     <string name="error_datos_incompletos">Por favor, rellena todos los campos</string>
@@ -35,33 +36,72 @@
     <string name="error_dni_invalido">DNI inválido</string>
     <string name="error_email_invalido">Email inválido</string>
     <string name="error_email_existe">Este correo ya está vinculado a una cuenta</string>
-    <string name="error_dni_ya_registrado">Este DNI ya está registrado</string>
-    <string name="error_password_segura">La contraseña debe tener al menos 6 caracteres, 1 mayúscula y 1 símbolo especial</string>
-    <string name="min_6_chars">Mínimo 6 caracteres</string>
+    <string name="error_dni_ya_registrado">Este documento ya está registrado</string>
+    <string name="error_doc_ya_existe">Ya existe este %1$s</string>
+    <string name="register_doc_type_hint">Selecciona el tipo de documento</string>
+    <string name="register_doc_type_short">Tipo</string>
+    <string name="doc_dni">DNI</string>
+    <string name="doc_pasaporte">PASAPORTE</string>
+    <string name="doc_nie">NIE</string>
+    <string name="register_document_number_hint">Número de documento</string>
+    <string name="register_dni_number_hint">Número de DNI</string>
+    <string name="register_passport_number_hint">Número de Pasaporte</string>
+    <string name="register_nie_number_hint">Número de NIE</string>
+    <string name="error_pasaporte_invalido">Pasaporte inválido (6-12 caracteres)</string>
+    <string name="error_nie_invalido">NIE inválido</string>
 
     <string name="settings_terms">Términos y Condiciones</string>
-    <string name="texto_terminos_titulo">Términos y Condiciones</string>
-    <string name="texto_terminos">Estos Términos y Condiciones regulan la descarga, el acceso y el uso de la aplicación THE RING PRIVATE (en adelante, la Aplicación). El acceso y uso de la Aplicación implica la aceptación expresa de estas condiciones.\n\n1. Objeto\nLa Aplicación tiene como finalidad gestionar la identificación de socios, facilitar la comunicación de avisos internos y mejorar la experiencia de acceso al club. Su uso es personal e intransferible.\n\n2. Registro de usuario\nPara crear una cuenta, el usuario debe facilitar datos reales y vigentes (nombre, apellidos, documento de identidad y correo electrónico). El usuario es responsable de custodiar su contraseña y de no compartirla con terceros.\n\n3. Normas de uso\nEl usuario se compromete a utilizar la Aplicación de forma lícita, respetuosa y conforme a la normativa aplicable. Queda prohibido manipular, copiar, descompilar, alterar o reutilizar el contenido de la Aplicación sin autorización expresa.\n\n4. Propiedad intelectual\nTodos los derechos de propiedad intelectual e industrial sobre la Aplicación, su diseño, textos, marcas y elementos gráficos pertenecen a THE RING PRIVATE o a terceros autorizados.\n\n5. Protección de datos\nLos datos personales se tratarán conforme al Reglamento (UE) 2016/679 (RGPD) y la normativa española vigente. El tratamiento se realiza para gestionar la relación con el socio y el funcionamiento de la Aplicación. El usuario puede ejercer sus derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad mediante contacto con la entidad.\n\n6. Disponibilidad y responsabilidad\nTHE RING PRIVATE podrá actualizar, modificar o suspender la Aplicación por motivos técnicos, legales o de mantenimiento. Aunque se aplican medidas de seguridad, no se garantiza la disponibilidad absoluta ni la ausencia total de errores técnicos.\n\n7. Baja y eliminación de cuenta\nEl usuario puede solicitar la eliminación de su cuenta desde la sección de ajustes. Esta acción elimina el acceso y los datos asociados en los sistemas habilitados, salvo obligación legal de conservación.\n\n8. Legislación aplicable\nEstas condiciones se rigen por la legislación española. Cualquier controversia se someterá a los juzgados y tribunales competentes de Madrid, salvo disposición legal imperativa en contrario.</string>
-    <string name="texto_normas">
-        NORMAS: THE RING PRIVATE\n\n
-        Te comprometes a cumplir estas normas. En beneficio de todos, se advierte que cualquier transgresión de las siguientes reglas se considerará una falta MUY GRAVE y será motivo de expulsión inmediata.\n\n
-        ━━━━━━━━━━━━━━━━━━━━━━\n
-        LISTADO DE REGLAS\n
-        ━━━━━━━━━━━━━━━━━━━━━━\n\n
-        • RESPETO: Nuestra norma principal.\n\n
-        • JUEGOS: No puedes formar parte de un juego iniciado por otros si estos no quieren.\n\n
-        • ACTITUD: No está permitida ninguna actitud irrespetuosa hacia los demás.\n\n
-        • DISPOSITIVOS: No está permitido el uso de teléfonos móviles, cámaras de filmación o fotográficas.\n\n
-        • PRÁCTICAS PROHIBIDAS: No está permitida la práctica del scat, sangre o dolor extremo.\n\n
-        • SUSTANCIAS: No está permitida la venta o consumo de cualquier tipo de drogas o estupefacientes.\n\n
-        ━━━━━━━━━━━━━━━━━━━━━━\n
-        RECORDATORIOS ADICIONALES\n
-        ━━━━━━━━━━━━━━━━━━━━━━\n\n
-        • VOLUNTARIEDAD: No estás obligado a hacer nada que no desees.\n\n
-        • INSTALACIONES: Rogamos mantenerlas como desearías encontrarlas.\n\n
-        • SALUD: El club recomienda encarecidamente el sexo seguro (preservativos gratuitos disponibles).\n\n
-        • HIGIENE: Existen elementos de limpieza e higiene para su uso.
-    </string>
+    <string name="texto_terminos_titulo"><![CDATA[<b>Términos y Condiciones</b>]]></string>
+    <string name="texto_terminos"><![CDATA[
+        <b>Términos y Condiciones</b><br/><br/>
+        Estos Términos y Condiciones regulan la descarga, el acceso y el uso de la Aplicación THE RING PRIVATE (en adelante, la Aplicación). El acceso y uso de la Aplicación implica la aceptación expresa de estas condiciones.<br/><br/>
+
+        <b>1. ¿Cuál es el objeto de la Aplicación?</b><br/>
+        La Aplicación tiene como finalidad gestionar la identificación de socios, facilitar la comunicación de avisos internos y mejorar la experiencia de acceso al club. Su uso es personal e intransferible.<br/><br/>
+
+        <b>2. ¿Cómo me registro?</b><br/>
+        Para crear una cuenta, el usuario debe facilitar datos reales y vigentes (Nombre, Apellidos, Documento de identidad y Correo electrónico). El usuario es responsable de custodiar su contraseña y de no compartirla con terceros.<br/><br/>
+
+        <b>3. ¿Cuáles son las normas de uso?</b><br/>
+        El usuario se compromete a utilizar la Aplicación de forma lícita, respetuosa y conforme a la normativa aplicable. Queda prohibido manipular, copiar, descompilar, alter o reutilizar el contenido de la Aplicación sin autorización expresa.<br/><br/>
+
+        <b>4. ¿Quién es dueño de la Aplicación?</b><br/>
+        Todos los derechos de propiedad intelectual e industrial sobre la Aplicación, su diseño, textos, marcas y elementos gráficos pertenecen a THE RING PRIVATE o a terceros autorizados.<br/><br/>
+
+        <b>5. ¿Cómo se protegen mis datos personales?</b><br/>
+        Los datos personales se tratarán conforme al Reglamento (UE) 2016/679 (RGPD) y la normativa española vigente. El tratamiento se realiza para gestionar la relación con el socio y el funcionamiento de la Aplicación.<br/><br/>
+
+        El usuario puede ejercer sus derechos de Acceso, Rectificación, Supresión, Oposición, Limitación y Portabilidad mediante contacto con la entidad.<br/><br/>
+
+        <b>6. ¿Qué garantía tiene la Aplicación?</b><br/>
+        THE RING PRIVATE podrá actualizar, modificar o suspender la Aplicación por motivos técnicos, legales o de mantenimiento. Aunque se aplican medidas de seguridad, no se garantiza la disponibilidad absoluta ni la ausencia total de errores técnicos.<br/><br/>
+
+        <b>7. ¿Puedo borrar mi cuenta?</b><br/>
+        El usuario puede solicitar la eliminación de su cuenta desde la sección de Ajustes. Esta acción elimina el acceso y los datos asociados en los sistemas habilitados, salvo obligación legal de conservación.<br/><br/>
+
+        <b>8. ¿Qué ley se aplica?</b><br/>
+        Estas condiciones se rigen por la legislación española. Cualquier controversia se someterá a los juzgados y tribunales competentes de Madrid, salvo disposición legal imperativa en contrario.
+    ]]></string>
+    <string name="texto_normas"><![CDATA[
+        <b>NORMAS: THE RING PRIVATE</b><br/><br/>
+        Te comprometes a cumplir estas normas. En beneficio de todos, se advierte que cualquier transgresión de las siguientes reglas se considerará una falta muy grave y será motivo de expulsión inmediata.<br/><br/>
+        ━━━━━━━━━━━━━━━━━━━━━━<br/>
+        <b>LISTADO DE REGLAS</b><br/>
+        ━━━━━━━━━━━━━━━━━━━━━━<br/><br/>
+        • <b>Respeto:</b> Nuestra norma principal.<br/><br/>
+        • <b>Juegos:</b> No puedes formar parte de un juego iniciado por otros si estos no quieren.<br/><br/>
+        • <b>Actitud:</b> No está permitida ninguna actitud irrespetuosa hacia los demás.<br/><br/>
+        • <b>Dispositivos:</b> No está permitido el uso de teléfonos móviles, cámaras de filmación o fotográficas.<br/><br/>
+        • <b>Prácticas prohibidas:</b> No está permitida la práctica del scat, sangre o dolor extremo.<br/><br/>
+        • <b>Sustancias:</b> No está permitida la venta o consumo de cualquier tipo de drogas o estupefacientes.<br/><br/>
+        ━━━━━━━━━━━━━━━━━━━━━━<br/>
+        <b>RECORDATORIOS ADICIONALES</b><br/>
+        ━━━━━━━━━━━━━━━━━━━━━━<br/><br/>
+        • <b>Voluntariedad:</b> No estás obligado a hacer nada que no desees.<br/><br/>
+        • <b>Instalaciones:</b> Rogamos mantenerlas como desearías encontrarlas.<br/><br/>
+        • <b>Salud:</b> El club recomienda encarecidamente el sexo seguro (preservativos gratuitos disponibles).<br/><br/>
+        • <b>Higiene:</b> Existen elementos de limpieza e higiene para su uso.
+    ]]></string>
     <string name="whatsapp_admin_msg">Hola, necesito ayuda con la aplicación.</string>
 
     <string name="menu_notificaciones">NOTIFICACIONES</string>
@@ -100,10 +140,11 @@
     <string name="settings_change_theme_btn">Apariencia</string>
     <string name="informacion_legal">INFORMACIÓN LEGAL</string>
     <string name="settings_rates">Tarifas</string>
-    <string name="ajuste_aviso_legal">Aviso legal</string>
+    <string name="ajuste_aviso_legal">Aviso Legal</string>
     <string name="settings_help">Ayuda</string>
-    <string name="settings_faq">Preguntas frecuentes</string>
-    <string name="settings_user_manual">Manual de usuario</string>
+    <string name="settings_faq">Preguntas Frecuentes</string>
+    <string name="settings_user_manual">Manual de Usuario</string>
+    <string name="settings_contact_us">Contacto: theringprivate@gmail.com</string>
     <string name="login_manual_short">Manual</string>
     <string name="acciones">ACCIONES</string>
     <string name="ajuste_cerrar_sesion">Cerrar sesión</string>
@@ -131,18 +172,173 @@
     <string name="socio_label">Socio</string>
     <string name="pass_changed_success">Contraseña cambiada con éxito</string>
     <string name="reauth_needed">Es necesario volver a autenticarse</string>
-    <string name="texto_tarifas_horarios_titulo">Cómo hacerse socio y tarifas</string>
-    <string name="texto_tarifas_horarios">Cómo hacerse socio\n1. Acude a recepción y solicita el alta de socio.\n2. Rellena y firma la hoja de alta con tus datos reales.\n3. Acepta expresamente las normas internas del club.\n4. Descarga la aplicación y completa tu registro con el mismo documento de identidad.\n5. La primera validación se realiza presencialmente en recepción.\n\nCondición de socio\nSolo se considera socio activo a quien haya abonado la cuota vigente. Si la cuota caduca, la condición de socio queda suspendida hasta la renovación.\n\nVentajas de ser socio\n- Acceso más ágil mediante identificación con QR.\n- Registro de cuenta personal para gestionar notificaciones y ajustes.\n- Uso de taquilla según disponibilidad y condiciones del club.\n- Acceso a ventajas adicionales en eventos especiales, cuando se anuncien.\n\nTarifas vigentes\nSocio por un día:\n- Viernes: 15 EUR\n- Sábado: 15 EUR\n\nCuotas VIP:\n- Socio VIP 1 mes: 90 EUR\n- Socio VIP 6 meses: 250 EUR\n\nLas tarifas pueden actualizarse. En caso de cambio, se publicará la versión vigente en recepción y en la aplicación.</string>
+    <string name="texto_tarifas_horarios_titulo"><![CDATA[<b>¿Cómo hacerse socio y cuáles son las tarifas?</b>]]></string>
+    <string name="texto_tarifas_horarios"><![CDATA[
+        <b>1. ¿Cómo hacerse socio?</b><br/>
+        • Acude a recepción y solicita el alta de socio.<br/>
+        • Rellena y firma la hoja de alta con tus datos reales.<br/>
+        • Acepta expresamente las normas internas del club.<br/>
+        • Descarga la aplicación y completa tu registro con el mismo documento de identidad.<br/>
+        • La primera validación se realiza presencialmente en recepción.<br/><br/>
 
-    <string name="help_support_title">Ayuda y soporte</string>
-    <string name="help_support_msg">Si tienes un problema con la aplicación, sigue este orden:\n\n1. Revisa primero la sección de Preguntas Frecuentes.\n2. Si no se resuelve, escribe a ringasociacion@gmail.com indicando:\n- Correo de tu cuenta\n- DNI usado en el registro\n- Modelo de móvil\n- Versión de Android\n- Descripción exacta del error\n\nSoporte por correo:\nringasociacion@gmail.com\n\nRedes oficiales:\nFacebook: https://www.facebook.com/theringprivate\nInstagram: https://www.instagram.com/theringprivate\n\nAtención presencial:\nC. del Amparo, 75, Centro, 28012 Madrid</string>
+        <b>2. ¿Cuándo soy considerado socio activo?</b><br/>
+        Solo se considera socio activo a quien haya abonado la cuota vigente. Si la cuota caduca, la condición de socio queda suspendida hasta la renovación.<br/><br/>
 
-    <string name="texto_faq_titulo">Preguntas frecuentes (FAQ)</string>
-    <string name="texto_faq">1. ¿Cómo me registro correctamente?\nPulsa en Registrarse, completa nombre, apellidos, DNI, correo y una contraseña segura. Debes aceptar los términos y condiciones para finalizar.\n\n2. ¿Qué documentos son válidos para el registro?\nSe aceptan DNI, NIE o pasaporte en vigor.\n\n3. He olvidado mi contraseña. ¿Qué hago?\nEn inicio de sesión, pulsa Olvidaste tu contraseña y sigue el proceso de recuperación por correo.\n\n4. El QR no se muestra. ¿Cómo lo soluciono?\nComprueba conexión a internet, cierra y abre la pantalla QR y vuelve a intentarlo. Si persiste, cierra sesión y entra de nuevo.\n\n5. ¿Puedo cambiar mis datos personales?\nLos datos sensibles de identificación se gestionan en recepción para verificar identidad.\n\n6. ¿Cómo elimino mi cuenta?\nEn Ajustes, entra en Eliminar cuenta, verifica tus credenciales y confirma la eliminación final.\n\n7. ¿Qué pasa con mis notificaciones si las elimino?\nSi eliminas una notificación en tu perfil, deja de mostrarse en tu cuenta. Otros usuarios mantienen sus propias notificaciones de forma independiente.</string>
+        <b>3. ¿Cuáles son las ventajas de ser socio?</b><br/>
+        • Acceso más ágil mediante identificación con QR.<br/>
+        • Cuenta personal para gestionar notificaciones y ajustes.<br/>
+        • Uso de taquilla según disponibilidad y condiciones del club.<br/>
+        • Acceso a ventajas adicionales en eventos especiales.<br/><br/>
 
-    <string name="texto_aviso_legal">1. Identificación del responsable\nEl responsable del tratamiento es THE RING PRIVATE.\nDirección: C. del Amparo, 75, Centro, 28012 Madrid.\nCorreo de contacto: ringasociacion@gmail.com\n\n2. Datos tratados\nTratamos los datos necesarios para gestionar tu alta y tu acceso como socio: nombre, apellidos, correo electrónico y documento de identidad.\n\n3. Finalidad\nLa finalidad principal es gestionar la relación con el socio, su acceso al club y las comunicaciones internas de servicio.\n\n4. Base jurídica\nLa base legal del tratamiento es el consentimiento del usuario y la ejecución de la relación asociativa.\n\n5. Conservación\nLos datos se conservarán mientras exista relación activa con el socio o durante los plazos legales aplicables.\n\n6. Derechos\nPuedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad mediante solicitud al correo de contacto.\n\n7. Seguridad\nAplicamos medidas técnicas y organizativas razonables para prevenir accesos no autorizados, pérdida o alteración de datos.\n\n8. Cambios en el aviso legal\nEste aviso puede actualizarse por cambios normativos o mejoras del servicio. La versión vigente estará siempre disponible en la aplicación.\n\nFecha de última actualización: 17/04/2026</string>
+        <b>4. ¿Cuál es el precio?</b><br/><br/>
+
+        <b>Socio por un día:</b><br/>
+        • Viernes: 15 EUR<br/>
+        • Sábado: 15 EUR<br/><br/>
+
+        <b>Cuotas VIP:</b><br/>
+        • Socio VIP 1 mes: 90 EUR<br/>
+        • Socio VIP 6 meses: 250 EUR<br/><br/>
+
+        <b>5. ¿Cambian las tarifas?</b><br/>
+        Las tarifas pueden actualizarse. En caso de cambio, se publicará la versión vigente en recepción y en la aplicación.
+    ]]></string>
+
+    <string name="help_support_title"><![CDATA[<b>¿Necesitas Ayuda y Soporte?</b>]]></string>
+    <string name="help_support_msg"><![CDATA[
+        <b>¿Tienes un problema con la aplicación?</b><br/><br/>
+        Sigue este orden:<br/><br/>
+        1. Revisa primero la sección de <b>Preguntas Frecuentes</b>.<br/>
+        2. Si no se resuelve, escribe a <b>ringasociacion@gmail.com</b> indicando:<br/>
+        • Correo de tu cuenta<br/>
+        • Documento usado en el registro<br/>
+        • Modelo de móvil<br/>
+        • Versión de Android<br/>
+        • Descripción exacta del error<br/><br/>
+
+        <b>Soporte por correo:</b><br/>
+        ringasociacion@gmail.com<br/><br/>
+
+        <b>Redes oficiales:</b><br/>
+        Facebook: https://www.facebook.com/theringprivate<br/>
+        Instagram: https://www.instagram.com/theringprivate<br/><br/>
+
+        <b>¿Dónde estamos?</b><br/>
+        C. del Amparo, 75, Centro, 28012 Madrid
+    ]]></string>
+
+    <string name="texto_faq_titulo"><![CDATA[<b>¿Preguntas Frecuentes (FAQ)?</b>]]></string>
+    <string name="texto_faq"><![CDATA[
+        <b>1. ¿Cómo me registro correctamente?</b><br/>
+        Pulsa en Registrarse, completa Nombre, Apellidos, DNI/NIE/Pasaporte, Correo y una Contraseña segura. Debes aceptar los Términos y Condiciones para finalizar.<br/><br/>
+
+        <b>2. ¿Qué documentos son válidos para el registro?</b><br/>
+        Se aceptan DNI, NIE o Pasaporte en vigor.<br/><br/>
+
+        <b>3. ¿He olvidado mi contraseña? ¿Qué hago?</b><br/>
+        En Inicio de sesión, pulsa "Olvidaste tu contraseña" y sigue el proceso de recuperación por correo.<br/><br/>
+
+        <b>4. ¿El QR no se muestra? ¿Cómo lo soluciono?</b><br/>
+        Comprueba la conexión a Internet, cierra y abre la pantalla del QR y vuelve a intentarlo. Si el problema persiste, cierra sesión y entra de nuevo.<br/><br/>
+
+        <b>5. ¿Puedo cambiar mis datos personales?</b><br/>
+        Los datos sensibles de identificación se gestionan en recepción para verificar la identidad.<br/><br/>
+
+        <b>6. ¿Cómo elimino mi cuenta?</b><br/>
+        En Ajustes, entra en "Eliminar cuenta", verifica tus credenciales y confirma la eliminación final.<br/><br/>
+
+        <b>7. ¿Qué pasa con mis notificaciones si las elimino?</b><br/>
+        Si eliminas una notificación en tu perfil, deja de mostrarse en tu cuenta. Los demás usuarios mantienen sus propias notificaciones de forma independiente.
+    ]]></string>
+
+    <string name="texto_aviso_legal"><![CDATA[
+        <b>1. ¿Quién es responsable del tratamiento?</b><br/>
+        El responsable del tratamiento es THE RING PRIVATE.<br/>
+        Dirección: C. del Amparo, 75, Centro, 28012 Madrid.<br/>
+        Correo de contacto: ringasociacion@gmail.com<br/><br/>
+
+        <b>2. ¿Qué datos se tratan?</b><br/>
+        Se tratan los datos necesarios para gestionar tu alta y tu acceso como socio: Nombre, Apellidos, Correo electrónico y Documento de identidad.<br/><br/>
+
+        <b>3. ¿Para qué se usan mis datos?</b><br/>
+        La finalidad principal es gestionar la relación con el socio, su acceso al club y las comunicaciones internas de servicio.<br/><br/>
+
+        <b>4. ¿Cuál es la base legal del tratamiento?</b><br/>
+        La base legal del tratamiento es el consentimiento del usuario y la ejecución de la relación asociativa.<br/><br/>
+
+        <b>5. ¿Cuánto tiempo se conservan mis datos?</b><br/>
+        Los datos se conservarán mientras exista relación activa con el socio o durante los plazos legales aplicables.<br/><br/>
+
+        <b>6. ¿Cuáles son mis derechos?</b><br/>
+        Puedes ejercer tus derechos de Acceso, Rectificación, Supresión, Oposición, Limitación y Portabilidad mediante solicitud al correo de contacto.<br/><br/>
+
+        <b>7. ¿Cómo se protegen mis datos?</b><br/>
+        Se aplican medidas técnicas y organizativas razonables para prevenir accesos no autorizados, pérdida o alteración de datos.<br/><br/>
+
+        <b>8. ¿Puede cambiar este aviso?</b><br/>
+        Este aviso puede actualizarse por cambios normativos o mejoras del servicio. La versión vigente estará siempre disponible en la aplicación.<br/><br/>
+
+        <b>Fecha de última actualización:</b> 17/04/2026
+    ]]></string>
 
 
-    <string name="texto_manual_usuario_titulo">Manual de Usuario - The Ring Private</string>
-    <string name="texto_manual_usuario">Bienvenido a la aplicación oficial de **The Ring Private**. Esta guía explica cada paso para que puedas usar la app sin dudas.\n\n## 1. Registro de cuenta\n1. Pulsa **Registrarse** en la pantalla inicial.\n2. Introduce: nombre, apellidos, DNI/NIE/Pasaporte, correo electrónico y contraseña.\n3. La contraseña debe tener mínimo 6 caracteres, 1 mayúscula y 1 símbolo especial.\n4. Marca la casilla de aceptación de términos y condiciones.\n5. Pulsa **Registrarse** para completar el alta.\n\n## 2. Inicio de sesión\n1. Introduce tu correo o DNI y tu contraseña.\n2. Pulsa **Iniciar sesión**.\n3. Si olvidaste tu contraseña, pulsa **Olvidaste tu contraseña** y sigue el proceso de recuperación dentro de la app.\n\n## 3. Pantalla principal (Home)\nEn Home verás dos bloques principales:\n- **Notificaciones**: avisos activos del club.\n- **Botón QR**: acceso al código identificativo personal.\n\n## 4. Uso del código QR\n1. Pulsa el botón QR desde Home.\n2. Se abre tu código identificativo para recepción.\n3. El QR se actualiza automáticamente y cambia al cerrar y volver a abrir la pantalla.\n4. Muestra el QR en recepción para validar tu acceso.\n\n## 5. Notificaciones\n1. Cada usuario gestiona sus notificaciones de forma independiente.\n2. Si eliminas una notificación con la cruz, desaparece de tu cuenta.\n3. Solo volverás a ver nuevas notificaciones publicadas por administración.\n\n## 6. Navegación principal\n- **Inicio**: QR y notificaciones.\n- **Perfil**: puedes ver tu nombre, tu correo y cambiar tu contraseña.\n- **Normas**: reglas de obligado cumplimiento.\n- **Ajustes**: idioma, apariencia, legal y acciones de cuenta.\n\n## 7. Ajustes\nDesde Ajustes puedes:\n- Cambiar contraseña.\n- Cambiar idioma (español/inglés).\n- Cambiar apariencia (modo claro/oscuro).\n- Consultar tarifas, términos, aviso legal, ayuda, FAQ y este manual.\n\n## 8. Seguridad y cuenta\n- **Cerrar sesión**: cierra tu sesión en este dispositivo.\n- **Eliminar cuenta**: elimina tu acceso y datos asociados tras confirmación final.\n- Esta acción es irreversible.\n\n## 9. Soporte\nSi tienes un problema técnico, contacta por email en: **ringasociacion@gmail.com**\n\n---\n*The Ring Private - Privacidad y Respeto*</string>
+    <string name="texto_manual_usuario_titulo"><![CDATA[<b>Manual de Usuario - The Ring Private</b>]]></string>
+    <string name="texto_manual_usuario"><![CDATA[
+        Bienvenido a la aplicación oficial de <b>The Ring Private</b>. Esta guía explica cada paso para que puedas usar la app sin dudas.<br/><br/>
+
+        <b>1. ¿Cómo me registro?</b><br/>
+        • Pulsa <b>Registrarse</b> en la pantalla inicial.<br/>
+        • Introduce: Nombre, Apellidos, DNI/NIE/Pasaporte, Correo electrónico y Contraseña.<br/>
+        • La contraseña debe tener, como mínimo, 6 caracteres, 1 mayúscula y 1 símbolo especial.<br/>
+        • Marca la casilla de aceptación de Términos y Condiciones.<br/>
+        • Pulsa <b>Registrarse</b> para completar el alta.<br/><br/>
+
+        <b>2. ¿Cómo inicio sesión?</b><br/>
+        • Introduce tu Correo o Documento y tu Contraseña.<br/>
+        • Pulsa <b>Iniciar sesión</b>.<br/>
+        • Si olvidaste tu contraseña, pulsa <b>Olvidaste tu contraseña</b> y sigue el proceso de recuperación dentro de la app.<br/><br/>
+
+        <b>3. ¿Qué veo en la pantalla principal (Home)?</b><br/>
+        En Home verás dos bloques principales:<br/>
+        • <b>Notificaciones:</b> Avisos activos del club.<br/>
+        • <b>Botón QR:</b> Acceso al código identificativo personal.<br/><br/>
+
+        <b>4. ¿Cómo uso el código QR?</b><br/>
+        • Pulsa el botón QR desde Home.<br/>
+        • Se abre tu código identificativo para recepción.<br/>
+        • El QR se actualiza automáticamente y cambia al cerrar y volver a abrir la pantalla.<br/>
+        • Muestra el QR en recepción para validar tu acceso.<br/><br/>
+
+        <b>5. ¿Cómo funcionan las notificaciones?</b><br/>
+        • Cada usuario gestiona sus notificaciones de forma independiente.<br/>
+        • Si eliminas una notificación con la cruz, desaparece de tu cuenta.<br/>
+        • Solo volverás a ver nuevas notificaciones publicadas por Administración.<br/><br/>
+
+        <b>6. ¿Cómo navego por la aplicación?</b><br/>
+        Los menús principales son:<br/>
+        • <b>Inicio:</b> QR y Notificaciones.<br/>
+        • <b>Perfil:</b> Puedes ver tu nombre, tu correo y cambiar tu contraseña.<br/>
+        • <b>Normas:</b> Reglas de obligado cumplimiento.<br/>
+        • <b>Ajustes:</b> Idioma, Apariencia, Información Legal y Acciones de Cuenta.<br/><br/>
+
+        <b>7. ¿Qué opciones hay en Ajustes?</b><br/>
+        Desde Ajustes puedes:<br/>
+        • Cambiar Contraseña.<br/>
+        • Cambiar Idioma (Español/Inglés).<br/>
+        • Cambiar Apariencia (Modo Claro/Oscuro).<br/>
+        • Consultar Tarifas, Términos, Aviso Legal, Ayuda, Preguntas Frecuentes y este Manual.<br/><br/>
+
+        <b>8. ¿Cómo actúo sobre mi cuenta?</b><br/>
+        • <b>Cerrar Sesión:</b> Cierra tu sesión en este dispositivo.<br/>
+        • <b>Eliminar Cuenta:</b> Elimina tu acceso y datos asociados tras confirmación final.<br/>
+        • Esta acción es irreversible.<br/><br/>
+
+        <b>9. ¿Dónde puedo reportar un problema?</b><br/>
+        Si tienes un problema técnico, contacta por correo en: <b>ringasociacion@gmail.com</b><br/><br/>
+
+        ---<br/>
+        <i>The Ring Private - Privacidad y Respeto</i>
+    ]]></string>
+    <string name="error_password_segura">La contraseña debe tener al menos 6 caracteres, 1 mayúscula y 1 símbolo especial</string>
+    <string name="min_6_chars">Mínimo 6 caracteres</string>
 </resources>

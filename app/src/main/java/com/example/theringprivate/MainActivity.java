@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,10 @@ import java.util.Locale;
 
 // Pantalla de entrada de la aplicación donde se inicia sesión, se cambia el idioma y se abre el manual.
 public class MainActivity extends AppCompatActivity {
+
+    private interface EmailResolutionCallback {
+        void onResolved(String email);
+    }
 
     // Servicio de autenticación de Firebase para iniciar sesión con correo y contraseña.
     private FirebaseAuth auth;
@@ -140,25 +145,12 @@ public class MainActivity extends AppCompatActivity {
                 if (input.contains("@")) {
                     iniciarSesionFirebase(input, password, tilDni, tilPassword);
                 } else {
-                    // Si escribe DNI, primero lo convertimos al correo real guardado en la base de datos.
-                    String dni = input.toUpperCase();
-                    FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).get().addOnSuccessListener(snapshot -> {
-                        String correoReal = snapshot.getValue(String.class);
-                        if (correoReal == null) {
-                            // Búsqueda inversa en "usuarios" por el campo "dni"
-                            FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").orderByChild("dni").equalTo(dni).get().addOnSuccessListener(userSnap -> {
-                                if (userSnap.exists() && userSnap.hasChildren()) {
-                                    DataSnapshot match = userSnap.getChildren().iterator().next();
-                                    String emailFromDB = match.child("email").getValue(String.class);
-                                    iniciarSesionFirebase(emailFromDB != null ? emailFromDB : dni + "@thering.local", password, tilDni, tilPassword);
-                                } else {
-                                    iniciarSesionFirebase(dni + "@thering.local", password, tilDni, tilPassword);
-                                }
-                            });
-                        } else {
-                            iniciarSesionFirebase(correoReal, password, tilDni, tilPassword);
-                        }
-                    }).addOnFailureListener(e -> iniciarSesionFirebase(dni + "@thering.local", password, tilDni, tilPassword));
+                    // Si escribe documento (DNI/NIE/Pasaporte), resolvemos su correo real.
+                    String doc = input.toUpperCase(Locale.ROOT).replace(" ", "").trim();
+                    resolverEmailParaLogin(doc, emailResuelto -> {
+                        String loginEmail = (emailResuelto != null && !emailResuelto.isEmpty()) ? emailResuelto : doc + "@thering.local";
+                        iniciarSesionFirebase(loginEmail, password, tilDni, tilPassword);
+                    });
                 }
             });
         }
@@ -224,6 +216,53 @@ public class MainActivity extends AppCompatActivity {
     // Extrae texto seguro de un campo evitando nulos.
     private String safeText(TextInputEditText editText) {
         return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
+    }
+
+    // Resuelve el email de login desde documento usando mapeos y fallback en usuarios.
+    private void resolverEmailParaLogin(String documento, EmailResolutionCallback callback) {
+        FirebaseDatabase db = FirebaseDatabase.getInstance(DB_URL);
+        db.getReference("MapeoDNI").child(documento).get().addOnSuccessListener(snapshot -> {
+            String email = snapshot.getValue(String.class);
+            if (email != null && !email.isEmpty()) {
+                callback.onResolved(email);
+                return;
+            }
+            buscarEmailEnUsuariosPorDocumento(documento, callback);
+        }).addOnFailureListener(e -> buscarEmailEnUsuariosPorDocumento(documento, callback));
+    }
+
+    private void buscarEmailEnUsuariosPorDocumento(String documento, EmailResolutionCallback callback) {
+        buscarEmailPorCampoDocumento("documentNumber", documento, emailDocumentNumber -> {
+            if (emailDocumentNumber != null && !emailDocumentNumber.isEmpty()) {
+                callback.onResolved(emailDocumentNumber);
+                return;
+            }
+            buscarEmailPorCampoDocumento("dni", documento, emailDni -> {
+                if (emailDni != null && !emailDni.isEmpty()) {
+                    callback.onResolved(emailDni);
+                    return;
+                }
+                buscarEmailPorCampoDocumento("nie", documento, emailNie -> {
+                    if (emailNie != null && !emailNie.isEmpty()) {
+                        callback.onResolved(emailNie);
+                        return;
+                    }
+                    buscarEmailPorCampoDocumento("pasaporte", documento, callback::onResolved);
+                });
+            });
+        });
+    }
+
+    private void buscarEmailPorCampoDocumento(String campo, String documento, EmailResolutionCallback callback) {
+        FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").orderByChild(campo).equalTo(documento).get()
+                .addOnSuccessListener(snapshot -> callback.onResolved(extraerEmailDesdeUsuarios(snapshot)))
+                .addOnFailureListener(e -> callback.onResolved(null));
+    }
+
+    private String extraerEmailDesdeUsuarios(DataSnapshot snapshot) {
+        if (snapshot == null || !snapshot.exists() || !snapshot.hasChildren()) return null;
+        DataSnapshot first = snapshot.getChildren().iterator().next();
+        return first.child("email").getValue(String.class);
     }
 
     // Intenta iniciar sesión y, si falla, marca los campos con el error correspondiente.
@@ -323,8 +362,14 @@ public class MainActivity extends AppCompatActivity {
         ImageView btnCerrarCruceta = view.findViewById(R.id.btnCerrarCruceta);
         Button btnCerrarAbajo = view.findViewById(R.id.btnCerrarAbajo);
 
-        if (txtTituloLegal != null) TranslationHelper.translateTextView(txtTituloLegal, resIdTitulo);
-        if (txtContenidoLegal != null) TranslationHelper.translateTextView(txtContenidoLegal, resIdContenido);
+        if (txtTituloLegal != null) {
+            String titulo = getString(resIdTitulo);
+            txtTituloLegal.setText(Html.fromHtml(titulo, Html.FROM_HTML_MODE_COMPACT));
+        }
+        if (txtContenidoLegal != null) {
+            String contenido = getString(resIdContenido);
+            txtContenidoLegal.setText(Html.fromHtml(contenido, Html.FROM_HTML_MODE_COMPACT));
+        }
         if (btnCerrarCruceta != null) btnCerrarCruceta.setOnClickListener(v -> dialog.dismiss());
         if (btnCerrarAbajo != null) btnCerrarAbajo.setOnClickListener(v -> dialog.dismiss());
 

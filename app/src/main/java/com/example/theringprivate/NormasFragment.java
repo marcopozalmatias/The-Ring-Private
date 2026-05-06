@@ -3,6 +3,7 @@ package com.example.theringprivate;
 // Fragmento dedicado a mostrar el texto de normas en una ventana completa reutilizando el mismo estilo legal.
 import android.app.Dialog;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -41,14 +42,14 @@ public class NormasFragment extends Fragment {
         ImageView btnCerrarCruceta = dialogView.findViewById(R.id.btnCerrarCruceta);
         Button btnCerrarAbajo = dialogView.findViewById(R.id.btnCerrarAbajo);
 
-        // Traducimos o mostramos el título usando el helper común para respetar el idioma activo.
-        if (txtTituloLegal != null) {
-            TranslationHelper.translateTextView(txtTituloLegal, R.string.menu_normas);
-        }
-        // Traducimos o mostramos el contenido completo de normas.
-        if (txtContenidoLegal != null) {
-            TranslationHelper.translateTextView(txtContenidoLegal, R.string.texto_normas);
-        }
+         // Mostramos el título y renderizamos HTML para que la negrita se vea correctamente.
+         if (txtTituloLegal != null) {
+             txtTituloLegal.setText(Html.fromHtml(getString(R.string.menu_normas), Html.FROM_HTML_MODE_COMPACT));
+         }
+         // Mostramos el contenido completo de normas con renderizado HTML.
+         if (txtContenidoLegal != null) {
+             txtContenidoLegal.setText(Html.fromHtml(getString(R.string.texto_normas), Html.FROM_HTML_MODE_COMPACT));
+         }
 
         // Compartimos la misma acción de cierre para la cruz y el botón inferior.
         View.OnClickListener clickCerrar = v -> {

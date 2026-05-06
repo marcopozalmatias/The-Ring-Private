@@ -138,20 +138,20 @@ public class HomeActivity extends AppCompatActivity {
         Button btnCerrarQr = findViewById(R.id.btnCerrarQr);
         fragmentContainerMask = findViewById(R.id.fragment_container);
         rvNotifHome = findViewById(R.id.rvNotificacionesHome);
-        fabWhatsapp = findViewById(R.id.fabWhatsapp);
+        // fabWhatsapp = findViewById(R.id.fabWhatsapp);
 
         // Preparamos la lista de notificaciones, el acceso a WhatsApp y la carga del usuario.
         setupNotificationsHome();
-        setupDraggableWhatsapp();
+        // setupDraggableWhatsapp();
         cargarDatosUsuario();
 
         getSupportFragmentManager().addOnBackStackChangedListener(() -> {
             if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                 if (fabQr != null) fabQr.hide();
-                if (fabWhatsapp != null) fabWhatsapp.setVisibility(View.GONE);
+                // if (fabWhatsapp != null) fabWhatsapp.setVisibility(View.GONE);
             } else {
                 if (fabQr != null) fabQr.show();
-                if (fabWhatsapp != null) fabWhatsapp.setVisibility(View.VISIBLE);
+                // if (fabWhatsapp != null) fabWhatsapp.setVisibility(View.VISIBLE);
             }
         });
 

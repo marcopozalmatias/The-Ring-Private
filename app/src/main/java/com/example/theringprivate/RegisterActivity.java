@@ -13,10 +13,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -121,15 +124,29 @@ public class RegisterActivity extends AppCompatActivity {
         // Referencias a los campos del formulario de registro para validarlos uno por uno.
         TextInputLayout tilNombre = findViewById(R.id.tilRegNombre);
         TextInputLayout tilApellidos = findViewById(R.id.tilRegApellidos);
+        TextInputLayout tilDocType = findViewById(R.id.tilDocType);
         TextInputLayout tilDni = findViewById(R.id.tilRegDni);
         tilEmail = findViewById(R.id.tilRegEmail);
         TextInputLayout tilPassword = findViewById(R.id.tilRegPassword);
+
+        // Configurar el dropdown de tipo de documento
+        com.google.android.material.textfield.MaterialAutoCompleteTextView actvDocType = findViewById(R.id.actvDocType);
+        if (actvDocType != null) {
+            String[] docTypes = new String[]{getString(R.string.doc_dni), getString(R.string.doc_nie), getString(R.string.doc_pasaporte)};
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, docTypes);
+            actvDocType.setAdapter(adapter);
+            actvDocType.setText(getString(R.string.doc_dni), false);
+        }
 
         TextInputEditText etNombre = findViewById(R.id.etRegNombre);
         TextInputEditText etApellidos = findViewById(R.id.etRegApellidos);
         TextInputEditText etDni = findViewById(R.id.etRegDni);
         TextInputEditText etEmail = findViewById(R.id.etRegEmail);
         TextInputEditText etPassword = findViewById(R.id.etRegPassword);
+
+        if (actvDocType != null) {
+            actvDocType.setOnItemClickListener((parent, view, position, id) -> actualizarCampoDocumentoSegunTipo(etDni, actvDocType.getText() != null ? actvDocType.getText().toString() : ""));
+        }
         cbTerms = findViewById(R.id.cbTerms);
         TextView tvTermsLink = findViewById(R.id.tvTermsLink);
         TextView tvTermsError = findViewById(R.id.tvTermsError);
@@ -155,26 +172,33 @@ public class RegisterActivity extends AppCompatActivity {
         if (btnRegister != null) {
             btnRegister.setOnClickListener(v -> {
                 // Limpiamos errores anteriores para que cada intento empiece desde cero.
-                resetErrors(tilNombre, tilApellidos, tilDni, tilEmail, tilPassword);
+                resetErrors(tilNombre, tilApellidos, tilDocType, tilDni, tilEmail, tilPassword);
                 if (tvTermsError != null) tvTermsError.setVisibility(View.GONE);
 
                 // Capturamos los datos que el usuario ha escrito en el formulario.
                 String nombre = safeText(etNombre);
                 String apellidos = safeText(etApellidos);
-                String dni = safeText(etDni).toUpperCase();
-                String email = safeText(etEmail);
-                String password = safeText(etPassword);
+                String tipoDoc = safeTextAutocomplete(actvDocType);
+                String documento = normalizarDocumento(safeText(etDni));
+                actualizarCampoDocumentoSegunTipo(etDni, tipoDoc);
+                final String email = safeText(etEmail);
+                final String password = safeText(etPassword);
+                final String finalDocumento = documento;
+                final String finalTipoDoc = tipoDoc;
+                final String finalDocKey = claveDocumento(finalTipoDoc, finalDocumento);
 
                 // Cada validación individual marca el formulario como inválido si falla.
                 boolean isValid = true;
                 if (nombre.isEmpty()) { if (tilNombre != null) tilNombre.setError(getString(R.string.error_obligatorio)); isValid = false; }
                 if (apellidos.isEmpty()) { if (tilApellidos != null) tilApellidos.setError(getString(R.string.error_obligatorio)); isValid = false; }
-                if (!validarDocumento(dni)) {
-                    if (tilDni != null) {
-                        tilDni.setError(getString(R.string.error_dni_invalido));
-                    }
+                if (tipoDoc.isEmpty()) { if (tilDocType != null) tilDocType.setError(getString(R.string.error_obligatorio)); isValid = false; }
+
+                String errorDoc = validarDocumentoConTipo(finalDocumento, finalTipoDoc);
+                if (errorDoc != null) {
+                    if (tilDni != null) tilDni.setError(errorDoc);
                     isValid = false;
                 }
+                
                 if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) { if (tilEmail != null) tilEmail.setError(getString(R.string.error_email_invalido)); isValid = false; }
                 if (!esPasswordSegura(password)) {
                     if (tilPassword != null) {
@@ -196,44 +220,41 @@ public class RegisterActivity extends AppCompatActivity {
                     btnRegister.setText("");
                 }
 
-                // Comprobamos si el DNI ya existe antes de tocar Auth para evitar registros duplicados.
-                FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).get().addOnCompleteListener(dniTask -> {
+                // Comprobamos si el documento ya existe antes de tocar Auth para evitar registros duplicados.
+                FirebaseDatabase db = FirebaseDatabase.getInstance(DB_URL);
+                db.getReference("MapeoDocumentos").child(finalDocKey).get().addOnCompleteListener(dniTask -> {
                     if (!dniTask.isSuccessful()) {
                         errorRegistro(getString(R.string.error_procesar));
                         return;
                     }
 
-                    if (!dniTask.getResult().exists()) {
+                    if (dniTask.getResult() != null && dniTask.getResult().exists()) {
+                        String msg = getString(R.string.error_doc_ya_existe, finalTipoDoc);
+                        if (tilDni != null) tilDni.setError(msg);
+                        errorRegistro(msg);
+                        return;
+                    }
+
+                    if ("DNI".equals(codigoDocumento(finalTipoDoc))) {
+                        db.getReference("MapeoDNI").child(finalDocumento).get().addOnCompleteListener(legacyTask -> {
+                            if (!legacyTask.isSuccessful()) {
+                                errorRegistro(getString(R.string.error_procesar));
+                                return;
+                            }
+
+                            if (legacyTask.getResult() != null && legacyTask.getResult().exists()) {
+                                String msg = getString(R.string.error_doc_ya_existe, finalTipoDoc);
+                                if (tilDni != null) tilDni.setError(msg);
+                                errorRegistro(msg);
+                                return;
+                            }
+
+                            realizarRegistroCompleto(email, password, nombre, apellidos, finalDocumento, finalTipoDoc, finalDocKey);
+                        });
+                    } else {
                         // Si no hay mapeo, seguimos con el alta normal.
-                        realizarRegistro(email, password, nombre, apellidos, dni);
-                        return;
+                        realizarRegistroCompleto(email, password, nombre, apellidos, finalDocumento, finalTipoDoc, finalDocKey);
                     }
-
-                    // Si el DNI apunta a un correo vacío, limpiamos el dato corrupto y continuamos.
-                    String correoMapeado = dniTask.getResult().getValue(String.class);
-                    if (correoMapeado == null || correoMapeado.isEmpty()) {
-                        FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
-                        realizarRegistro(email, password, nombre, apellidos, dni);
-                        return;
-                    }
-
-                    // Convertimos el correo mapeado al formato de clave usado dentro de Firebase Realtime Database.
-                    String emailSafeMapeado = correoMapeado.replace(".", "_");
-                    FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(emailSafeMapeado).get().addOnSuccessListener(perfilSnapshot -> {
-                        // Si el perfil existe de verdad, el DNI está ocupado y bloqueamos el alta.
-                        if (perfilSnapshot.exists()) {
-                            if (tilDni != null) tilDni.setError(getString(R.string.error_dni_ya_registrado));
-                            errorRegistro(getString(R.string.error_dni_ya_registrado));
-                        } else {
-                            // Si el perfil no existe, el mapeo quedó huérfano y se puede reutilizar el DNI.
-                            FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
-                            realizarRegistro(email, password, nombre, apellidos, dni);
-                        }
-                    }).addOnFailureListener(e -> {
-                        // Si la comprobación del perfil falla, preferimos limpiar y permitir el registro.
-                        FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
-                        realizarRegistro(email, password, nombre, apellidos, dni);
-                    });
                 });
             });
         }
@@ -241,8 +262,8 @@ public class RegisterActivity extends AppCompatActivity {
         // Recuperamos el último borrador guardado para que un cambio de idioma no vacíe el formulario.
         restaurarBorradorRegistro();
 
-        // Guardamos el contenido a medida que el usuario escribe para no perderlo si cambia el idioma.
-        configurarGuardadoBorrador(etNombre, etApellidos, etDni, etEmail, etPassword);
+         // Guardamos el contenido a medida que el usuario escribe para no perderlo si cambia el idioma.
+         configurarGuardadoBorrador(etNombre, etApellidos, actvDocType, etDni, etEmail, etPassword);
     }
 
     // Abre el selector de idioma usando el mismo desplegable reutilizable del resto de pantallas.
@@ -276,31 +297,39 @@ public class RegisterActivity extends AppCompatActivity {
         overridePendingTransition(0, 0);
     }
 
-    // Crea la cuenta en Firebase Authentication y guarda el perfil base en Realtime Database.
-    private void realizarRegistro(String email, String pass, String nom, String ape, String dni) {
+    // Crea la cuenta en Firebase Authentication y guarda el perfil completo en Realtime Database.
+    private void realizarRegistroCompleto(String email, String pass, String nom, String ape, String doc, String tipoDoc, String docKey) {
         auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 String uid = task.getResult().getUser() != null ? task.getResult().getUser().getUid() : "";
-                String emailSafe = email.replace(".", "_");
+                String codigoTipoDoc = codigoDocumento(tipoDoc);
+                String campoDocumento = campoDocumentoPorCodigo(codigoTipoDoc);
                 Map<String, Object> userData = new HashMap<>();
                 userData.put("name", nom);
                 userData.put("surname", ape);
-                userData.put("dni", dni);
+                // Compatibilidad temporal con pantallas que todavía filtran por `dni`.
+                userData.put("dni", doc);
+                userData.put("documentNumber", doc);
+                userData.put("tipoDocumento", tipoDoc);
+                userData.put("documentType", tipoDoc);
+                userData.put("documentTypeCode", codigoTipoDoc);
+                if (!campoDocumento.isEmpty()) userData.put(campoDocumento, doc);
                 userData.put("email", email);
                 userData.put("rol", "user");
                 
                 FirebaseDatabase db = FirebaseDatabase.getInstance(DB_URL);
-                // Guardamos por UID para coincidir con la nueva estructura
                 db.getReference("usuarios").child(uid).setValue(userData).addOnCompleteListener(dbTask -> {
                     if (dbTask.isSuccessful()) {
-                        db.getReference("MapeoDNI").child(dni).setValue(email);
+                        db.getReference("MapeoDocumentos").child(docKey).setValue(email);
+                        if ("DNI".equals(codigoTipoDoc)) {
+                            db.getReference("MapeoDNI").child(doc).setValue(email);
+                        }
                         limpiarBorradorRegistro();
                         solicitarGuardadoCredenciales(email, pass, () -> {
                             startActivity(new Intent(this, HomeActivity.class));
                             finish();
                         });
                     } else {
-                        // Si falla la BD, borramos el usuario de Auth para que pueda reintentar sin errores de "email ya existe".
                         if (task.getResult().getUser() != null) {
                             task.getResult().getUser().delete();
                         }
@@ -331,29 +360,37 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    // Valida que el documento sea un DNI, NIE o Pasaporte válido para evitar registros con datos falsos.
-    private boolean validarDocumento(String documento) {
-        if (documento == null || documento.isEmpty()) return false;
+    // Valida el documento según su tipo (DNI, NIE o Pasaporte).
+    private String validarDocumentoConTipo(String documento, String tipo) {
+        if (documento == null || documento.isEmpty()) return getString(R.string.error_obligatorio);
         String doc = documento.toUpperCase().trim();
 
-        // Patrón para DNI: 8 números y 1 letra de control.
-        if (doc.matches("^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$")) {
-            String numeros = doc.substring(0, 8);
-            char letra = doc.charAt(8);
-            return calcularLetraDni(numeros) == letra;
+        if (tipo.equals(getString(R.string.doc_dni))) {
+            if (doc.matches("^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$")) {
+                String numeros = doc.substring(0, 8);
+                char letra = doc.charAt(8);
+                if (calcularLetraDni(numeros) == letra) return null;
+            }
+            return getString(R.string.error_dni_invalido);
         }
 
-        // Patrón para NIE: Letra inicial (X, Y, Z), 7 números y 1 letra final.
-        if (doc.matches("^[XYZ][0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]$")) {
-            String prefijo = doc.substring(0, 1);
-            String resto = doc.substring(1, 8);
-            char letraFinal = doc.charAt(8);
-            String numerosParaCalculo = prefijo.replace("X", "0").replace("Y", "1").replace("Z", "2") + resto;
-            return calcularLetraDni(numerosParaCalculo) == letraFinal;
+        if (tipo.equals(getString(R.string.doc_nie))) {
+            if (doc.matches("^[XYZ][0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]$")) {
+                String prefijo = doc.substring(0, 1);
+                String resto = doc.substring(1, 8);
+                char letraFinal = doc.charAt(8);
+                String numerosParaCalculo = prefijo.replace("X", "0").replace("Y", "1").replace("Z", "2") + resto;
+                if (calcularLetraDni(numerosParaCalculo) == letraFinal) return null;
+            }
+            return getString(R.string.error_nie_invalido);
         }
 
-        // Patrón para Pasaporte: Suele ser alfanumérico de entre 6 y 12 caracteres.
-        return doc.matches("^[A-Z0-9]{6,12}$");
+        if (tipo.equals(getString(R.string.doc_pasaporte))) {
+            if (doc.matches("^[A-Z0-9]{6,12}$")) return null;
+            return getString(R.string.error_pasaporte_invalido);
+        }
+
+        return getString(R.string.error_procesar);
     }
 
     private char calcularLetraDni(String numeros) {
@@ -405,70 +442,149 @@ public class RegisterActivity extends AppCompatActivity {
     // Limpia todos los mensajes de error visibles en los contenedores del formulario.
     private void resetErrors(TextInputLayout... layouts) { for (TextInputLayout l : layouts) if (l != null) l.setError(null); }
 
-    // Guarda el contenido actual del registro en preferencias temporales.
-    private void guardarBorradorRegistro() {
-        SharedPreferences.Editor editor = getSharedPreferences(PREF_REGISTER_DRAFT, Context.MODE_PRIVATE).edit();
-        editor.putString("nombre", textoCampo(R.id.etRegNombre));
-        editor.putString("apellidos", textoCampo(R.id.etRegApellidos));
-        editor.putString("dni", textoCampo(R.id.etRegDni));
-        editor.putString("email", textoCampo(R.id.etRegEmail));
-        editor.putString("password", textoCampo(R.id.etRegPassword));
-        editor.putBoolean("terms", cbTerms != null && cbTerms.isChecked());
-        editor.commit();
-    }
+     // Guarda el contenido actual del registro en preferencias temporales.
+     private void guardarBorradorRegistro() {
+         SharedPreferences.Editor editor = getSharedPreferences(PREF_REGISTER_DRAFT, Context.MODE_PRIVATE).edit();
+         editor.putString("nombre", textoCampo(R.id.etRegNombre));
+         editor.putString("apellidos", textoCampo(R.id.etRegApellidos));
+         editor.putString("docType", codigoDocumento(textoCampoActv(R.id.actvDocType)));
+         editor.putString("dni", textoCampo(R.id.etRegDni));
+         editor.putString("email", textoCampo(R.id.etRegEmail));
+         editor.putString("password", textoCampo(R.id.etRegPassword));
+         editor.putBoolean("terms", cbTerms != null && cbTerms.isChecked());
+         editor.commit();
+     }
 
-    // Restaura el contenido guardado si el usuario cambió idioma o la actividad se recreó.
-    private void restaurarBorradorRegistro() {
-        SharedPreferences prefs = getSharedPreferences(PREF_REGISTER_DRAFT, Context.MODE_PRIVATE);
-        TextInputEditText etNombre = findViewById(R.id.etRegNombre);
-        TextInputEditText etApellidos = findViewById(R.id.etRegApellidos);
-        TextInputEditText etDni = findViewById(R.id.etRegDni);
-        TextInputEditText etEmail = findViewById(R.id.etRegEmail);
-        TextInputLayout tilPassword = findViewById(R.id.tilRegPassword);
-        TextInputEditText etPassword = tilPassword != null ? (TextInputEditText) tilPassword.getEditText() : null;
+     // Restaura el contenido guardado si el usuario cambió idioma o la actividad se recreó.
+     private void restaurarBorradorRegistro() {
+         SharedPreferences prefs = getSharedPreferences(PREF_REGISTER_DRAFT, Context.MODE_PRIVATE);
+         TextInputEditText etNombre = findViewById(R.id.etRegNombre);
+         TextInputEditText etApellidos = findViewById(R.id.etRegApellidos);
+         com.google.android.material.textfield.MaterialAutoCompleteTextView actvDocType = findViewById(R.id.actvDocType);
+         TextInputEditText etDni = findViewById(R.id.etRegDni);
+         TextInputEditText etEmail = findViewById(R.id.etRegEmail);
+         TextInputLayout tilPassword = findViewById(R.id.tilRegPassword);
+         TextInputEditText etPassword = tilPassword != null ? (TextInputEditText) tilPassword.getEditText() : null;
 
-        if (etNombre != null) etNombre.setText(prefs.getString("nombre", ""));
-        if (etApellidos != null) etApellidos.setText(prefs.getString("apellidos", ""));
-        if (etDni != null) etDni.setText(prefs.getString("dni", ""));
-        if (etEmail != null) etEmail.setText(prefs.getString("email", ""));
-        if (etPassword != null) etPassword.setText(prefs.getString("password", ""));
-        if (cbTerms != null) cbTerms.setChecked(prefs.getBoolean("terms", false));
-    }
+         if (etNombre != null) etNombre.setText(prefs.getString("nombre", ""));
+         if (etApellidos != null) etApellidos.setText(prefs.getString("apellidos", ""));
+         if (actvDocType != null) {
+             String docTypeCode = prefs.getString("docType", "DNI");
+             String docTypeLabel = etiquetaDocumentoDesdeCodigo(docTypeCode);
+             actvDocType.setText(docTypeLabel.isEmpty() ? getString(R.string.doc_dni) : docTypeLabel, false);
+         }
+         if (etDni != null) etDni.setText(prefs.getString("dni", ""));
+         actualizarCampoDocumentoSegunTipo(etDni, actvDocType != null && actvDocType.getText() != null ? actvDocType.getText().toString() : "");
+         if (etEmail != null) etEmail.setText(prefs.getString("email", ""));
+         if (etPassword != null) etPassword.setText(prefs.getString("password", ""));
+         if (cbTerms != null) cbTerms.setChecked(prefs.getBoolean("terms", false));
+     }
 
-    // Engancha los cambios del formulario para que el borrador se vaya guardando automáticamente.
-    private void configurarGuardadoBorrador(TextInputEditText etNombre, TextInputEditText etApellidos, TextInputEditText etDni, TextInputEditText etEmail, TextInputEditText etPassword) {
-        TextWatcher watcher = new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override public void afterTextChanged(Editable s) { guardarBorradorRegistro(); }
-        };
-        if (etNombre != null) etNombre.addTextChangedListener(watcher);
-        if (etApellidos != null) etApellidos.addTextChangedListener(watcher);
-        if (etDni != null) etDni.addTextChangedListener(watcher);
-        if (etEmail != null) etEmail.addTextChangedListener(watcher);
-        if (etPassword != null) etPassword.addTextChangedListener(watcher);
-        if (cbTerms != null) cbTerms.setOnCheckedChangeListener((buttonView, isChecked) -> guardarBorradorRegistro());
-    }
+     // Engancha los cambios del formulario para que el borrador se vaya guardando automáticamente.
+     private void configurarGuardadoBorrador(TextInputEditText etNombre, TextInputEditText etApellidos, com.google.android.material.textfield.MaterialAutoCompleteTextView actvDocType, TextInputEditText etDni, TextInputEditText etEmail, TextInputEditText etPassword) {
+         TextWatcher watcher = new TextWatcher() {
+             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+             @Override public void afterTextChanged(Editable s) { guardarBorradorRegistro(); }
+         };
+         if (etNombre != null) etNombre.addTextChangedListener(watcher);
+         if (etApellidos != null) etApellidos.addTextChangedListener(watcher);
+         if (actvDocType != null) actvDocType.addTextChangedListener(watcher);
+         if (etDni != null) etDni.addTextChangedListener(watcher);
+         if (etEmail != null) etEmail.addTextChangedListener(watcher);
+         if (etPassword != null) etPassword.addTextChangedListener(watcher);
+         if (cbTerms != null) cbTerms.setOnCheckedChangeListener((buttonView, isChecked) -> guardarBorradorRegistro());
+     }
 
-    // Devuelve el texto actual de un campo concreto o vacío si no existe.
-    private String textoCampo(int resId) {
-        View view = findViewById(resId);
-        if (view instanceof TextInputEditText) {
-            Editable text = ((TextInputEditText) view).getText();
-            return text != null ? text.toString().trim() : "";
-        }
-        return "";
-    }
+     // Devuelve el texto actual de un campo concreto o vacío si no existe.
+     private String textoCampo(int resId) {
+         View view = findViewById(resId);
+         if (view instanceof TextInputEditText) {
+             Editable text = ((TextInputEditText) view).getText();
+             return text != null ? text.toString().trim() : "";
+         }
+         return "";
+     }
+
+     // Devuelve el texto de un AutoCompleteTextView o vacío si no existe.
+     private String textoCampoActv(int resId) {
+         View view = findViewById(resId);
+         if (view instanceof AutoCompleteTextView) {
+             Editable text = ((AutoCompleteTextView) view).getText();
+             return text != null ? text.toString().trim() : "";
+         }
+         return "";
+     }
 
     // Elimina el borrador temporal una vez el registro termina correctamente.
     private void limpiarBorradorRegistro() {
         getSharedPreferences(PREF_REGISTER_DRAFT, Context.MODE_PRIVATE).edit().clear().apply();
     }
 
-    // Devuelve el texto actual del campo o una cadena vacía si el campo no existe.
-    private String safeText(TextInputEditText editText) {
-        return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
-    }
+     // Devuelve el texto actual del campo o una cadena vacía si el campo no existe.
+     private String safeText(TextInputEditText editText) {
+         return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
+     }
+
+     // Devuelve el texto del AutoCompleteTextView o una cadena vacía si no existe.
+     private String safeTextAutocomplete(AutoCompleteTextView editText) {
+         return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
+     }
+
+     // Ajusta la pista del documento según el tipo seleccionado.
+     private void actualizarCampoDocumentoSegunTipo(TextInputEditText etDni, String tipoDoc) {
+         if (etDni == null) return;
+         String tipo = tipoDoc != null ? tipoDoc.trim() : "";
+         if (tipo.equals(getString(R.string.doc_pasaporte))) {
+             etDni.setHint(R.string.register_passport_number_hint);
+         } else if (tipo.equals(getString(R.string.doc_nie))) {
+             etDni.setHint(R.string.register_nie_number_hint);
+         } else if (tipo.equals(getString(R.string.doc_dni))) {
+             etDni.setHint(R.string.register_dni_number_hint);
+         } else {
+             etDni.setHint(R.string.register_document_number_hint);
+         }
+     }
+
+     // Genera una clave única para comprobar duplicados por tipo + número.
+     private String claveDocumento(String tipoDoc, String documento) {
+         String tipo = codigoDocumento(tipoDoc);
+          String doc = normalizarDocumento(documento);
+         return tipo + "_" + doc;
+     }
+
+      // Unifica el formato del documento para validación y guardado.
+      private String normalizarDocumento(String documento) {
+          return documento != null ? documento.trim().replace(" ", "").toUpperCase(Locale.ROOT) : "";
+      }
+
+     // Convierte el texto visible del selector en un código estable para la base de datos.
+     private String codigoDocumento(String tipoDoc) {
+         if (tipoDoc == null) return "";
+         String tipo = tipoDoc.trim();
+         if (tipo.equals(getString(R.string.doc_dni))) return "DNI";
+         if (tipo.equals(getString(R.string.doc_pasaporte))) return "PASSPORT";
+         if (tipo.equals(getString(R.string.doc_nie))) return "NIE";
+         return tipo.toUpperCase(Locale.ROOT);
+     }
+
+      // Devuelve la clave de documento específica usada en el perfil según el tipo seleccionado.
+      private String campoDocumentoPorCodigo(String codigoTipo) {
+          if ("DNI".equals(codigoTipo)) return "dni";
+          if ("NIE".equals(codigoTipo)) return "nie";
+          if ("PASSPORT".equals(codigoTipo)) return "pasaporte";
+          return "";
+      }
+
+     // Convierte el código estable a la etiqueta visible del idioma activo.
+     private String etiquetaDocumentoDesdeCodigo(String codigo) {
+         if (codigo == null) return "";
+         String tipo = codigo.trim().toUpperCase(Locale.ROOT);
+         if ("DNI".equals(tipo)) return getString(R.string.doc_dni);
+         if ("PASSPORT".equals(tipo)) return getString(R.string.doc_pasaporte);
+         if ("NIE".equals(tipo)) return getString(R.string.doc_nie);
+         return codigo.trim();
+     }
 
     // Comprueba que la contraseña cumpla la política mínima exigida por la app.
     private boolean esPasswordSegura(String password) {
@@ -514,8 +630,15 @@ public class RegisterActivity extends AppCompatActivity {
         ImageView btnCerrarCruceta = view.findViewById(R.id.btnCerrarCruceta);
         Button btnCerrarAbajo = view.findViewById(R.id.btnCerrarAbajo);
 
-        if (txtTituloLegal != null) TranslationHelper.translateTextView(txtTituloLegal, resIdTitulo);
-        if (txtContenidoLegal != null) TranslationHelper.translateTextView(txtContenidoLegal, resIdContenido);
+        if (txtTituloLegal != null) {
+            String titulo = getString(resIdTitulo);
+            txtTituloLegal.setText(Html.fromHtml(titulo, Html.FROM_HTML_MODE_COMPACT));
+        }
+
+        if (txtContenidoLegal != null) {
+            String contenido = getString(resIdContenido);
+            txtContenidoLegal.setText(Html.fromHtml(contenido, Html.FROM_HTML_MODE_COMPACT));
+        }
 
         if (btnCerrarCruceta != null) btnCerrarCruceta.setOnClickListener(v -> dialog.dismiss());
         

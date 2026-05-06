@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">The Ring Private</string>
-    <string name="login_user_hint">Email or DNI</string>
+    <string name="login_user_hint">Email, DNI, NIE or Passport</string>
     <string name="login_password_hint">Password</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_btn_signin">Sign In</string>
@@ -18,13 +18,14 @@
     <string name="register_name_hint">Name</string>
     <string name="register_lastname_hint">Lastname</string>
     <string name="register_dni_hint">DNI / ID Card</string>
+    <string name="register_doc_and_dni_hint">Document (DNI, Passport, NIE)</string>
     <string name="profile_email">Email</string>
     <string name="profile_password">Password</string>
     <string name="register_terms_accept">I accept terms and conditions</string>
     <string name="register_btn_signup">Sign Up</string>
     <string name="register_terms_error">You must accept the terms</string>
 
-    <string name="error_dni_vacio">Please enter your DNI or Email</string>
+    <string name="error_dni_vacio">Please enter your email or document</string>
     <string name="error_pass_vacio">Please enter your password</string>
     <string name="error_credenciales">Invalid credentials</string>
     <string name="error_datos_incompletos">Please fill in all fields</string>
@@ -35,32 +36,72 @@
     <string name="error_dni_invalido">Invalid DNI</string>
     <string name="error_email_invalido">Invalid Email</string>
     <string name="error_email_existe">This email is already linked to an account</string>
-    <string name="error_dni_ya_registrado">This ID is already registered</string>
-    <string name="error_password_segura">Password must have at least 6 characters, 1 uppercase letter, and 1 special character</string>
-    <string name="min_6_chars">Minimum 6 characters</string>
+    <string name="error_dni_ya_registrado">This document is already registered</string>
+    <string name="error_doc_ya_existe">This %1$s already exists</string>
+    <string name="register_doc_type_hint">Select document type</string>
+    <string name="register_doc_type_short">Type</string>
+    <string name="doc_dni">DNI</string>
+    <string name="doc_pasaporte">PASSPORT</string>
+    <string name="doc_nie">NIE</string>
+    <string name="register_document_number_hint">Document number</string>
+    <string name="register_dni_number_hint">DNI number</string>
+    <string name="register_passport_number_hint">Passport number</string>
+    <string name="register_nie_number_hint">NIE number</string>
+    <string name="error_pasaporte_invalido">Invalid Passport (6-12 chars)</string>
+    <string name="error_nie_invalido">Invalid NIE</string>
 
     <string name="settings_terms">Terms and Conditions</string>
-    <string name="texto_terminos">These Terms and Conditions govern the download, access, and use of the THE RING PRIVATE app (the App). By using the App, you expressly accept these conditions.\n\n1. Purpose\nThe App is designed to manage member identification, share internal service notices, and improve access experience at the club. Use is personal and non-transferable.\n\n2. User registration\nTo create an account, the user must provide real and valid information (name, surname, identity document, and email). The user is responsible for protecting their password and not sharing it.\n\n3. Proper use\nThe user agrees to use the App lawfully and respectfully, in compliance with applicable regulations. It is forbidden to manipulate, copy, decompile, alter, or reuse the App content without express authorization.\n\n4. Intellectual property\nAll intellectual and industrial property rights over the App, including design, text, trademarks, and graphic elements, belong to THE RING PRIVATE or authorized third parties.\n\n5. Data protection\nPersonal data is processed in accordance with Regulation (EU) 2016/679 (GDPR) and applicable Spanish law. Processing is carried out to manage the membership relationship and App operation.\n\n6. Availability and liability\nTHE RING PRIVATE may update, modify, or temporarily suspend the App for technical, legal, or maintenance reasons. While reasonable security measures are applied, uninterrupted availability cannot be guaranteed.\n\n7. Account deletion\nThe user may request account deletion from Settings. This action removes access and associated data in enabled systems, except where legal retention obligations apply.\n\n8. Applicable law\nThese conditions are governed by Spanish law. Any dispute will be submitted to the competent courts of Madrid, unless mandatory legal provisions state otherwise.</string>
-    <string name="texto_normas">
-        RULES: THE RING PRIVATE\n\n
-        You agree to comply with these rules. For the benefit of all, be advised that any violation of the following rules will be considered a VERY SERIOUS offense and will be grounds for immediate expulsion.\n\n
-        ━━━━━━━━━━━━━━━━━━━━━━\n
-        LIST OF RULES\n
-        ━━━━━━━━━━━━━━━━━━━━━━\n\n
-        • RESPECT: Our primary rule.\n\n
-        • GAMES: You cannot join a game started by others if they do not want you to.\n\n
-        • ATTITUDE: Any disrespectful attitude towards others is not allowed.\n\n
-        • DEVICES: The use of mobile phones, video or photo cameras is not allowed.\n\n
-        • PROHIBITED PRACTICES: Scat, blood, or extreme pain practices are not allowed.\n\n
-        • SUBSTANCES: The sale or consumption of any type of drugs or narcotics is not allowed.\n\n
-        ━━━━━━━━━━━━━━━━━━━━━━\n
-        ADDITIONAL REMINDERS\n
-        ━━━━━━━━━━━━━━━━━━━━━━\n\n
-        • VOLUNTARINESS: You are not obligated to do anything you do not wish to do.\n\n
-        • FACILITIES: Please keep them as you would like to find them.\n\n
-        • HEALTH: The club strongly recommends safe sex (free condoms available).\n\n
-        • HYGIENE: Cleaning and hygiene items are available for your use.
-    </string>
+    <string name="texto_terminos_titulo"><![CDATA[<b>Terms and Conditions</b>]]></string>
+    <string name="texto_terminos"><![CDATA[
+        <b>Terms and Conditions</b><br/><br/>
+        These Terms and Conditions govern the download, access, and use of THE RING PRIVATE application (hereinafter, the Application). Access to and use of the Application implies express acceptance of these conditions.<br/><br/>
+
+        <b>1. What is the purpose of the Application?</b><br/>
+        The Application aims to manage member identification, facilitate communication of internal notices, and improve the club access experience. Its use is personal and non-transferable.<br/><br/>
+
+        <b>2. How do I register?</b><br/>
+        To create an account, the user must provide real and current data (Name, Surname, Identity Document, and Email). The user is responsible for safeguarding their password and not sharing it with third parties.<br/><br/>
+
+        <b>3. What are the rules of use?</b><br/>
+        The user agrees to use the Application lawfully, respectfully, and in accordance with applicable regulations. It is forbidden to manipulate, copy, decompile, alter, or reuse the content of the Application without express authorization.<br/><br/>
+
+        <b>4. Who owns the Application?</b><br/>
+        All intellectual and industrial property rights over the Application, its design, texts, brands, and graphic elements belong to THE RING PRIVATE or authorized third parties.<br/><br/>
+
+        <b>5. How is my personal data protected?</b><br/>
+        Personal data will be treated in accordance with Regulation (EU) 2016/679 (GDPR) and current Spanish regulations. Processing is carried out to manage the relationship with the member and the operation of the Application.<br/><br/>
+
+        The user can exercise their rights of Access, Rectification, Erasure, Objection, Restriction, and Portability by contacting the entity.<br/><br/>
+
+        <b>6. What guarantee does the Application have?</b><br/>
+        THE RING PRIVATE may update, modify, or suspend the Application for technical, legal, or maintenance reasons. Although security measures are applied, absolute availability or the total absence of technical errors is not guaranteed.<br/><br/>
+
+        <b>7. Can I delete my account?</b><br/>
+        The user can request the deletion of their account from the Settings section. This action removes the access and associated data in the enabled systems, except for legal conservation obligations.<br/><br/>
+
+        <b>8. What law applies?</b><br/>
+        These conditions are governed by Spanish law. Any controversy will be submitted to the competent courts and tribunals of Madrid, unless there is a mandatory legal provision to the contrary.
+    ]]></string>
+    <string name="texto_normas"><![CDATA[
+        <b>RULES: THE RING PRIVATE</b><br/><br/>
+        You agree to comply with these rules. For the benefit of all, be advised that any violation of the following rules will be considered a VERY SERIOUS offense and will be grounds for immediate expulsion.<br/><br/>
+        ━━━━━━━━━━━━━━━━━━━━━━<br/>
+        <b>LIST OF RULES</b><br/>
+        ━━━━━━━━━━━━━━━━━━━━━━<br/><br/>
+        • <b>Respect:</b> Our primary rule.<br/><br/>
+        • <b>Games:</b> You cannot join a game started by others if they do not want you to.<br/><br/>
+        • <b>Attitude:</b> Any disrespectful attitude towards others is not allowed.<br/><br/>
+        • <b>Devices:</b> The use of mobile phones, video or photo cameras is not allowed.<br/><br/>
+        • <b>Prohibited practices:</b> Scat, blood, or extreme pain practices are not allowed.<br/><br/>
+        • <b>Substances:</b> The sale or consumption of any type of drugs or narcotics is not allowed.<br/><br/>
+        ━━━━━━━━━━━━━━━━━━━━━━<br/>
+        <b>ADDITIONAL REMINDERS</b><br/>
+        ━━━━━━━━━━━━━━━━━━━━━━<br/><br/>
+        • <b>Voluntariness:</b> You are not obligated to do anything you do not wish to do.<br/><br/>
+        • <b>Facilities:</b> Please keep them as you would like to find them.<br/><br/>
+        • <b>Health:</b> The club strongly recommends safe sex (free condoms available).<br/><br/>
+        • <b>Hygiene:</b> Cleaning and hygiene items are available for your use.
+    ]]></string>
     <string name="whatsapp_admin_msg">Hello, I need help with the application.</string>
 
     <string name="menu_notificaciones">NOTIFICATIONS</string>
@@ -90,8 +131,8 @@
     <string name="qr_panel_close">Back</string>
     <string name="menu_perfil">PROFILE</string>
     <string name="menu_normas">RULES</string>
-    <string name="qr_identificativo">IDENTIFICATION QR CODE</string>
-    <string name="btn_close">Close</string>
+    <string name="qr_identificativo">This is your QR.</string>
+    <string name="btn_close">CLOSE</string>
     <string name="ajustes">SETTINGS</string>
     <string name="configuracion">CONFIGURATION</string>
     <string name="ajuste_cambiar_pass">Change password</string>
@@ -99,10 +140,11 @@
     <string name="settings_change_theme_btn">Appearance</string>
     <string name="informacion_legal">LEGAL INFORMATION</string>
     <string name="settings_rates">Rates</string>
-    <string name="ajuste_aviso_legal">Legal notice</string>
+    <string name="ajuste_aviso_legal">Legal Notice</string>
     <string name="settings_help">Help</string>
     <string name="settings_faq">Frequently Asked Questions</string>
     <string name="settings_user_manual">User Manual</string>
+    <string name="settings_contact_us">Contact us: theringprivate@gmail.com</string>
     <string name="login_manual_short">Manual</string>
     <string name="acciones">ACTIONS</string>
     <string name="ajuste_cerrar_sesion">Log out</string>
@@ -125,22 +167,178 @@
     <string name="profile_not_linked">Account not linked</string>
     <string name="profile_btn_change_pass">Change access password</string>
 
-    <!-- Missing keys -->
     <string name="loading">Loading…</string>
     <string name="user_label">User</string>
     <string name="socio_label">Member</string>
     <string name="pass_changed_success">Password changed successfully</string>
     <string name="reauth_needed">Re-authentication is required</string>
-    <string name="texto_tarifas_horarios_titulo">How to become a member and pricing</string>
-    <string name="texto_tarifas_horarios">How to become a member\n1. Go to reception and request membership registration.\n2. Complete and sign the registration form with valid personal details.\n3. Explicitly accept the club internal rules.\n4. Download the app and register with the same identity document.\n5. First-time validation is completed in person at reception.\n\nActive membership\nOnly users with a valid paid fee are considered active members. If the fee expires, membership is suspended until renewal.\n\nMember benefits\n- Faster access through QR identification.\n- Personal account to manage notifications and settings.\n- Locker usage according to club availability and conditions.\n- Extra benefits during special events when announced.\n\nCurrent prices\nOne-day member:\n- Friday: 15 EUR\n- Saturday: 15 EUR\n\nVIP plans:\n- VIP 1 month: 90 EUR\n- VIP 6 months: 250 EUR\n\nPrices may be updated. The current version is always available at reception and in the app.</string>
-    <string name="texto_terminos_titulo">Terms of Service</string>
-    <string name="texto_aviso_legal">1. Data controller\nThe data controller is THE RING PRIVATE.\nAddress: C. del Amparo, 75, Centro, 28012 Madrid.\nContact email: ringasociacion@gmail.com\n\n2. Data processed\nWe process the data required to manage registration and member access: name, surname, email, and identity document.\n\n3. Purpose\nThe main purpose is to manage membership, access to the club, and internal service communications.\n\n4. Legal basis\nProcessing is based on user consent and the execution of the membership relationship.\n\n5. Data retention\nData is retained while membership remains active or for the legal retention periods that apply.\n\n6. User rights\nYou may exercise your rights of access, rectification, erasure, objection, restriction, and portability by contacting the provided email.\n\n7. Security\nWe apply reasonable technical and organizational measures to prevent unauthorized access, loss, or alteration of data.\n\n8. Legal notice updates\nThis notice may be updated due to legal changes or service improvements. The current version is always available in the app.\n\nLast updated: 17/04/2026</string>
-    <string name="help_support_title">Help and support</string>
-    <string name="help_support_msg">If you have an issue with the app, follow this order:\n\n1. First, review the Frequently Asked Questions section.\n2. If the issue continues, email ringasociacion@gmail.com including:\n- Your account email\n- Your registration ID number\n- Device model\n- Android version\n- Exact error description\n\nSupport email:\nringasociacion@gmail.com\n\nOfficial social media:\nFacebook: https://www.facebook.com/theringprivate\nInstagram: https://www.instagram.com/theringprivate\n\nOn-site support:\nC. del Amparo, 75, Centro, 28012 Madrid</string>
-    <string name="texto_faq_titulo">Frequently Asked Questions (FAQ)</string>
-    <string name="texto_faq">1. How do I register correctly?\nTap Sign Up, complete name, surname, ID, email, and a secure password. You must accept terms and conditions to finish.\n\n2. Which documents are valid for registration?\nValid documents are DNI, NIE, or passport.\n\n3. I forgot my password. What should I do?\nOn the sign-in screen, tap Forgot password and follow the email recovery steps.\n\n4. My QR does not appear. How can I fix it?\nCheck your internet connection, close and reopen the QR screen, then try again. If needed, sign out and sign in again.\n\n5. Can I update personal information?\nSensitive identity data is managed at reception for verification purposes.\n\n6. How do I delete my account?\nIn Settings, open Delete account, verify your credentials, and confirm final deletion.\n\n7. What happens to notifications if I delete one?\nIf you delete a notification in your profile, it is removed only for your account. Other users keep their own notifications independently.</string>
+    <string name="texto_tarifas_horarios_titulo"><![CDATA[<b>How to become a member and what are the rates?</b>]]></string>
+    <string name="texto_tarifas_horarios"><![CDATA[
+        <b>1. How to become a member?</b><br/>
+        • Go to reception and request membership registration.<br/>
+        • Complete and sign the registration form with your real data.<br/>
+        • Explicitly accept the club internal rules.<br/>
+        • Download the app and complete your registration with the same identity document.<br/>
+        • First-time validation is completed in person at reception.<br/><br/>
+
+        <b>2. When am I considered an active member?</b><br/>
+        Only those who have paid the current fee are considered active members. If the fee expires, membership status is suspended until renewal.<br/><br/>
+
+        <b>3. What are the benefits of being a member?</b><br/>
+        • Faster access through QR identification.<br/>
+        • Personal account to manage notifications and settings.<br/>
+        • Locker usage according to club availability and conditions.<br/>
+        • Access to extra benefits during special events.<br/><br/>
+
+        <b>4. What is the price?</b><br/><br/>
+
+        <b>One-day member:</b><br/>
+        • Friday: 15 EUR<br/>
+        • Saturday: 15 EUR<br/><br/>
+
+        <b>VIP fees:</b><br/>
+        • VIP Member 1 month: 90 EUR<br/>
+        • VIP Member 6 months: 250 EUR<br/><br/>
+
+        <b>5. Do rates change?</b><br/>
+        Rates may be updated. In case of change, the current version will be published at reception and in the app.
+    ]]></string>
+
+    <string name="help_support_title"><![CDATA[<b>Do you need Help and Support?</b>]]></string>
+    <string name="help_support_msg"><![CDATA[
+        <b>Do you have a problem with the application?</b><br/><br/>
+        Follow this order:<br/><br/>
+        1. First, review the <b>Frequently Asked Questions</b> section.<br/>
+        2. If it is not resolved, write to <b>ringasociacion@gmail.com</b> indicating:<br/>
+        • Your account email<br/>
+        • Document used in registration<br/>
+        • Mobile model<br/>
+        • Android version<br/>
+        • Exact description of the error<br/><br/>
+
+        <b>Email support:</b><br/>
+        ringasociacion@gmail.com<br/><br/>
+
+        <b>Official social media:</b><br/>
+        Facebook: https://www.facebook.com/theringprivate<br/>
+        Instagram: https://www.instagram.com/theringprivate<br/><br/>
+
+        <b>Where are we?</b><br/>
+        C. del Amparo, 75, Centro, 28012 Madrid
+    ]]></string>
+
+    <string name="texto_faq_titulo"><![CDATA[<b>Frequently Asked Questions (FAQ)?</b>]]></string>
+    <string name="texto_faq"><![CDATA[
+        <b>1. How do I register correctly?</b><br/>
+        Tap on Sign Up, complete Name, Surname, DNI/NIE/Passport, Email, and a secure Password. You must accept the Terms and Conditions to finish.<br/><br/>
+
+        <b>2. Which documents are valid for registration?</b><br/>
+        DNI, NIE, or valid Passport are accepted.<br/><br/>
+
+        <b>3. I have forgotten my password. What should I do?</b><br/>
+        In Sign In, tap "Forgot your password" and follow the email recovery process.<br/><br/>
+
+        <b>4. The QR does not show? How do I fix it?</b><br/>
+        Check your internet connection, close and open the QR screen, and try again. If the problem persists, sign out and sign in again.<br/><br/>
+
+        <b>5. Can I change my personal data?</b><br/>
+        Sensitive identity data is managed at reception to verify identity.<br/><br/>
+
+        <b>6. How do I delete my account?</b><br/>
+        In Settings, go to "Delete account", verify your credentials, and confirm final deletion.<br/><br/>
+
+        <b>7. What happens to my notifications if I delete them?</b><br/>
+        If you delete a notification in your profile, it stops appearing in your account. Other users keep their own notifications independently.
+    ]]></string>
+
+    <string name="texto_aviso_legal"><![CDATA[
+        <b>1. Who is responsible for the treatment?</b><br/>
+        The data controller is THE RING PRIVATE.<br/>
+        Address: C. del Amparo, 75, Centro, 28012 Madrid.<br/>
+        Contact email: ringasociacion@gmail.com<br/><br/>
+
+        <b>2. What data is processed?</b><br/>
+        We process the data required to manage your registration and access as a member: Name, Surname, Email, and Identity Document.<br/><br/>
+
+        <b>3. What are my data used for?</b><br/>
+        The main purpose is to manage the relationship with the member, their access to the club, and internal service communications.<br/><br/>
+
+        <b>4. What is the legal basis for the treatment?</b><br/>
+        The legal basis for the treatment is user consent and the execution of the associative relationship.<br/><br/>
+
+        <b>5. How long are my data kept?</b><br/>
+        Data is kept while there is an active relationship with the member or during the applicable legal periods.<br/><br/>
+
+        <b>6. What are my rights?</b><br/>
+        You can exercise your rights of Access, Rectification, Erasure, Objection, Restriction, and Portability by request to the contact email.<br/><br/>
+
+        <b>7. How are my data protected?</b><br/>
+        Reasonable technical and organizational measures are applied to prevent unauthorized access, loss, or alteration of data.<br/><br/>
+
+        <b>8. Can this notice change?</b><br/>
+        This notice may be updated due to regulatory changes or service improvements. The current version will always be available in the app.<br/><br/>
+
+        <b>Last updated:</b> 17/04/2026
+    ]]></string>
 
 
-    <string name="texto_manual_usuario_titulo">User Manual - The Ring Private</string>
-    <string name="texto_manual_usuario">Welcome to the official **The Ring Private** app. This guide explains each step so you can use the app without any doubts.\n\n## 1. Account Registration\n1. Press **Sign Up** on the initial screen.\n2. Enter: name, surname, DNI/NIE/Passport, email, and password.\n3. The password must have at least 6 characters, 1 uppercase letter, and 1 special symbol.\n4. Check the terms and conditions acceptance box.\n5. Press **Sign Up** to complete the registration.\n\n## 2. Sign In\n1. Enter your email or DNI and your password.\n2. Press **Sign In**.\n3. If you forgot your password, press **Forgot password?** and follow the recovery process within the app.\n\n## 3. Main Screen (Home)\nIn Home, you will see two main blocks:\n- **Notifications**: active club notices.\n- **QR Button**: access to your personal identification code.\n\n## 4. Using the QR Code\n1. Press the QR button from Home.\n2. Your identification code opens for reception.\n3. The QR updates automatically and changes when you close and reopen the screen.\n4. Show the QR at reception to validate your access.\n\n## 5. Notifications\n1. Each user manages their notifications independently.\n2. If you delete a notification with the cross, it disappears from your account.\n3. You will only see new notifications published by administration again.\n\n## 6. Main Navigation\n- **Home**: QR and notifications.\n- **Profile**: you can see your name, your email, and change your password.\n- **Rules**: mandatory rules.\n- **Settings**: language, appearance, legal, and account actions.\n\n## 7. Settings\nFrom Settings, you can:\n- Change password.\n- Change language (Spanish/English).\n- Change appearance (light/dark mode).\n- Consult rates, terms, legal notice, help, FAQ, and this manual.\n\n## 8. Security and Account\n- **Log out**: closes your session on this device.\n- **Delete account**: deletes your access and associated data after final confirmation.\n- This action is irreversible.\n\n## 9. Support\nIf you have a technical problem, contact via email at: **ringasociacion@gmail.com**\n\n---\n*The Ring Private - Privacy and Respect*</string>
+    <string name="texto_manual_usuario_titulo"><![CDATA[<b>User Manual - The Ring Private</b>]]></string>
+    <string name="texto_manual_usuario"><![CDATA[
+        Welcome to the official <b>The Ring Private</b> app. This guide explains each step so you can use the app without doubts.<br/><br/>
+
+        <b>1. How do I register?</b><br/>
+        • Tap <b>Sign Up</b> on the initial screen.<br/>
+        • Enter: Name, Surname, DNI/NIE/Passport, Email, and Password.<br/>
+        • The password must have at least 6 characters, 1 uppercase letter, and 1 special symbol.<br/>
+        • Check the terms and conditions acceptance box.<br/>
+        • Tap <b>Sign Up</b> to complete the registration.<br/><br/>
+
+        <b>2. How do I sign in?</b><br/>
+        • Enter your Email or Document and your Password.<br/>
+        • Tap <b>Sign In</b>.<br/>
+        • If you forgot your password, tap <b>Forgot your password</b> and follow the recovery process within the app.<br/><br/>
+
+        <b>3. What do I see on the main screen (Home)?</b><br/>
+        In Home, you will see two main blocks:<br/>
+        • <b>Notifications:</b> Active club notices.<br/>
+        • <b>QR Button:</b> Access to personal identification code.<br/><br/>
+
+        <b>4. How to use the QR code?</b><br/>
+        • Tap the QR button from Home.<br/>
+        • Your identification code opens for reception.<br/>
+        • The QR is automatically updated and changes when closing and reopening the screen.<br/>
+        • Show the QR at reception to validate your access.<br/><br/>
+
+        <b>5. How do notifications work?</b><br/>
+        • Each user manages their notifications independently.<br/>
+        • If you delete a notification with the cross, it disappears from your account.<br/>
+        • You will only see new notifications published by Administration again.<br/><br/>
+
+        <b>6. How do I navigate the application?</b><br/>
+        The main menus are:<br/>
+        • <b>Home:</b> QR and Notifications.<br/>
+        • <b>Profile:</b> You can see your name, your email, and change your password.<br/>
+        • <b>Rules:</b> Mandatory rules.<br/>
+        • <b>Settings:</b> Language, Appearance, Legal Information, and Account Actions.<br/><br/>
+
+        <b>7. What options are in Settings?</b><br/>
+        From Settings, you can:<br/>
+        • Change Password.<br/>
+        • Change Language (Spanish/English).<br/>
+        • Change Appearance (Light/Dark mode).<br/>
+        • Consult Rates, Terms, Legal Notice, Help, FAQ, and this Manual.<br/><br/>
+
+        <b>8. How do I act on my account?</b><br/>
+        • <b>Log out:</b> Closes your session on this device.<br/>
+        • <b>Delete Account:</b> Deletes your access and associated data after final confirmation.<br/>
+        • This action is irreversible.<br/><br/>
+
+        <b>9. Where can I report a problem?</b><br/>
+        If you have a technical problem, contact by email at: <b>ringasociacion@gmail.com</b><br/><br/>
+
+        ---<br/>
+        <i>The Ring Private - Privacy and Respect</i>
+    ]]></string>
+    <string name="error_password_segura">Password must have at least 6 characters, 1 uppercase letter, and 1 special character</string>
+    <string name="min_6_chars">Minimum 6 characters</string>
 </resources>
