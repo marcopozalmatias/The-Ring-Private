@@ -127,7 +127,7 @@
     <string name="notif_home_title_preview">TITLE</string>
     <string name="notif_home_message_preview">Notification message</string>
     <string name="qr_panel_title">This is your QR.</string>
-    <string name="qr_panel_subtitle">This code expires in 1 minute</string>
+    <string name="qr_panel_subtitle">This code expires in 5 minutes</string>
     <string name="qr_panel_close">Back</string>
     <string name="menu_perfil">PROFILE</string>
     <string name="menu_normas">RULES</string>

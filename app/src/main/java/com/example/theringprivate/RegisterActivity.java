@@ -62,8 +62,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     // Instancia de Firebase Auth para crear nuevas cuentas y leer el usuario autenticado.
     private FirebaseAuth auth;
-    // URL base de la Realtime Database usada por la aplicación.
-    private final String DB_URL = "https://laasociacion-57649-default-rtdb.firebaseio.com";
     // Casilla que obliga al usuario a aceptar las condiciones antes de registrarse.
     private CheckBox cbTerms;
     // Referencia al contenedor del correo para poder mostrar errores desde varios pasos del flujo.
@@ -220,42 +218,9 @@ public class RegisterActivity extends AppCompatActivity {
                     btnRegister.setText("");
                 }
 
-                // Comprobamos si el documento ya existe antes de tocar Auth para evitar registros duplicados.
-                FirebaseDatabase db = FirebaseDatabase.getInstance(DB_URL);
-                db.getReference("MapeoDocumentos").child(finalDocKey).get().addOnCompleteListener(dniTask -> {
-                    if (!dniTask.isSuccessful()) {
-                        errorRegistro(getString(R.string.error_procesar));
-                        return;
-                    }
-
-                    if (dniTask.getResult() != null && dniTask.getResult().exists()) {
-                        String msg = getString(R.string.error_doc_ya_existe, finalTipoDoc);
-                        if (tilDni != null) tilDni.setError(msg);
-                        errorRegistro(msg);
-                        return;
-                    }
-
-                    if ("DNI".equals(codigoDocumento(finalTipoDoc))) {
-                        db.getReference("MapeoDNI").child(finalDocumento).get().addOnCompleteListener(legacyTask -> {
-                            if (!legacyTask.isSuccessful()) {
-                                errorRegistro(getString(R.string.error_procesar));
-                                return;
-                            }
-
-                            if (legacyTask.getResult() != null && legacyTask.getResult().exists()) {
-                                String msg = getString(R.string.error_doc_ya_existe, finalTipoDoc);
-                                if (tilDni != null) tilDni.setError(msg);
-                                errorRegistro(msg);
-                                return;
-                            }
-
-                            realizarRegistroCompleto(email, password, nombre, apellidos, finalDocumento, finalTipoDoc, finalDocKey);
-                        });
-                    } else {
-                        // Si no hay mapeo, seguimos con el alta normal.
-                        realizarRegistroCompleto(email, password, nombre, apellidos, finalDocumento, finalTipoDoc, finalDocKey);
-                    }
-                });
+                // Iniciamos el proceso de registro. La validación de duplicados se hará
+                // dentro de realizarRegistroCompleto tras la autenticación en Firebase.
+                realizarRegistroCompleto(email, password, nombre, apellidos, finalDocumento, finalTipoDoc, finalDocKey);
             });
         }
 
@@ -297,43 +262,45 @@ public class RegisterActivity extends AppCompatActivity {
         overridePendingTransition(0, 0);
     }
 
-    // Crea la cuenta en Firebase Authentication y guarda el perfil completo en Realtime Database.
+    // Crea la cuenta en Firebase Authentication y guarda el perfil únicamente en el nodo "usuarios".
     private void realizarRegistroCompleto(String email, String pass, String nom, String ape, String doc, String tipoDoc, String docKey) {
         auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                String uid = task.getResult().getUser() != null ? task.getResult().getUser().getUid() : "";
-                String codigoTipoDoc = codigoDocumento(tipoDoc);
-                String campoDocumento = campoDocumentoPorCodigo(codigoTipoDoc);
+                com.google.firebase.auth.FirebaseUser user = task.getResult().getUser();
+                if (user == null) {
+                    errorRegistro("Error: Usuario nulo tras creación");
+                    return;
+                }
+                String uid = user.getUid();
+                FirebaseDatabase db = FirebaseDatabase.getInstance();
+                String tipoDocCode = codigoDocumento(tipoDoc);
+
+                // Guardamos solo los 6 campos esenciales en la tabla usuarios
                 Map<String, Object> userData = new HashMap<>();
                 userData.put("name", nom);
                 userData.put("surname", ape);
-                // Compatibilidad temporal con pantallas que todavía filtran por `dni`.
-                userData.put("dni", doc);
-                userData.put("documentNumber", doc);
-                userData.put("tipoDocumento", tipoDoc);
-                userData.put("documentType", tipoDoc);
-                userData.put("documentTypeCode", codigoTipoDoc);
-                if (!campoDocumento.isEmpty()) userData.put(campoDocumento, doc);
+                userData.put("documento", doc);
+                userData.put("tipoDocumento", tipoDocCode);
                 userData.put("email", email);
-                userData.put("rol", "user");
-                
-                FirebaseDatabase db = FirebaseDatabase.getInstance(DB_URL);
-                db.getReference("usuarios").child(uid).setValue(userData).addOnCompleteListener(dbTask -> {
+                userData.put("acceptedTerms", true);
+
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("usuarios/" + uid, userData);
+                updates.put("MapeoDNI/" + docKey, email);
+
+                // Escribimos todo de forma atómica para que Auth y la base de datos no queden desincronizados.
+                db.getReference().updateChildren(updates).addOnCompleteListener(dbTask -> {
                     if (dbTask.isSuccessful()) {
-                        db.getReference("MapeoDocumentos").child(docKey).setValue(email);
-                        if ("DNI".equals(codigoTipoDoc)) {
-                            db.getReference("MapeoDNI").child(doc).setValue(email);
-                        }
                         limpiarBorradorRegistro();
                         solicitarGuardadoCredenciales(email, pass, () -> {
                             startActivity(new Intent(this, HomeActivity.class));
                             finish();
                         });
                     } else {
-                        if (task.getResult().getUser() != null) {
-                            task.getResult().getUser().delete();
-                        }
-                        errorRegistro(getString(R.string.error_procesar));
+                        user.delete();
+                        String errorMsg = dbTask.getException() != null ? dbTask.getException().getMessage() : "Desconocido";
+                        android.util.Log.e("RegisterActivity", "Error al guardar en DB: " + errorMsg);
+                        errorRegistro(getString(R.string.error_procesar) + " (DB: " + errorMsg + ")");
                     }
                 });
             } else {
@@ -341,6 +308,7 @@ public class RegisterActivity extends AppCompatActivity {
                     if (tilEmail != null) tilEmail.setError(getString(R.string.error_email_existe));
                     errorRegistro(getString(R.string.error_email_existe));
                 } else {
+                    android.util.Log.e("RegisterActivity", "Error en Auth: ", task.getException());
                     errorRegistro(getString(R.string.error_procesar));
                 }
             }
@@ -354,6 +322,8 @@ public class RegisterActivity extends AppCompatActivity {
             btnRegister.setEnabled(true);
             btnRegister.setText(R.string.register_btn_signup);
         }
+        android.util.Log.e("RegisterActivity", "Error Registro: " + mensaje);
+        Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show();
         guardarBorradorRegistro();
         if (mensaje != null && !mensaje.isEmpty()) {
             Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show();

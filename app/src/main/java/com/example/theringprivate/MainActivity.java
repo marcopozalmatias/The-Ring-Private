@@ -42,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Servicio de autenticación de Firebase para iniciar sesión con correo y contraseña.
     private FirebaseAuth auth;
-    // URL base de la Realtime Database usada por la app.
-    private final String DB_URL = "https://laasociacion-57649-default-rtdb.firebaseio.com";
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -193,22 +191,26 @@ public class MainActivity extends AppCompatActivity {
 
     // Limpia mapeos de DNI que apunten a correos ya inexistentes en Usuarios.
     private void limpiarMapeosDniHuerfanos() {
-        FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").get().addOnSuccessListener(snapshot -> {
+        limpiarMapeosDniEnNodo("MapeoDNI");
+        limpiarMapeosDniEnNodo("MapeoDocumentos");
+    }
+
+    private void limpiarMapeosDniEnNodo(String nodo) {
+        FirebaseDatabase.getInstance().getReference(nodo).get().addOnSuccessListener(snapshot -> {
             for (var data : snapshot.getChildren()) {
                 String dni = data.getKey();
                 String email = data.getValue(String.class);
                 if (dni == null) continue;
                 if (email == null || email.isEmpty()) {
-                    FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
+                    FirebaseDatabase.getInstance().getReference(nodo).child(dni).removeValue();
                     continue;
                 }
 
-                String emailSafe = email.replace(".", "_");
-                FirebaseDatabase.getInstance(DB_URL).getReference("Usuarios").child(emailSafe).child("perfil").get().addOnSuccessListener(perfil -> {
+                FirebaseDatabase.getInstance().getReference("usuarios").orderByChild("email").equalTo(email).get().addOnSuccessListener(perfil -> {
                     if (!perfil.exists()) {
-                        FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue();
+                        FirebaseDatabase.getInstance().getReference(nodo).child(dni).removeValue();
                     }
-                }).addOnFailureListener(e -> FirebaseDatabase.getInstance(DB_URL).getReference("MapeoDNI").child(dni).removeValue());
+                }).addOnFailureListener(e -> FirebaseDatabase.getInstance().getReference(nodo).child(dni).removeValue());
             }
         });
     }
@@ -218,43 +220,31 @@ public class MainActivity extends AppCompatActivity {
         return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
     }
 
-    // Resuelve el email de login desde documento usando mapeos y fallback en usuarios.
+    // Resuelve el email de login desde documento buscando directamente en el nodo "usuarios".
     private void resolverEmailParaLogin(String documento, EmailResolutionCallback callback) {
-        FirebaseDatabase db = FirebaseDatabase.getInstance(DB_URL);
-        db.getReference("MapeoDNI").child(documento).get().addOnSuccessListener(snapshot -> {
-            String email = snapshot.getValue(String.class);
+        // Buscamos en el campo "documento" que es el nuevo estándar.
+        buscarEmailPorCampoDocumento("documento", documento, email -> {
             if (email != null && !email.isEmpty()) {
                 callback.onResolved(email);
-                return;
+            } else {
+                // Fallback para usuarios antiguos que usaban otros nombres de campo.
+                buscarEmailEnUsuariosPorCamposAntiguos(documento, callback);
             }
-            buscarEmailEnUsuariosPorDocumento(documento, callback);
-        }).addOnFailureListener(e -> buscarEmailEnUsuariosPorDocumento(documento, callback));
+        });
     }
 
-    private void buscarEmailEnUsuariosPorDocumento(String documento, EmailResolutionCallback callback) {
-        buscarEmailPorCampoDocumento("documentNumber", documento, emailDocumentNumber -> {
-            if (emailDocumentNumber != null && !emailDocumentNumber.isEmpty()) {
-                callback.onResolved(emailDocumentNumber);
-                return;
+    private void buscarEmailEnUsuariosPorCamposAntiguos(String documento, EmailResolutionCallback callback) {
+        buscarEmailPorCampoDocumento("documentNumber", documento, email1 -> {
+            if (email1 != null && !email1.isEmpty()) {
+                callback.onResolved(email1);
+            } else {
+                buscarEmailPorCampoDocumento("dni", documento, email2 -> callback.onResolved(email2));
             }
-            buscarEmailPorCampoDocumento("dni", documento, emailDni -> {
-                if (emailDni != null && !emailDni.isEmpty()) {
-                    callback.onResolved(emailDni);
-                    return;
-                }
-                buscarEmailPorCampoDocumento("nie", documento, emailNie -> {
-                    if (emailNie != null && !emailNie.isEmpty()) {
-                        callback.onResolved(emailNie);
-                        return;
-                    }
-                    buscarEmailPorCampoDocumento("pasaporte", documento, callback::onResolved);
-                });
-            });
         });
     }
 
     private void buscarEmailPorCampoDocumento(String campo, String documento, EmailResolutionCallback callback) {
-        FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").orderByChild(campo).equalTo(documento).get()
+        FirebaseDatabase.getInstance().getReference("usuarios").orderByChild(campo).equalTo(documento).get()
                 .addOnSuccessListener(snapshot -> callback.onResolved(extraerEmailDesdeUsuarios(snapshot)))
                 .addOnFailureListener(e -> callback.onResolved(null));
     }
@@ -306,10 +296,10 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 String emailSafe = emailInput.replace(".", "_");
-                FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(emailSafe).get()
+                FirebaseDatabase.getInstance().getReference("usuarios").child(emailSafe).get()
                     .addOnSuccessListener(snapshot -> {
                         if (snapshot.exists()) {
-                            String dniDB = snapshot.child("dni").getValue(String.class);
+                            String dniDB = snapshot.child("documento").getValue(String.class);
                             if (dniInput.equals(dniDB)) {
                                 emailConfirmado[0] = emailInput;
                                 if (layoutStep1 != null) layoutStep1.setVisibility(View.GONE);
@@ -319,10 +309,10 @@ public class MainActivity extends AppCompatActivity {
                             }
                         } else {
                             // Búsqueda por UID o campo dni si emailSafe falla
-                            FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").orderByChild("email").equalTo(emailInput).get().addOnSuccessListener(emailSnap -> {
+                            FirebaseDatabase.getInstance().getReference("usuarios").orderByChild("email").equalTo(emailInput).get().addOnSuccessListener(emailSnap -> {
                                 if (emailSnap.exists() && emailSnap.hasChildren()) {
                                     DataSnapshot match = emailSnap.getChildren().iterator().next();
-                                    String dniDB = match.child("dni").getValue(String.class);
+                                    String dniDB = match.child("documento").getValue(String.class);
                                     if (dniInput.equals(dniDB)) {
                                         emailConfirmado[0] = emailInput;
                                         if (layoutStep1 != null) layoutStep1.setVisibility(View.GONE);

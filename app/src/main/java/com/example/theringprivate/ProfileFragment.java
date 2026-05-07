@@ -27,8 +27,6 @@ import com.google.firebase.database.ValueEventListener;
 
 public class ProfileFragment extends Fragment {
 
-    // URL de la base de datos usada para leer el perfil.
-    private final String DB_URL = "https://laasociacion-57649-default-rtdb.firebaseio.com";
     private String currentUserEmailSafe = "";
 
     // El layout del perfil ya contiene toda la información visible al usuario.
@@ -72,7 +70,7 @@ public class ProfileFragment extends Fragment {
         }
 
         // Referencia directa al nodo de perfil del usuario autenticado.
-        DatabaseReference database = FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(user != null ? user.getUid() : currentUserEmailSafe);
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference("usuarios").child(user != null ? user.getUid() : currentUserEmailSafe);
 
         // Escuchamos cambios en el perfil para refrescar nombre y DNI en tiempo real.
         database.addValueEventListener(new ValueEventListener() {
@@ -137,10 +135,10 @@ public class ProfileFragment extends Fragment {
                 }
 
                 String emailSafe = emailInput.replace(".", "_");
-                FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(emailSafe).get()
+                FirebaseDatabase.getInstance().getReference("usuarios").child(emailSafe).get()
                         .addOnSuccessListener(snapshot -> {
                             if (snapshot.exists()) {
-                                String dniDB = snapshot.child("dni").getValue(String.class);
+                                String dniDB = snapshot.child("documento").getValue(String.class);
                                 if (dniInput.equals(dniDB)) {
                                     if (layoutStep1 != null) layoutStep1.setVisibility(View.GONE);
                                     if (layoutStep2 != null) layoutStep2.setVisibility(View.VISIBLE);
@@ -151,9 +149,9 @@ public class ProfileFragment extends Fragment {
                                 // Reintento por UID si el emailSafe no existe
                                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                                 if (user != null) {
-                                    FirebaseDatabase.getInstance(DB_URL).getReference("usuarios").child(user.getUid()).get().addOnSuccessListener(uidSnap -> {
+                                    FirebaseDatabase.getInstance().getReference("usuarios").child(user.getUid()).get().addOnSuccessListener(uidSnap -> {
                                         if (uidSnap.exists()) {
-                                            String dniDB = uidSnap.child("dni").getValue(String.class);
+                                            String dniDB = uidSnap.child("documento").getValue(String.class);
                                             if (dniInput.equals(dniDB)) {
                                                 if (layoutStep1 != null) layoutStep1.setVisibility(View.GONE);
                                                 if (layoutStep2 != null) layoutStep2.setVisibility(View.VISIBLE);

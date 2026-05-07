@@ -127,7 +127,7 @@
     <string name="notif_home_title_preview">TÍTULO</string>
     <string name="notif_home_message_preview">Mensaje de la notificación</string>
     <string name="qr_panel_title">Este es tu QR.</string>
-    <string name="qr_panel_subtitle">Este código caduca en 1 minuto</string>
+    <string name="qr_panel_subtitle">Este código caduca en 5 minutos</string>
     <string name="qr_panel_close">Volver</string>
     <string name="menu_perfil">PERFIL</string>
     <string name="menu_normas">NORMAS</string>
