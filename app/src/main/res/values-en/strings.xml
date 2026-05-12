@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">The Ring Private</string>
-    <string name="login_user_hint">Email, DNI, NIE or Passport</string>
+    <string name="login_user_hint">Email address</string>
     <string name="login_password_hint">Password</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_btn_signin">Sign In</string>
@@ -25,7 +25,7 @@
     <string name="register_btn_signup">Sign Up</string>
     <string name="register_terms_error">You must accept the terms</string>
 
-    <string name="error_dni_vacio">Please enter your email or document</string>
+    <string name="error_dni_vacio">Please enter your email address</string>
     <string name="error_pass_vacio">Please enter your password</string>
     <string name="error_credenciales">Invalid credentials</string>
     <string name="error_datos_incompletos">Please fill in all fields</string>

@@ -36,10 +36,6 @@ import java.util.Locale;
 // Pantalla de entrada de la aplicación donde se inicia sesión, se cambia el idioma y se abre el manual.
 public class MainActivity extends AppCompatActivity {
 
-    private interface EmailResolutionCallback {
-        void onResolved(String email);
-    }
-
     // Servicio de autenticación de Firebase para iniciar sesión con correo y contraseña.
     private FirebaseAuth auth;
 
@@ -127,10 +123,10 @@ public class MainActivity extends AppCompatActivity {
                 if (tilPassword != null) tilPassword.setError(null);
                 
                 // Leemos y normalizamos la información introducida por el usuario.
-                String input = safeText(etUser);
+                String email = safeText(etUser);
                 String password = safeText(etPassword);
 
-                if (input.isEmpty()) {
+                if (email.isEmpty()) {
                     if (tilDni != null) tilDni.setError(getString(R.string.error_dni_vacio));
                     return;
                 }
@@ -139,17 +135,8 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 
-                // Si el usuario escribe un correo, usamos ese dato directamente.
-                if (input.contains("@")) {
-                    iniciarSesionFirebase(input, password, tilDni, tilPassword);
-                } else {
-                    // Si escribe documento (DNI/NIE/Pasaporte), resolvemos su correo real.
-                    String doc = input.toUpperCase(Locale.ROOT).replace(" ", "").trim();
-                    resolverEmailParaLogin(doc, emailResuelto -> {
-                        String loginEmail = (emailResuelto != null && !emailResuelto.isEmpty()) ? emailResuelto : doc + "@thering.local";
-                        iniciarSesionFirebase(loginEmail, password, tilDni, tilPassword);
-                    });
-                }
+                // Inicio de sesión directo con correo y contraseña.
+                iniciarSesionFirebase(email, password, tilDni, tilPassword);
             });
         }
 
@@ -218,41 +205,6 @@ public class MainActivity extends AppCompatActivity {
     // Extrae texto seguro de un campo evitando nulos.
     private String safeText(TextInputEditText editText) {
         return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
-    }
-
-    // Resuelve el email de login desde documento buscando directamente en el nodo "usuarios".
-    private void resolverEmailParaLogin(String documento, EmailResolutionCallback callback) {
-        // Buscamos en el campo "documento" que es el nuevo estándar.
-        buscarEmailPorCampoDocumento("documento", documento, email -> {
-            if (email != null && !email.isEmpty()) {
-                callback.onResolved(email);
-            } else {
-                // Fallback para usuarios antiguos que usaban otros nombres de campo.
-                buscarEmailEnUsuariosPorCamposAntiguos(documento, callback);
-            }
-        });
-    }
-
-    private void buscarEmailEnUsuariosPorCamposAntiguos(String documento, EmailResolutionCallback callback) {
-        buscarEmailPorCampoDocumento("documentNumber", documento, email1 -> {
-            if (email1 != null && !email1.isEmpty()) {
-                callback.onResolved(email1);
-            } else {
-                buscarEmailPorCampoDocumento("dni", documento, email2 -> callback.onResolved(email2));
-            }
-        });
-    }
-
-    private void buscarEmailPorCampoDocumento(String campo, String documento, EmailResolutionCallback callback) {
-        FirebaseDatabase.getInstance().getReference("usuarios").orderByChild(campo).equalTo(documento).get()
-                .addOnSuccessListener(snapshot -> callback.onResolved(extraerEmailDesdeUsuarios(snapshot)))
-                .addOnFailureListener(e -> callback.onResolved(null));
-    }
-
-    private String extraerEmailDesdeUsuarios(DataSnapshot snapshot) {
-        if (snapshot == null || !snapshot.exists() || !snapshot.hasChildren()) return null;
-        DataSnapshot first = snapshot.getChildren().iterator().next();
-        return first.child("email").getValue(String.class);
     }
 
     // Intenta iniciar sesión y, si falla, marca los campos con el error correspondiente.
