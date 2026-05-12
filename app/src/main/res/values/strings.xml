@@ -7,8 +7,9 @@
     <string name="login_no_account">¿No tienes cuenta? Regístrate</string>
 
     <string name="forgot_pass_title">Recuperar Contraseña</string>
-    <string name="forgot_pass_desc">Introduce tu DNI y Correo para verificar tu identidad</string>
+    <string name="forgot_pass_desc">Introduce los datos necesarios para recuperar o cambiar el acceso</string>
     <string name="btn_verify">Verificar Identidad</string>
+    <string name="btn_send_reset_email">Enviar enlace de recuperación</string>
     <string name="new_password_title">Nueva Contraseña</string>
     <string name="new_password_hint">Nueva contraseña</string>
     <string name="btn_change_password">Cambiar Contraseña</string>
@@ -26,6 +27,7 @@
     <string name="register_terms_error">Debes aceptar los términos</string>
 
     <string name="error_dni_vacio">Introduce tu correo electrónico</string>
+    <string name="error_email_vacio">Introduce tu correo electrónico</string>
     <string name="error_pass_vacio">Introduce tu contraseña</string>
     <string name="error_credenciales">Credenciales incorrectas</string>
     <string name="error_datos_incompletos">Por favor, rellena todos los campos</string>

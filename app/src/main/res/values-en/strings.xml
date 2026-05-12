@@ -7,8 +7,9 @@
     <string name="login_no_account">No account? Sign up</string>
 
     <string name="forgot_pass_title">Recover Password</string>
-    <string name="forgot_pass_desc">Enter your DNI and Email to verify your identity</string>
+    <string name="forgot_pass_desc">Enter the required data to recover or change access</string>
     <string name="btn_verify">Verify Identity</string>
+    <string name="btn_send_reset_email">Send recovery link</string>
     <string name="new_password_title">New Password</string>
     <string name="new_password_hint">New password</string>
     <string name="btn_change_password">Change Password</string>
@@ -26,6 +27,7 @@
     <string name="register_terms_error">You must accept the terms</string>
 
     <string name="error_dni_vacio">Please enter your email address</string>
+    <string name="error_email_vacio">Please enter your email address</string>
     <string name="error_pass_vacio">Please enter your password</string>
     <string name="error_credenciales">Invalid credentials</string>
     <string name="error_datos_incompletos">Please fill in all fields</string>
