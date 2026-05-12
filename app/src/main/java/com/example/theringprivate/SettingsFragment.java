@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -223,7 +224,7 @@ public class SettingsFragment extends Fragment {
         AppCompatDelegate.setDefaultNightMode(dark ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
     }
 
-    // Diálogo para verificar identidad antes de permitir el cambio de contraseña.
+    // Diálogo de recuperación por correo, unificado con el flujo de login.
     private void mostrarDialogoVerificarYCambiarPass() {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.dialog_forgot_password);
@@ -237,60 +238,47 @@ public class SettingsFragment extends Fragment {
         TextInputEditText etDni = dialog.findViewById(R.id.etRecoverDni);
         TextInputEditText etEmail = dialog.findViewById(R.id.etRecoverEmail);
         MaterialButton btnVerify = dialog.findViewById(R.id.btnVerifyIdentity);
-        TextInputEditText etNewPass = dialog.findViewById(R.id.etNewPassword);
         MaterialButton btnChange = dialog.findViewById(R.id.btnChangePasswordNow);
 
-        // Primer paso: validar DNI y correo contra la base de datos.
+        if (layoutStep2 != null) layoutStep2.setVisibility(View.GONE);
+        if (etDni != null && etDni.getParent() instanceof View) {
+            ((View) etDni.getParent()).setVisibility(View.GONE);
+        }
+        if (btnVerify != null) btnVerify.setText(getString(R.string.btn_send_reset_email));
+
+        // Solicitamos únicamente correo válido y enviamos el enlace de recuperación.
         if (btnVerify != null) {
             btnVerify.setOnClickListener(v -> {
-                String dniInput = safeText(etDni).toUpperCase();
                 String emailInput = safeText(etEmail);
 
-                if (dniInput.isEmpty() || emailInput.isEmpty()) {
-                    Toast.makeText(requireContext(), getString(R.string.error_datos_incompletos), Toast.LENGTH_SHORT).show();
+                if (emailInput.isEmpty()) {
+                    Toast.makeText(requireContext(), getString(R.string.error_email_vacio), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!Patterns.EMAIL_ADDRESS.matcher(emailInput).matches()) {
+                    Toast.makeText(requireContext(), getString(R.string.error_email_invalido), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                String emailSafe = emailInput.replace(".", "_");
-                FirebaseDatabase.getInstance().getReference("usuarios").child(emailSafe).get()
-                        .addOnSuccessListener(snapshot -> {
-                            if (snapshot.exists()) {
-                                String dniDB = snapshot.child("documento").getValue(String.class);
-                                if (dniInput.equals(dniDB)) {
-                                    if (layoutStep1 != null) layoutStep1.setVisibility(View.GONE);
-                                    if (layoutStep2 != null) layoutStep2.setVisibility(View.VISIBLE);
-                                } else {
-                                    Toast.makeText(requireContext(), getString(R.string.error_datos_no_coinciden), Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Toast.makeText(requireContext(), getString(R.string.error_usuario_no_encontrado), Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                btnVerify.setEnabled(false);
+                FirebaseAuth.getInstance().sendPasswordResetEmail(emailInput).addOnCompleteListener(task -> {
+                    if (!isAdded()) return;
+                    btnVerify.setEnabled(true);
+                    if (task.isSuccessful()) {
+                        Toast.makeText(requireContext(), getString(R.string.msg_reset_email_enviado), Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                    } else {
+                        Toast.makeText(requireContext(), getString(R.string.error_procesar), Toast.LENGTH_SHORT).show();
+                    }
+                });
             });
         }
 
-        // Segundo paso: actualizar la contraseña cuando la identidad ya está confirmada.
         if (btnChange != null) {
-            btnChange.setOnClickListener(v -> {
-                String newPass = safeText(etNewPass);
-                if (newPass.length() < 6) {
-                    Toast.makeText(requireContext(), getString(R.string.min_6_chars), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    user.updatePassword(newPass).addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(requireContext(), getString(R.string.pass_changed_success), Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                        } else {
-                            Toast.makeText(requireContext(), getString(R.string.reauth_needed), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            });
+            btnChange.setVisibility(View.GONE);
         }
+
+        if (layoutStep1 != null) layoutStep1.setVisibility(View.VISIBLE);
         dialog.show();
     }
 
