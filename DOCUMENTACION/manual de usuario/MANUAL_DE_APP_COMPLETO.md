@@ -16,7 +16,7 @@ Resumen: la app funciona con **Java en funcionalidad principal** y **Kotlin DSL 
 ## 4. Funciones relevantes para mantenimiento futuro
 Estas son las funciones que un equipo de mantenimiento debe conocer primero:
 - **Registro y validacion de usuario** (nombre, DNI, correo, contrasena segura y terminos).
-- **Inicio de sesion por correo o DNI** con resolucion de DNI contra base de datos.
+- **Inicio de sesion por correo o DNI** con resolucion de DNI contra la base de datos de **Firebase**.
 - **Recuperacion y cambio de contrasena**.
 - **QR dinamico por sesion** con refresco y expiracion de token.
 - **Notificaciones por usuario** (eliminacion independiente por cuenta).
