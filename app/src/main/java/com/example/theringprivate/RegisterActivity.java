@@ -18,6 +18,7 @@ import android.text.TextWatcher;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -30,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
@@ -50,7 +52,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.Collator;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -59,6 +64,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     // Clave del guardado temporal del formulario para no perderlo al cambiar idioma o fallar validaciones.
     private static final String PREF_REGISTER_DRAFT = "RegisterDraft";
+    private static final String KEY_REGISTER_PASSPORT_COUNTRY = "passportCountry";
 
     // Instancia de Firebase Auth para crear nuevas cuentas y leer el usuario autenticado.
     private FirebaseAuth auth;
@@ -124,17 +130,21 @@ public class RegisterActivity extends AppCompatActivity {
         TextInputLayout tilApellidos = findViewById(R.id.tilRegApellidos);
         TextInputLayout tilDocType = findViewById(R.id.tilDocType);
         TextInputLayout tilDni = findViewById(R.id.tilRegDni);
+        TextInputLayout tilPassportCountry = findViewById(R.id.tilPassportCountry);
         tilEmail = findViewById(R.id.tilRegEmail);
         TextInputLayout tilPassword = findViewById(R.id.tilRegPassword);
 
-        // Configurar el dropdown de tipo de documento
-        com.google.android.material.textfield.MaterialAutoCompleteTextView actvDocType = findViewById(R.id.actvDocType);
-        if (actvDocType != null) {
-            String[] docTypes = new String[]{getString(R.string.doc_dni), getString(R.string.doc_nie), getString(R.string.doc_pasaporte)};
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, docTypes);
-            actvDocType.setAdapter(adapter);
-            actvDocType.setText(getString(R.string.doc_dni), false);
-        }
+         // Configurar el dropdown de tipo de documento
+         com.google.android.material.textfield.MaterialAutoCompleteTextView actvDocType = findViewById(R.id.actvDocType);
+         if (actvDocType != null) {
+             String[] docTypes = new String[]{getString(R.string.doc_dni_nie), getString(R.string.doc_pasaporte)};
+             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, docTypes);
+             actvDocType.setAdapter(adapter);
+             actvDocType.setText(getString(R.string.doc_dni_nie), false);
+         }
+
+        com.google.android.material.textfield.MaterialAutoCompleteTextView actvPassportCountry = findViewById(R.id.actvPassportCountry);
+        configurarSelectorPaisesPasaporte(actvPassportCountry, Locale.getDefault());
 
         TextInputEditText etNombre = findViewById(R.id.etRegNombre);
         TextInputEditText etApellidos = findViewById(R.id.etRegApellidos);
@@ -143,7 +153,7 @@ public class RegisterActivity extends AppCompatActivity {
         TextInputEditText etPassword = findViewById(R.id.etRegPassword);
 
         if (actvDocType != null) {
-            actvDocType.setOnItemClickListener((parent, view, position, id) -> actualizarCampoDocumentoSegunTipo(etDni, actvDocType.getText() != null ? actvDocType.getText().toString() : ""));
+            actvDocType.setOnItemClickListener((parent, view, position, id) -> actualizarCampoDocumentoSegunTipo(etDni, tilPassportCountry, actvPassportCountry, actvDocType.getText() != null ? actvDocType.getText().toString() : ""));
         }
         cbTerms = findViewById(R.id.cbTerms);
         TextView tvTermsLink = findViewById(R.id.tvTermsLink);
@@ -170,7 +180,7 @@ public class RegisterActivity extends AppCompatActivity {
         if (btnRegister != null) {
             btnRegister.setOnClickListener(v -> {
                 // Limpiamos errores anteriores para que cada intento empiece desde cero.
-                resetErrors(tilNombre, tilApellidos, tilDocType, tilDni, tilEmail, tilPassword);
+                resetErrors(tilNombre, tilApellidos, tilDocType, tilDni, tilPassportCountry, tilEmail, tilPassword);
                 if (tvTermsError != null) tvTermsError.setVisibility(View.GONE);
 
                 // Capturamos los datos que el usuario ha escrito en el formulario.
@@ -178,12 +188,11 @@ public class RegisterActivity extends AppCompatActivity {
                 String apellidos = safeText(etApellidos);
                 String tipoDoc = safeTextAutocomplete(actvDocType);
                 String documento = normalizarDocumento(safeText(etDni));
-                actualizarCampoDocumentoSegunTipo(etDni, tipoDoc);
+                String paisPasaporte = codigoPaisPasaporte(actvPassportCountry);
+                actualizarCampoDocumentoSegunTipo(etDni, tilPassportCountry, actvPassportCountry, tipoDoc);
                 final String email = safeText(etEmail);
                 final String password = safeText(etPassword);
-                final String finalDocumento = documento;
-                final String finalTipoDoc = tipoDoc;
-                final String finalDocKey = claveDocumento(finalTipoDoc, finalDocumento);
+                String finalDocKey = claveDocumento(tipoDoc, documento);
 
                 // Cada validación individual marca el formulario como inválido si falla.
                 boolean isValid = true;
@@ -191,12 +200,18 @@ public class RegisterActivity extends AppCompatActivity {
                 if (apellidos.isEmpty()) { if (tilApellidos != null) tilApellidos.setError(getString(R.string.error_obligatorio)); isValid = false; }
                 if (tipoDoc.isEmpty()) { if (tilDocType != null) tilDocType.setError(getString(R.string.error_obligatorio)); isValid = false; }
 
-                String errorDoc = validarDocumentoConTipo(finalDocumento, finalTipoDoc);
+                String errorDoc = validarDocumentoConTipo(documento, tipoDoc);
                 if (errorDoc != null) {
                     if (tilDni != null) tilDni.setError(errorDoc);
                     isValid = false;
                 }
-                
+
+                String errorPais = validarPaisPasaporte(tipoDoc, paisPasaporte);
+                if (errorPais != null) {
+                    if (tilPassportCountry != null) tilPassportCountry.setError(errorPais);
+                    isValid = false;
+                }
+
                 if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) { if (tilEmail != null) tilEmail.setError(getString(R.string.error_email_invalido)); isValid = false; }
                 if (!esPasswordSegura(password)) {
                     if (tilPassword != null) {
@@ -220,15 +235,17 @@ public class RegisterActivity extends AppCompatActivity {
 
                 // Iniciamos el proceso de registro. La validación de duplicados se hará
                 // dentro de realizarRegistroCompleto tras la autenticación en Firebase.
-                realizarRegistroCompleto(email, password, nombre, apellidos, finalDocumento, finalTipoDoc, finalDocKey);
+                realizarRegistroCompleto(email, password, nombre, apellidos, documento, tipoDoc, finalDocKey, paisPasaporte);
             });
         }
 
         // Recuperamos el último borrador guardado para que un cambio de idioma no vacíe el formulario.
-        restaurarBorradorRegistro();
+        restaurarBorradorRegistro(tilPassportCountry, actvPassportCountry);
 
          // Guardamos el contenido a medida que el usuario escribe para no perderlo si cambia el idioma.
-         configurarGuardadoBorrador(etNombre, etApellidos, actvDocType, etDni, etEmail, etPassword);
+           configurarGuardadoBorrador(etNombre, etApellidos, actvDocType, etDni, actvPassportCountry, etEmail, etPassword);
+
+         actualizarCampoDocumentoSegunTipo(etDni, tilPassportCountry, actvPassportCountry, actvDocType != null && actvDocType.getText() != null ? actvDocType.getText().toString() : getString(R.string.doc_dni_nie));
     }
 
     // Abre el selector de idioma usando el mismo desplegable reutilizable del resto de pantallas.
@@ -263,7 +280,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     // Crea la cuenta en Firebase Authentication y guarda el perfil únicamente en el nodo "usuarios".
-    private void realizarRegistroCompleto(String email, String pass, String nom, String ape, String doc, String tipoDoc, String docKey) {
+    private void realizarRegistroCompleto(String email, String pass, String nom, String ape, String doc, String tipoDoc, String docKey, String paisPasaporteCode) {
         auth.createUserWithEmailAndPassword(email, pass).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 com.google.firebase.auth.FirebaseUser user = task.getResult().getUser();
@@ -283,6 +300,10 @@ public class RegisterActivity extends AppCompatActivity {
                 userData.put("tipoDocumento", tipoDocCode);
                 userData.put("email", email);
                 userData.put("acceptedTerms", true);
+                if ("ID".equals(tipoDocCode) && paisPasaporteCode != null && !paisPasaporteCode.isEmpty()) {
+                    userData.put("paisPasaporteCodigo", paisPasaporteCode);
+                    userData.put("paisPasaporte", nombrePaisDesdeCodigo(paisPasaporteCode, Locale.getDefault()));
+                }
 
                 Map<String, Object> updates = new HashMap<>();
                 updates.put("usuarios/" + uid, userData);
@@ -330,38 +351,36 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-    // Valida el documento según su tipo (DNI, NIE o Pasaporte).
-    private String validarDocumentoConTipo(String documento, String tipo) {
-        if (documento == null || documento.isEmpty()) return getString(R.string.error_obligatorio);
-        String doc = documento.toUpperCase().trim();
+     // Valida el documento según su tipo (DNI/NIE o Pasaporte).
+     private String validarDocumentoConTipo(String documento, String tipo) {
+         if (documento == null || documento.isEmpty()) return getString(R.string.error_obligatorio);
+         String doc = documento.toUpperCase().trim();
 
-        if (tipo.equals(getString(R.string.doc_dni))) {
-            if (doc.matches("^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$")) {
-                String numeros = doc.substring(0, 8);
-                char letra = doc.charAt(8);
-                if (calcularLetraDni(numeros) == letra) return null;
-            }
-            return getString(R.string.error_dni_invalido);
-        }
+         if (tipo.equals(getString(R.string.doc_dni_nie))) {
+             // Validar como DNI
+             if (doc.matches("^[0-9]{8}[TRWAGMYFPDXBNJZSQVHLCKE]$")) {
+                 String numeros = doc.substring(0, 8);
+                 char letra = doc.charAt(8);
+                 if (calcularLetraDni(numeros) == letra) return null;
+             }
+             // Validar como NIE
+             if (doc.matches("^[XYZ][0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]$")) {
+                 String prefijo = doc.substring(0, 1);
+                 String resto = doc.substring(1, 8);
+                 char letraFinal = doc.charAt(8);
+                 String numerosParaCalculo = prefijo.replace("X", "0").replace("Y", "1").replace("Z", "2") + resto;
+                 if (calcularLetraDni(numerosParaCalculo) == letraFinal) return null;
+             }
+             return getString(R.string.error_dni_invalido);
+         }
 
-        if (tipo.equals(getString(R.string.doc_nie))) {
-            if (doc.matches("^[XYZ][0-9]{7}[TRWAGMYFPDXBNJZSQVHLCKE]$")) {
-                String prefijo = doc.substring(0, 1);
-                String resto = doc.substring(1, 8);
-                char letraFinal = doc.charAt(8);
-                String numerosParaCalculo = prefijo.replace("X", "0").replace("Y", "1").replace("Z", "2") + resto;
-                if (calcularLetraDni(numerosParaCalculo) == letraFinal) return null;
-            }
-            return getString(R.string.error_nie_invalido);
-        }
+         if (tipo.equals(getString(R.string.doc_pasaporte))) {
+             if (doc.matches("^[A-Z0-9]{6,12}$")) return null;
+             return getString(R.string.error_pasaporte_invalido);
+         }
 
-        if (tipo.equals(getString(R.string.doc_pasaporte))) {
-            if (doc.matches("^[A-Z0-9]{6,12}$")) return null;
-            return getString(R.string.error_pasaporte_invalido);
-        }
-
-        return getString(R.string.error_procesar);
-    }
+         return getString(R.string.error_procesar);
+     }
 
     private char calcularLetraDni(String numeros) {
         String letras = "TRWAGMYFPDXBNJZSQVHLCKE";
@@ -415,18 +434,20 @@ public class RegisterActivity extends AppCompatActivity {
      // Guarda el contenido actual del registro en preferencias temporales.
      private void guardarBorradorRegistro() {
          SharedPreferences.Editor editor = getSharedPreferences(PREF_REGISTER_DRAFT, Context.MODE_PRIVATE).edit();
+         AutoCompleteTextView actvPassportCountry = findViewById(R.id.actvPassportCountry);
          editor.putString("nombre", textoCampo(R.id.etRegNombre));
          editor.putString("apellidos", textoCampo(R.id.etRegApellidos));
          editor.putString("docType", codigoDocumento(textoCampoActv(R.id.actvDocType)));
          editor.putString("dni", textoCampo(R.id.etRegDni));
+         editor.putString(KEY_REGISTER_PASSPORT_COUNTRY, codigoPaisPasaporte(actvPassportCountry));
          editor.putString("email", textoCampo(R.id.etRegEmail));
          editor.putString("password", textoCampo(R.id.etRegPassword));
          editor.putBoolean("terms", cbTerms != null && cbTerms.isChecked());
-         editor.commit();
+         editor.apply();
      }
 
      // Restaura el contenido guardado si el usuario cambió idioma o la actividad se recreó.
-     private void restaurarBorradorRegistro() {
+      private void restaurarBorradorRegistro(TextInputLayout tilPassportCountry, com.google.android.material.textfield.MaterialAutoCompleteTextView actvPassportCountry) {
          SharedPreferences prefs = getSharedPreferences(PREF_REGISTER_DRAFT, Context.MODE_PRIVATE);
          TextInputEditText etNombre = findViewById(R.id.etRegNombre);
          TextInputEditText etApellidos = findViewById(R.id.etRegApellidos);
@@ -438,32 +459,41 @@ public class RegisterActivity extends AppCompatActivity {
 
          if (etNombre != null) etNombre.setText(prefs.getString("nombre", ""));
          if (etApellidos != null) etApellidos.setText(prefs.getString("apellidos", ""));
-         if (actvDocType != null) {
-             String docTypeCode = prefs.getString("docType", "DNI");
-             String docTypeLabel = etiquetaDocumentoDesdeCodigo(docTypeCode);
-             actvDocType.setText(docTypeLabel.isEmpty() ? getString(R.string.doc_dni) : docTypeLabel, false);
-         }
-         if (etDni != null) etDni.setText(prefs.getString("dni", ""));
-         actualizarCampoDocumentoSegunTipo(etDni, actvDocType != null && actvDocType.getText() != null ? actvDocType.getText().toString() : "");
+          if (actvDocType != null) {
+              String docTypeCode = prefs.getString("docType", "DNI/NIE");
+              String docTypeLabel = etiquetaDocumentoDesdeCodigo(docTypeCode);
+              actvDocType.setText(docTypeLabel.isEmpty() ? getString(R.string.doc_dni_nie) : docTypeLabel, false);
+          }
+          if (etDni != null) etDni.setText(prefs.getString("dni", ""));
+          if (actvPassportCountry != null) {
+              String paisPasaporte = prefs.getString(KEY_REGISTER_PASSPORT_COUNTRY, "");
+              if (!paisPasaporte.isEmpty()) {
+                  String nombrePais = nombrePaisDesdeCodigo(paisPasaporte, Locale.getDefault());
+                  actvPassportCountry.setText(nombrePais.isEmpty() ? paisPasaporte : nombrePais, false);
+                  actvPassportCountry.setTag(paisPasaporte.toUpperCase(Locale.ROOT));
+              }
+          }
+          actualizarCampoDocumentoSegunTipo(etDni, tilPassportCountry, actvPassportCountry, actvDocType != null && actvDocType.getText() != null ? actvDocType.getText().toString() : "");
          if (etEmail != null) etEmail.setText(prefs.getString("email", ""));
          if (etPassword != null) etPassword.setText(prefs.getString("password", ""));
          if (cbTerms != null) cbTerms.setChecked(prefs.getBoolean("terms", false));
      }
 
      // Engancha los cambios del formulario para que el borrador se vaya guardando automáticamente.
-     private void configurarGuardadoBorrador(TextInputEditText etNombre, TextInputEditText etApellidos, com.google.android.material.textfield.MaterialAutoCompleteTextView actvDocType, TextInputEditText etDni, TextInputEditText etEmail, TextInputEditText etPassword) {
+      private void configurarGuardadoBorrador(TextInputEditText etNombre, TextInputEditText etApellidos, com.google.android.material.textfield.MaterialAutoCompleteTextView actvDocType, TextInputEditText etDni, com.google.android.material.textfield.MaterialAutoCompleteTextView actvPassportCountry, TextInputEditText etEmail, TextInputEditText etPassword) {
          TextWatcher watcher = new TextWatcher() {
              @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
              @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
              @Override public void afterTextChanged(Editable s) { guardarBorradorRegistro(); }
          };
-         if (etNombre != null) etNombre.addTextChangedListener(watcher);
-         if (etApellidos != null) etApellidos.addTextChangedListener(watcher);
-         if (actvDocType != null) actvDocType.addTextChangedListener(watcher);
-         if (etDni != null) etDni.addTextChangedListener(watcher);
-         if (etEmail != null) etEmail.addTextChangedListener(watcher);
-         if (etPassword != null) etPassword.addTextChangedListener(watcher);
-         if (cbTerms != null) cbTerms.setOnCheckedChangeListener((buttonView, isChecked) -> guardarBorradorRegistro());
+          if (etNombre != null) etNombre.addTextChangedListener(watcher);
+          if (etApellidos != null) etApellidos.addTextChangedListener(watcher);
+          if (actvDocType != null) actvDocType.addTextChangedListener(watcher);
+          if (etDni != null) etDni.addTextChangedListener(watcher);
+          if (actvPassportCountry != null) actvPassportCountry.addTextChangedListener(watcher);
+          if (etEmail != null) etEmail.addTextChangedListener(watcher);
+          if (etPassword != null) etPassword.addTextChangedListener(watcher);
+          if (cbTerms != null) cbTerms.setOnCheckedChangeListener((buttonView, isChecked) -> guardarBorradorRegistro());
      }
 
      // Devuelve el texto actual de un campo concreto o vacío si no existe.
@@ -501,25 +531,115 @@ public class RegisterActivity extends AppCompatActivity {
          return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
      }
 
-     // Ajusta la pista del documento según el tipo seleccionado.
-     private void actualizarCampoDocumentoSegunTipo(TextInputEditText etDni, String tipoDoc) {
-         if (etDni == null) return;
-         String tipo = tipoDoc != null ? tipoDoc.trim() : "";
-         if (tipo.equals(getString(R.string.doc_pasaporte))) {
-             etDni.setHint(R.string.register_passport_number_hint);
-         } else if (tipo.equals(getString(R.string.doc_nie))) {
-             etDni.setHint(R.string.register_nie_number_hint);
-         } else if (tipo.equals(getString(R.string.doc_dni))) {
-             etDni.setHint(R.string.register_dni_number_hint);
-         } else {
-             etDni.setHint(R.string.register_document_number_hint);
-         }
-     }
+      // Devuelve el código ISO del país seleccionado en el desplegable del pasaporte.
+      private String codigoPaisPasaporte(AutoCompleteTextView editText) {
+          if (editText == null || editText.getText() == null) return "";
+          Object tag = editText.getTag();
+          if (tag instanceof String) {
+              String code = ((String) tag).trim().toUpperCase(Locale.ROOT);
+              if (!code.isEmpty()) return code;
+          }
+
+          String nombrePais = limpiarNombrePais(editText.getText().toString().trim());
+          if (nombrePais.isEmpty()) return "";
+
+          String codigo = codigoPaisDesdeNombre(nombrePais, Locale.getDefault());
+          if (!codigo.isEmpty()) editText.setTag(codigo);
+          return codigo;
+      }
+
+      // Convierte el nombre visible de un país en su código ISO-3166-1 alpha-2.
+      private String codigoPaisDesdeNombre(String nombrePais, Locale locale) {
+          if (nombrePais == null || nombrePais.trim().isEmpty()) return "";
+          List<CountryOption> paises = obtenerPaisesOrdenados(locale);
+          for (CountryOption pais : paises) {
+              if (pais.nombre.equalsIgnoreCase(nombrePais.trim())) return pais.codigo;
+          }
+          return "";
+      }
+
+      // Obtiene el nombre visible del país a partir de su código ISO-3166-1 alpha-2.
+      private String nombrePaisDesdeCodigo(String codigoPais, Locale locale) {
+          if (codigoPais == null || codigoPais.trim().isEmpty()) return "";
+          Locale paisLocale = new Locale("", codigoPais.trim().toUpperCase(Locale.ROOT));
+          String nombre = paisLocale.getDisplayCountry(locale != null ? locale : Locale.getDefault());
+          return limpiarNombrePais(nombre);
+      }
+
+      // Elimina cualquier alias o nombre alternativo entre paréntesis para que se muestre solo una versión.
+      private String limpiarNombrePais(String nombrePais) {
+          if (nombrePais == null) return "";
+          return nombrePais.replaceAll("\\s*\\([^)]*\\)", "").trim();
+      }
+
+      // Genera la lista completa de países ordenada alfabéticamente según el idioma activo.
+      private List<CountryOption> obtenerPaisesOrdenados(Locale locale) {
+          Locale localeActiva = locale != null ? locale : Locale.getDefault();
+          List<CountryOption> paises = new ArrayList<>();
+          for (String codigo : Locale.getISOCountries()) {
+               String nombre = limpiarNombrePais(new Locale("", codigo).getDisplayCountry(localeActiva));
+              if (!nombre.trim().isEmpty()) {
+                  paises.add(new CountryOption(codigo.toUpperCase(Locale.ROOT), nombre.trim()));
+              }
+          }
+
+          Collator collator = Collator.getInstance(localeActiva);
+          collator.setStrength(Collator.PRIMARY);
+          paises.sort((a, b) -> collator.compare(a.nombre, b.nombre));
+          return paises;
+      }
+
+      // Prepara el desplegable de países del pasaporte con la lista del idioma actual.
+      private void configurarSelectorPaisesPasaporte(com.google.android.material.textfield.MaterialAutoCompleteTextView actvPassportCountry, Locale locale) {
+          if (actvPassportCountry == null) return;
+          List<CountryOption> paises = obtenerPaisesOrdenados(locale);
+          ArrayList<String> nombres = new ArrayList<>(paises.size());
+          for (CountryOption pais : paises) nombres.add(pais.nombre);
+          ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, nombres);
+          actvPassportCountry.setAdapter(adapter);
+          actvPassportCountry.setOnItemClickListener((parent, view, position, id) -> {
+              if (position >= 0 && position < paises.size()) {
+                  actvPassportCountry.setTag(paises.get(position).codigo);
+              }
+              guardarBorradorRegistro();
+          });
+      }
+
+      // Ajusta la pista del documento y la visibilidad del país según el tipo seleccionado.
+       private void actualizarCampoDocumentoSegunTipo(TextInputEditText etDni, TextInputLayout tilPassportCountry, AutoCompleteTextView actvPassportCountry, String tipoDoc) {
+          if (etDni == null) return;
+          String tipo = tipoDoc != null ? tipoDoc.trim() : "";
+          if (tipo.equals(getString(R.string.doc_pasaporte))) {
+              etDni.setHint(R.string.register_passport_number_hint);
+               if (tilPassportCountry != null) tilPassportCountry.setVisibility(View.VISIBLE);
+          } else if (tipo.equals(getString(R.string.doc_dni_nie))) {
+              etDni.setHint(R.string.register_document_number_hint);
+               if (tilPassportCountry != null) tilPassportCountry.setVisibility(View.GONE);
+          } else {
+              etDni.setHint(R.string.register_document_number_hint);
+               if (tilPassportCountry != null) tilPassportCountry.setVisibility(View.GONE);
+          }
+
+           if (actvPassportCountry != null && !tipo.equals(getString(R.string.doc_pasaporte))) {
+               actvPassportCountry.setError(null);
+           }
+           if (tilPassportCountry != null) {
+               tilPassportCountry.setError(null);
+           }
+      }
+
+      // Verifica que el país del pasaporte se haya elegido cuando el tipo de documento lo exige.
+      private String validarPaisPasaporte(String tipo, String paisCodigo) {
+          if (tipo != null && tipo.trim().equals(getString(R.string.doc_pasaporte))) {
+              if (paisCodigo.isEmpty()) return getString(R.string.error_pasaporte_pais_obligatorio);
+          }
+          return null;
+      }
 
      // Genera una clave única para comprobar duplicados por tipo + número.
      private String claveDocumento(String tipoDoc, String documento) {
          String tipo = codigoDocumento(tipoDoc);
-          String doc = normalizarDocumento(documento);
+         String doc = normalizarDocumento(documento);
          return tipo + "_" + doc;
      }
 
@@ -528,33 +648,27 @@ public class RegisterActivity extends AppCompatActivity {
           return documento != null ? documento.trim().replace(" ", "").toUpperCase(Locale.ROOT) : "";
       }
 
-     // Convierte el texto visible del selector en un código estable para la base de datos.
-     private String codigoDocumento(String tipoDoc) {
-         if (tipoDoc == null) return "";
-         String tipo = tipoDoc.trim();
-         if (tipo.equals(getString(R.string.doc_dni))) return "DNI";
-         if (tipo.equals(getString(R.string.doc_pasaporte))) return "PASSPORT";
-         if (tipo.equals(getString(R.string.doc_nie))) return "NIE";
-         return tipo.toUpperCase(Locale.ROOT);
-     }
+       // Convierte el texto visible del selector en un código estable para la base de datos.
+       private String codigoDocumento(String tipoDoc) {
+           if (tipoDoc == null) return "";
+           String tipo = tipoDoc.trim();
+           if (tipo.equals(getString(R.string.doc_dni_nie))) return "DNI/NIE";
+           if (tipo.equals(getString(R.string.doc_pasaporte))) return "ID";
+           return tipo.toUpperCase(Locale.ROOT);
+       }
 
-      // Devuelve la clave de documento específica usada en el perfil según el tipo seleccionado.
-      private String campoDocumentoPorCodigo(String codigoTipo) {
-          if ("DNI".equals(codigoTipo)) return "dni";
-          if ("NIE".equals(codigoTipo)) return "nie";
-          if ("PASSPORT".equals(codigoTipo)) return "pasaporte";
-          return "";
-      }
-
-     // Convierte el código estable a la etiqueta visible del idioma activo.
-     private String etiquetaDocumentoDesdeCodigo(String codigo) {
-         if (codigo == null) return "";
-         String tipo = codigo.trim().toUpperCase(Locale.ROOT);
-         if ("DNI".equals(tipo)) return getString(R.string.doc_dni);
-         if ("PASSPORT".equals(tipo)) return getString(R.string.doc_pasaporte);
-         if ("NIE".equals(tipo)) return getString(R.string.doc_nie);
-         return codigo.trim();
-     }
+       // Convierte el código estable a la etiqueta visible del idioma activo.
+       private String etiquetaDocumentoDesdeCodigo(String codigo) {
+            if (codigo == null) return "";
+            switch (codigo.trim().toUpperCase(Locale.ROOT)) {
+                case "DNI/NIE":
+                    return getString(R.string.doc_dni_nie);
+                case "ID":
+                    return getString(R.string.doc_pasaporte);
+                default:
+                    return codigo.trim();
+            }
+       }
 
     // Comprueba que la contraseña cumpla la política mínima exigida por la app.
     private boolean esPasswordSegura(String password) {
@@ -562,6 +676,17 @@ public class RegisterActivity extends AppCompatActivity {
                 && password.length() >= 6
                 && password.matches(".*[A-Z].*")
                 && password.matches(".*[^A-Za-z0-9].*");
+    }
+
+    // Estructura simple para almacenar el código y el nombre visible de cada país.
+    private static final class CountryOption {
+        final String codigo;
+        final String nombre;
+
+        CountryOption(String codigo, String nombre) {
+            this.codigo = codigo;
+            this.nombre = nombre;
+        }
     }
 
     // Pide al sistema Android que recuerde las credenciales del usuario si el dispositivo lo permite.
@@ -581,7 +706,7 @@ public class RegisterActivity extends AppCompatActivity {
                         }
 
                         @Override
-                        public void onError(CreateCredentialException e) {
+                        public void onError(@NonNull CreateCredentialException e) {
                             onDone.run();
                         }
                     }
@@ -594,7 +719,8 @@ public class RegisterActivity extends AppCompatActivity {
     // Abre un documento legal a pantalla completa y opcionalmente marca la aceptación de términos al cerrar.
     private void mostrarTextoLegal(int resIdTitulo, int resIdContenido, boolean aceptarTerminosAlCerrar) {
         Dialog dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
-        View view = LayoutInflater.from(this).inflate(R.layout.layout_fullscreen_legal, null, false);
+        ViewGroup root = findViewById(android.R.id.content);
+        View view = LayoutInflater.from(this).inflate(R.layout.layout_fullscreen_legal, root, false);
         TextView txtTituloLegal = view.findViewById(R.id.txtTituloLegal);
         TextView txtContenidoLegal = view.findViewById(R.id.txtContenidoLegal);
         ImageView btnCerrarCruceta = view.findViewById(R.id.btnCerrarCruceta);

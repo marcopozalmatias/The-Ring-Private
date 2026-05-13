@@ -41,16 +41,17 @@
     <string name="error_dni_ya_registrado">This document is already registered</string>
     <string name="error_doc_ya_existe">This %1$s already exists</string>
     <string name="register_doc_type_hint">Select document type</string>
-    <string name="register_doc_type_short">Type</string>
-    <string name="doc_dni">DNI</string>
-    <string name="doc_pasaporte">PASSPORT</string>
-    <string name="doc_nie">NIE</string>
+      <string name="register_doc_type_short">Type</string>
+      <string name="doc_dni_nie">DNI/NIE</string>
+      <string name="doc_pasaporte">ID</string>
     <string name="register_document_number_hint">Document number</string>
     <string name="register_dni_number_hint">DNI number</string>
     <string name="register_passport_number_hint">Passport number</string>
     <string name="register_nie_number_hint">NIE number</string>
+    <string name="register_passport_country_hint">Passport country</string>
     <string name="error_pasaporte_invalido">Invalid Passport (6-12 chars)</string>
     <string name="error_nie_invalido">Invalid NIE</string>
+    <string name="error_pasaporte_pais_obligatorio">Select the passport country</string>
 
     <string name="settings_terms">Terms and Conditions</string>
     <string name="texto_terminos_titulo"><![CDATA[<b>Terms and Conditions</b>]]></string>
