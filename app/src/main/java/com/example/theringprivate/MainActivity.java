@@ -31,12 +31,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
 import android.util.Patterns;
+import android.util.Log;
 
 import java.util.Locale;
 
 // Pantalla de entrada de la aplicación donde se inicia sesión, se cambia el idioma y se abre el manual.
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     // Servicio de autenticación de Firebase para iniciar sesión con correo y contraseña.
     private FirebaseAuth auth;
 
@@ -54,102 +56,113 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-        // Si ya existe una sesión activa, saltamos directamente a la pantalla principal.
-        super.onStart();
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            startActivity(new Intent(this, HomeActivity.class));
-            finish();
+        try {
+            // Si ya existe una sesión activa, saltamos directamente a la pantalla principal.
+            super.onStart();
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                startActivity(new Intent(this, HomeActivity.class));
+                finish();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error en onStart", e);
+            Toast.makeText(this, "Error al verificar sesión", Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Aplicamos el tema antes de inflar la vista para evitar un cambio visual brusco.
-        SharedPreferences prefs = getSharedPreferences("Settings", Context.MODE_PRIVATE);
-        boolean isDarkMode = prefs.getBoolean("DarkMode", false);
-        AppCompatDelegate.setDefaultNightMode(isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+        try {
+            // Aplicamos el tema antes de inflar la vista para evitar un cambio visual brusco.
+            SharedPreferences prefs = getSharedPreferences("Settings", Context.MODE_PRIVATE);
+            boolean isDarkMode = prefs.getBoolean("DarkMode", false);
+            AppCompatDelegate.setDefaultNightMode(isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
 
-        // Inicializamos Firebase Auth y saneamos mapeos de DNI que puedan haber quedado huérfanos.
-        auth = FirebaseAuth.getInstance();
-        limpiarMapeosDniHuerfanos();
+            // Inicializamos Firebase Auth y saneamos mapeos de DNI que puedan haber quedado huérfanos.
+            auth = FirebaseAuth.getInstance();
+            limpiarMapeosDniHuerfanos();
 
-        View rootLayout = findViewById(R.id.layoutLogin);
-        View cardLogin = findViewById(R.id.cardLogin);
-        View ivLogo = findViewById(R.id.ivLogo);
+            View rootLayout = findViewById(R.id.layoutLogin);
+            View cardLogin = findViewById(R.id.cardLogin);
+            View ivLogo = findViewById(R.id.ivLogo);
 
-        // Ajuste dinámico para que el teclado no tape el formulario de acceso.
-        if (rootLayout != null) {
-            rootLayout.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-                Rect r = new Rect();
-                rootLayout.getWindowVisibleDisplayFrame(r);
-                int screenHeight = rootLayout.getRootView().getHeight();
-                int keypadHeight = screenHeight - r.bottom;
-                if (keypadHeight > screenHeight * 0.15) {
-                    float offset = -keypadHeight / 2f;
-                    if (cardLogin != null) cardLogin.setTranslationY(offset);
-                    if (ivLogo != null) ivLogo.setTranslationY(offset);
-                } else {
-                    if (cardLogin != null) cardLogin.setTranslationY(0);
-                    if (ivLogo != null) ivLogo.setTranslationY(0);
-                }
-            });
-        }
+            // Ajuste dinámico para que el teclado no tape el formulario de acceso.
+            if (rootLayout != null) {
+                rootLayout.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+                    Rect r = new Rect();
+                    rootLayout.getWindowVisibleDisplayFrame(r);
+                    int screenHeight = rootLayout.getRootView().getHeight();
+                    int keypadHeight = screenHeight - r.bottom;
+                    if (keypadHeight > screenHeight * 0.15) {
+                        float offset = -keypadHeight / 2f;
+                        if (cardLogin != null) cardLogin.setTranslationY(offset);
+                        if (ivLogo != null) ivLogo.setTranslationY(offset);
+                    } else {
+                        if (cardLogin != null) cardLogin.setTranslationY(0);
+                        if (ivLogo != null) ivLogo.setTranslationY(0);
+                    }
+                });
+            }
 
-        TextInputLayout tilDni = findViewById(R.id.tilDni);
-        TextInputLayout tilPassword = findViewById(R.id.tilPassword);
-        TextInputEditText etUser = findViewById(R.id.etDni);
-        TextInputEditText etPassword = findViewById(R.id.etPassword);
-        MaterialButton btnLogin = findViewById(R.id.btnLogin);
-        TextView tvRegister = findViewById(R.id.tvRegister);
-        TextView tvForgotPassword = findViewById(R.id.tvForgotPassword);
-        LinearLayout btnChangeLang = findViewById(R.id.btnChangeLangLogin);
-        LinearLayout btnManualLogin = findViewById(R.id.btnManualLogin);
-        TextView tvFlag = findViewById(R.id.tvCurrentFlag);
+            TextInputLayout tilDni = findViewById(R.id.tilDni);
+            TextInputLayout tilPassword = findViewById(R.id.tilPassword);
+            TextInputEditText etUser = findViewById(R.id.etDni);
+            TextInputEditText etPassword = findViewById(R.id.etPassword);
+            MaterialButton btnLogin = findViewById(R.id.btnLogin);
+            TextView tvRegister = findViewById(R.id.tvRegister);
+            TextView tvForgotPassword = findViewById(R.id.tvForgotPassword);
+            LinearLayout btnChangeLang = findViewById(R.id.btnChangeLangLogin);
+            LinearLayout btnManualLogin = findViewById(R.id.btnManualLogin);
+            TextView tvFlag = findViewById(R.id.tvCurrentFlag);
 
-        // Lógica para mostrar el idioma CONTRARIO
-        String currentLang = getSharedPreferences("Settings", Context.MODE_PRIVATE).getString("My_Lang", "es");
-        if (tvFlag != null) {
-            tvFlag.setText(currentLang.equals("es") ? "🇬🇧 EN" : "🇪🇸 ES");
-        }
+            // Lógica para mostrar el idioma CONTRARIO
+            String currentLang = getSharedPreferences("Settings", Context.MODE_PRIVATE).getString("My_Lang", "es");
+            if (tvFlag != null) {
+                tvFlag.setText(currentLang.equals("es") ? "🇬🇧 EN" : "🇪🇸 ES");
+            }
 
-        // El botón de login desencadena la validación y el acceso a Firebase.
-        if (btnLogin != null) {
-            btnLogin.setOnClickListener(v -> {
-                // Limpiamos cualquier error previo antes de volver a validar.
-                if (tilDni != null) tilDni.setError(null);
-                if (tilPassword != null) tilPassword.setError(null);
-                
-                // Leemos y normalizamos la información introducida por el usuario.
-                String email = safeText(etUser);
-                String password = safeText(etPassword);
+            // El botón de login desencadena la validación y el acceso a Firebase.
+            if (btnLogin != null) {
+                btnLogin.setOnClickListener(v -> {
+                    // Limpiamos cualquier error previo antes de volver a validar.
+                    if (tilDni != null) tilDni.setError(null);
+                    if (tilPassword != null) tilPassword.setError(null);
 
-                if (email.isEmpty()) {
-                    if (tilDni != null) tilDni.setError(getString(R.string.error_dni_vacio));
-                    return;
-                }
-                if (password.isEmpty()) {
-                    if (tilPassword != null) tilPassword.setError(getString(R.string.error_pass_vacio));
-                    return;
-                }
-                
-                // Inicio de sesión directo con correo y contraseña.
-                iniciarSesionFirebase(email, password, tilDni, tilPassword);
-            });
-        }
+                    // Leemos y normalizamos la información introducida por el usuario.
+                    String email = safeText(etUser);
+                    String password = safeText(etPassword);
 
-        // Acceso a la pantalla de registro.
-        if (tvRegister != null) tvRegister.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
-        // Recuperación de contraseña desde la misma pantalla de login.
-        if (tvForgotPassword != null) tvForgotPassword.setOnClickListener(v -> mostrarDialogoRecuperacionInterna());
-        // Selector de idioma en la pantalla inicial.
-        if (btnChangeLang != null) btnChangeLang.setOnClickListener(v -> mostrarDialogoIdiomas());
-        // Botón de manual para que un usuario nuevo aprenda a usar la app sin salir de login.
-        if (btnManualLogin != null) {
-            btnManualLogin.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_manual_usuario_titulo, R.string.texto_manual_usuario));
+                    if (email.isEmpty()) {
+                        if (tilDni != null) tilDni.setError(getString(R.string.error_dni_vacio));
+                        return;
+                    }
+                    if (password.isEmpty()) {
+                        if (tilPassword != null) tilPassword.setError(getString(R.string.error_pass_vacio));
+                        return;
+                    }
+
+                    // Inicio de sesión directo con correo y contraseña.
+                    iniciarSesionFirebase(email, password, tilDni, tilPassword);
+                });
+            }
+
+            // Acceso a la pantalla de registro.
+            if (tvRegister != null) tvRegister.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
+            // Recuperación de contraseña desde la misma pantalla de login.
+            if (tvForgotPassword != null) tvForgotPassword.setOnClickListener(v -> mostrarDialogoRecuperacionInterna());
+            // Selector de idioma en la pantalla inicial.
+            if (btnChangeLang != null) btnChangeLang.setOnClickListener(v -> mostrarDialogoIdiomas());
+            // Botón de manual para que un usuario nuevo aprenda a usar la app sin salir de login.
+            if (btnManualLogin != null) {
+                btnManualLogin.setOnClickListener(v -> mostrarTextoLegal(R.string.texto_manual_usuario_titulo, R.string.texto_manual_usuario));
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error en onCreate", e);
+            Toast.makeText(this, "Error de inicialización: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
 
@@ -179,28 +192,40 @@ public class MainActivity extends AppCompatActivity {
 
     // Limpia mapeos de DNI que apunten a correos ya inexistentes en Usuarios.
     private void limpiarMapeosDniHuerfanos() {
-        limpiarMapeosDniEnNodo("MapeoDNI");
-        limpiarMapeosDniEnNodo("MapeoDocumentos");
+        try {
+            limpiarMapeosDniEnNodo("MapeoDNI");
+            limpiarMapeosDniEnNodo("MapeoDocumentos");
+        } catch (Exception e) {
+            Log.e(TAG, "Error al limpiar mapeos DNI", e);
+        }
     }
 
     private void limpiarMapeosDniEnNodo(String nodo) {
-        FirebaseDatabase.getInstance().getReference(nodo).get().addOnSuccessListener(snapshot -> {
-            for (var data : snapshot.getChildren()) {
-                String dni = data.getKey();
-                String email = data.getValue(String.class);
-                if (dni == null) continue;
-                if (email == null || email.isEmpty()) {
-                    FirebaseDatabase.getInstance().getReference(nodo).child(dni).removeValue();
-                    continue;
-                }
+        try {
+            FirebaseDatabase.getInstance().getReference(nodo).get().addOnSuccessListener(snapshot -> {
+                try {
+                    for (var data : snapshot.getChildren()) {
+                        String dni = data.getKey();
+                        String email = data.getValue(String.class);
+                        if (dni == null) continue;
+                        if (email == null || email.isEmpty()) {
+                            FirebaseDatabase.getInstance().getReference(nodo).child(dni).removeValue();
+                            continue;
+                        }
 
-                FirebaseDatabase.getInstance().getReference("usuarios").orderByChild("email").equalTo(email).get().addOnSuccessListener(perfil -> {
-                    if (!perfil.exists()) {
-                        FirebaseDatabase.getInstance().getReference(nodo).child(dni).removeValue();
+                        FirebaseDatabase.getInstance().getReference("usuarios").orderByChild("email").equalTo(email).get().addOnSuccessListener(perfil -> {
+                            if (!perfil.exists()) {
+                                FirebaseDatabase.getInstance().getReference(nodo).child(dni).removeValue();
+                            }
+                        }).addOnFailureListener(e -> FirebaseDatabase.getInstance().getReference(nodo).child(dni).removeValue());
                     }
-                }).addOnFailureListener(e -> FirebaseDatabase.getInstance().getReference(nodo).child(dni).removeValue());
-            }
-        });
+                } catch (Exception e) {
+                    Log.e(TAG, "Error procesando nodo " + nodo, e);
+                }
+            }).addOnFailureListener(e -> Log.e(TAG, "Error al obtener nodo " + nodo, e));
+        } catch (Exception e) {
+            Log.e(TAG, "Error en limpiarMapeosDniEnNodo", e);
+        }
     }
 
     // Extrae texto seguro de un campo evitando nulos.
