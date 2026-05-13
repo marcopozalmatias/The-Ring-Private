@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,13 +30,14 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Locale;
 
 // Fragmento que agrupa la configuración del usuario, el acceso a textos legales y las acciones de cuenta.
 public class SettingsFragment extends Fragment {
+
+    private static final String TAG = "SettingsFragment";
 
     // El fragmento usa un layout propio donde se muestran los accesos a ajustes y textos legales.
     public SettingsFragment() {
@@ -377,8 +379,7 @@ public class SettingsFragment extends Fragment {
         user.reauthenticate(EmailAuthProvider.getCredential(email, pass)).addOnCompleteListener(authTask -> {
             if (authTask.isSuccessful()) {
                 dialogAnterior.dismiss();
-                String canonicalEmail = user.getEmail() != null ? user.getEmail() : email;
-                mostrarDialogoFinalConfirmacionEliminar(user, canonicalEmail);
+                mostrarDialogoFinalConfirmacionEliminar(user);
             } else {
                 Toast.makeText(requireContext(), getString(R.string.error_credenciales), Toast.LENGTH_SHORT).show();
             }
@@ -386,7 +387,7 @@ public class SettingsFragment extends Fragment {
     }
 
     // Última confirmación antes de borrar perfil, mapeos y credenciales de Auth.
-    private void mostrarDialogoFinalConfirmacionEliminar(FirebaseUser user, String email) {
+    private void mostrarDialogoFinalConfirmacionEliminar(FirebaseUser user) {
         Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.dialog_final_delete_confirm);
         if (dialog.getWindow() != null) {
@@ -399,106 +400,44 @@ public class SettingsFragment extends Fragment {
 
         if (btnFinalCancelarDelete != null) btnFinalCancelarDelete.setOnClickListener(v -> dialog.dismiss());
         if (btnFinalAceptoDelete != null) {
-            btnFinalAceptoDelete.setOnClickListener(v -> {
-                String emailSafe = email.replace(".", "_");
-                FirebaseDatabase.getInstance().getReference("usuarios").orderByChild("email").equalTo(email).get().addOnSuccessListener(snapshot -> {
-                    DataSnapshot perfil = snapshot.exists() && snapshot.hasChildren() ? snapshot.getChildren().iterator().next() : null;
-                    ejecutarBorradoCuenta(perfil, emailSafe, email, user, dialog);
-                }).addOnFailureListener(e -> ejecutarBorradoCuenta(null, emailSafe, email, user, dialog));
-            });
+            btnFinalAceptoDelete.setOnClickListener(v -> ejecutarBorradoCuenta(user, dialog));
         }
         dialog.show();
     }
 
-    private String extraerDocumentoDesdeSnapshot(DataSnapshot snapshot) {
-        if (snapshot == null) return null;
-        String documento = snapshot.child("documento").getValue(String.class);
-        if (documento == null || documento.isEmpty()) documento = snapshot.child("dni").getValue(String.class);
-        if (documento == null || documento.isEmpty()) documento = snapshot.child("documentNumber").getValue(String.class);
-        return documento;
-    }
-
-    private void ejecutarBorradoCuenta(DataSnapshot perfil, String emailSafe, String email, FirebaseUser user, Dialog dialog) {
-        java.util.HashMap<String, Object> updates = new java.util.HashMap<>();
-        updates.put("usuarios/" + emailSafe, null);
-        updates.put("TokensQR/" + emailSafe, null);
-
-        if (perfil != null && perfil.getKey() != null) {
-            String uid = perfil.getKey();
-            updates.put("usuarios/" + uid, null);
-            updates.put("TokensQR/" + uid, null);
-
-            String dni = extraerDocumentoDesdeSnapshot(perfil);
-            if (dni != null && !dni.isEmpty()) {
-                updates.put("MapeoDNI/" + dni, null);
-                updates.put("MapeoDocumentos/" + dni, null);
-            }
+    private void ejecutarBorradoCuenta(FirebaseUser user, Dialog dialog) {
+        if (user == null) {
+            Toast.makeText(requireContext(), getString(R.string.error_usuario_no_encontrado), Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "No se pudo iniciar el borrado porque el usuario actual es null");
+            return;
         }
 
-        FirebaseDatabase.getInstance().getReference("MapeoDNI").orderByValue().equalTo(email).get().addOnSuccessListener(dniSnap -> {
-            for (DataSnapshot child : dniSnap.getChildren()) {
-                if (child.getKey() != null) {
-                    updates.put("MapeoDNI/" + child.getKey(), null);
-                    updates.put("MapeoDocumentos/" + child.getKey(), null);
-                }
-            }
-
-            FirebaseDatabase.getInstance().getReference("MapeoDocumentos").orderByValue().equalTo(email).get().addOnSuccessListener(docSnap -> {
-                for (DataSnapshot child : docSnap.getChildren()) {
-                    if (child.getKey() != null) {
-                        updates.put("MapeoDNI/" + child.getKey(), null);
-                        updates.put("MapeoDocumentos/" + child.getKey(), null);
-                    }
-                }
-
-                FirebaseDatabase.getInstance().getReference().updateChildren(updates).addOnCompleteListener(dbDeleteTask -> {
-                    if (!dbDeleteTask.isSuccessful()) {
-                        Toast.makeText(requireContext(), "Error al borrar datos del usuario", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    user.delete().addOnCompleteListener(deleteTask -> {
-                        if (deleteTask.isSuccessful()) {
-                            Toast.makeText(requireContext(), "Cuenta eliminada correctamente", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                            Intent intent = new Intent(requireContext(), MainActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(requireContext(), "Datos eliminados, pero falló Auth. Inicia sesión e inténtalo de nuevo.", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                });
-            }).addOnFailureListener(e -> FirebaseDatabase.getInstance().getReference().updateChildren(updates).addOnCompleteListener(dbDeleteTask -> {
-                if (!dbDeleteTask.isSuccessful()) {
-                    Toast.makeText(requireContext(), "Error al borrar datos del usuario", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                user.delete().addOnCompleteListener(deleteTask -> {
-                    if (deleteTask.isSuccessful()) {
-                        Toast.makeText(requireContext(), "Cuenta eliminada correctamente", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                        Intent intent = new Intent(requireContext(), MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                    }
-                });
-            }));
-        }).addOnFailureListener(e -> FirebaseDatabase.getInstance().getReference().updateChildren(updates).addOnCompleteListener(dbDeleteTask -> {
+        String uid = user.getUid();
+        FirebaseDatabase.getInstance().getReference("usuarios").child(uid).removeValue().addOnCompleteListener(dbDeleteTask -> {
             if (!dbDeleteTask.isSuccessful()) {
-                Toast.makeText(requireContext(), "Error al borrar datos del usuario", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "No se pudieron eliminar los datos de base de datos", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Fallo al eliminar los datos de Realtime Database para UID=" + uid, dbDeleteTask.getException());
                 return;
             }
-            user.delete().addOnCompleteListener(deleteTask -> {
-                if (deleteTask.isSuccessful()) {
-                    Toast.makeText(requireContext(), "Cuenta eliminada correctamente", Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
-                    Intent intent = new Intent(requireContext(), MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
+
+            Toast.makeText(requireContext(), "Datos de base de datos eliminados", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Datos de base de datos eliminados para UID=" + uid);
+
+            user.delete().addOnCompleteListener(authDeleteTask -> {
+                if (!authDeleteTask.isSuccessful()) {
+                    Toast.makeText(requireContext(), "No se pudo eliminar la cuenta de Auth", Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "Fallo al eliminar la cuenta de Firebase Auth para UID=" + uid, authDeleteTask.getException());
+                    return;
                 }
+
+                Toast.makeText(requireContext(), "Cuenta de Auth eliminada", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Cuenta de Auth eliminada para UID=" + uid);
+                dialog.dismiss();
+                Intent intent = new Intent(requireContext(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
             });
-        }));
+        });
     }
 
     // Abre textos legales y manuales con el mismo formato visual que el resto de la app.
