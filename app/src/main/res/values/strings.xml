@@ -44,12 +44,12 @@
       <string name="register_doc_type_short">Tipo</string>
       <string name="doc_dni_nie">DNI/NIE</string>
       <string name="doc_pasaporte">ID/PASAPORTE</string>
-    <string name="register_document_number_hint">Número de documento</string>
-    <string name="register_dni_number_hint">Número de DNI</string>
-    <string name="register_passport_number_hint">Número de Pasaporte</string>
+    <string name="register_document_number_hint">Documento</string>
+    <string name="register_dni_number_hint">Documento</string>
+    <string name="register_passport_number_hint">Documento</string>
     <string name="register_nie_number_hint">Número de NIE</string>
     <string name="register_passport_country_hint">País del pasaporte</string>
-    <string name="error_pasaporte_invalido">Pasaporte inválido (6-12 caracteres)</string>
+    <string name="error_pasaporte_invalido">Pasaporte inválido (6–12 caracteres)</string>
     <string name="error_nie_invalido">NIE inválido</string>
     <string name="error_pasaporte_pais_obligatorio">Selecciona el país del pasaporte</string>
 
@@ -69,7 +69,7 @@
         El usuario se compromete a utilizar la Aplicación de forma lícita, respetuosa y conforme a la normativa aplicable. Queda prohibido manipular, copiar, descompilar, alter o reutilizar el contenido de la Aplicación sin autorización expresa.<br/><br/>
 
         <b>4. ¿Quién es dueño de la Aplicación?</b><br/>
-        Todos los derechos de propiedad intelectual e industrial sobre la Aplicación, su diseño, textos, marcas y elementos gráficos pertenecen a THE RING PRIVATE o a terceros autorizados.<br/><br/>
+        Todos los derechos de propiedad intellectual e industrial sobre la Aplicación, su diseño, textos, marcas y elementos gráficos pertenecen a THE RING PRIVATE o a terceros autorizados.<br/><br/>
 
         <b>5. ¿Cómo se protegen mis datos personales?</b><br/>
         Los datos personales se tratarán conforme al Reglamento (UE) 2016/679 (RGPD) y la normativa española vigente. El tratamiento se realiza para gestionar la relación con el socio y el funcionamiento de la Aplicación.<br/><br/>
