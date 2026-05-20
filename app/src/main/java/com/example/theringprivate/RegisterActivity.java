@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.text.Editable;
 import android.text.Html;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -135,7 +137,7 @@ public class RegisterActivity extends AppCompatActivity {
         TextInputLayout tilPassword = findViewById(R.id.tilRegPassword);
 
          // Configurar el dropdown de tipo de documento
-         com.google.android.material.textfield.MaterialAutoCompleteTextView actvDocType = findViewById(R.id.actvDocType);
+          com.google.android.material.textfield.MaterialAutoCompleteTextView actvDocType = findViewById(R.id.actvDocType);
          if (actvDocType != null) {
              String[] docTypes = new String[]{getString(R.string.doc_dni_nie), getString(R.string.doc_pasaporte)};
              ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, docTypes);
@@ -300,7 +302,7 @@ public class RegisterActivity extends AppCompatActivity {
                 userData.put("tipoDocumento", tipoDocCode);
                 userData.put("email", email);
                 userData.put("acceptedTerms", true);
-                if ("ID".equals(tipoDocCode) && paisPasaporteCode != null && !paisPasaporteCode.isEmpty()) {
+                if (getString(R.string.doc_pasaporte).equals(tipoDoc) && paisPasaporteCode != null && !paisPasaporteCode.isEmpty()) {
                     userData.put("paisPasaporteCodigo", paisPasaporteCode);
                     userData.put("paisPasaporte", nombrePaisDesdeCodigo(paisPasaporteCode, Locale.getDefault()));
                 }
@@ -457,15 +459,19 @@ public class RegisterActivity extends AppCompatActivity {
          TextInputLayout tilPassword = findViewById(R.id.tilRegPassword);
          TextInputEditText etPassword = tilPassword != null ? (TextInputEditText) tilPassword.getEditText() : null;
 
-         if (etNombre != null) etNombre.setText(prefs.getString("nombre", ""));
-         if (etApellidos != null) etApellidos.setText(prefs.getString("apellidos", ""));
-          if (actvDocType != null) {
-              String docTypeCode = prefs.getString("docType", "DNI/NIE");
-              String docTypeLabel = etiquetaDocumentoDesdeCodigo(docTypeCode);
-              actvDocType.setText(docTypeLabel.isEmpty() ? getString(R.string.doc_dni_nie) : docTypeLabel, false);
-          }
-          if (etDni != null) etDni.setText(prefs.getString("dni", ""));
-          if (actvPassportCountry != null) {
+        if (etNombre != null) {
+            etNombre.setText(prefs.getString("nombre", ""));
+        }
+        if (etApellidos != null) {
+            etApellidos.setText(prefs.getString("apellidos", ""));
+        }
+        if (actvDocType != null) {
+            String docTypeCode = prefs.getString("docType", "DNI/NIE");
+            String docTypeLabel = etiquetaDocumentoDesdeCodigo(docTypeCode);
+            actvDocType.setText(docTypeLabel.isEmpty() ? getString(R.string.doc_dni_nie) : docTypeLabel, false);
+        }
+        if (etDni != null) etDni.setText(prefs.getString("dni", ""));
+        if (actvPassportCountry != null) {
               String paisPasaporte = prefs.getString(KEY_REGISTER_PASSPORT_COUNTRY, "");
               if (!paisPasaporte.isEmpty()) {
                   String nombrePais = nombrePaisDesdeCodigo(paisPasaporte, Locale.getDefault());
@@ -540,10 +546,10 @@ public class RegisterActivity extends AppCompatActivity {
               if (!code.isEmpty()) return code;
           }
 
-          String nombrePais = limpiarNombrePais(editText.getText().toString().trim());
-          if (nombrePais.isEmpty()) return "";
+          String textoPais = limpiarNombrePais(editText.getText().toString().trim());
+          if (textoPais.isEmpty()) return "";
 
-          String codigo = codigoPaisDesdeNombre(nombrePais, Locale.getDefault());
+          String codigo = codigoPaisDesdeNombre(textoPais, Locale.getDefault());
           if (!codigo.isEmpty()) editText.setTag(codigo);
           return codigo;
       }
@@ -551,9 +557,17 @@ public class RegisterActivity extends AppCompatActivity {
       // Convierte el nombre visible de un país en su código ISO-3166-1 alpha-2.
       private String codigoPaisDesdeNombre(String nombrePais, Locale locale) {
           if (nombrePais == null || nombrePais.trim().isEmpty()) return "";
+          String textoNormalizado = nombrePais.trim();
+          if (textoNormalizado.matches("^[A-Za-z]{2}$")) {
+              String codigoDirecto = textoNormalizado.toUpperCase(Locale.ROOT);
+              if (!new Locale("", codigoDirecto).getDisplayCountry(locale != null ? locale : Locale.getDefault()).trim().isEmpty()) {
+                  return codigoDirecto;
+              }
+          }
+
           List<CountryOption> paises = obtenerPaisesOrdenados(locale);
           for (CountryOption pais : paises) {
-              if (pais.nombre.equalsIgnoreCase(nombrePais.trim())) return pais.codigo;
+               if (pais.nombre.equalsIgnoreCase(textoNormalizado) || pais.codigo.equalsIgnoreCase(textoNormalizado)) return pais.codigo;
           }
           return "";
       }
@@ -593,13 +607,19 @@ public class RegisterActivity extends AppCompatActivity {
       private void configurarSelectorPaisesPasaporte(com.google.android.material.textfield.MaterialAutoCompleteTextView actvPassportCountry, Locale locale) {
           if (actvPassportCountry == null) return;
           List<CountryOption> paises = obtenerPaisesOrdenados(locale);
-          ArrayList<String> nombres = new ArrayList<>(paises.size());
-          for (CountryOption pais : paises) nombres.add(pais.nombre);
-          ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, nombres);
+          CountryOptionAdapter adapter = new CountryOptionAdapter(this, paises);
           actvPassportCountry.setAdapter(adapter);
-          actvPassportCountry.setOnItemClickListener((parent, view, position, id) -> {
-              if (position >= 0 && position < paises.size()) {
-                  actvPassportCountry.setTag(paises.get(position).codigo);
+          actvPassportCountry.setThreshold(1);
+          actvPassportCountry.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+          actvPassportCountry.setOnClickListener(v -> actvPassportCountry.showDropDown());
+          actvPassportCountry.setOnFocusChangeListener((v, hasFocus) -> {
+              if (hasFocus) actvPassportCountry.showDropDown();
+          });
+           actvPassportCountry.setOnItemClickListener((parent, view, position, id) -> {
+                CountryOption pais = adapter.getItem(position);
+                if (pais != null) {
+                   actvPassportCountry.setTag(pais.codigo);
+                   actvPassportCountry.setText(pais.nombre, false);
               }
               guardarBorradorRegistro();
           });
@@ -638,7 +658,12 @@ public class RegisterActivity extends AppCompatActivity {
 
      // Genera una clave única para comprobar duplicados por tipo + número.
      private String claveDocumento(String tipoDoc, String documento) {
-         String tipo = codigoDocumento(tipoDoc);
+          String tipo = tipoDoc != null ? tipoDoc.trim() : "";
+          if (tipo.equals(getString(R.string.doc_pasaporte))) {
+              tipo = "ID";
+          } else {
+              tipo = codigoDocumento(tipoDoc);
+          }
          String doc = normalizarDocumento(documento);
          return tipo + "_" + doc;
      }
@@ -653,7 +678,7 @@ public class RegisterActivity extends AppCompatActivity {
            if (tipoDoc == null) return "";
            String tipo = tipoDoc.trim();
            if (tipo.equals(getString(R.string.doc_dni_nie))) return "DNI/NIE";
-           if (tipo.equals(getString(R.string.doc_pasaporte))) return "ID";
+           if (tipo.equals(getString(R.string.doc_pasaporte))) return "ID/PASAPORTE";
            return tipo.toUpperCase(Locale.ROOT);
        }
 
@@ -663,7 +688,8 @@ public class RegisterActivity extends AppCompatActivity {
             switch (codigo.trim().toUpperCase(Locale.ROOT)) {
                 case "DNI/NIE":
                     return getString(R.string.doc_dni_nie);
-                case "ID":
+                 case "ID/PASAPORTE":
+                 case "ID":
                     return getString(R.string.doc_pasaporte);
                 default:
                     return codigo.trim();
@@ -686,6 +712,65 @@ public class RegisterActivity extends AppCompatActivity {
         CountryOption(String codigo, String nombre) {
             this.codigo = codigo;
             this.nombre = nombre;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return nombre;
+        }
+    }
+
+    // Adaptador filtrable que permite buscar países por nombre o por código ISO.
+    private static final class CountryOptionAdapter extends ArrayAdapter<CountryOption> {
+        private final List<CountryOption> originalItems;
+        private final Filter countryFilter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                String query = constraint != null ? constraint.toString().trim().toLowerCase(Locale.ROOT) : "";
+                List<CountryOption> filtered = new ArrayList<>();
+                if (query.isEmpty()) {
+                    filtered.addAll(originalItems);
+                } else {
+                    for (CountryOption item : originalItems) {
+                        String nombre = item.nombre.toLowerCase(Locale.ROOT);
+                        String codigo = item.codigo.toLowerCase(Locale.ROOT);
+                        if (nombre.contains(query) || codigo.contains(query)) {
+                            filtered.add(item);
+                        }
+                    }
+                }
+                FilterResults results = new FilterResults();
+                results.values = filtered;
+                results.count = filtered.size();
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                clear();
+                if (results != null && results.values instanceof List) {
+                    //noinspection unchecked
+                    addAll((List<CountryOption>) results.values);
+                }
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public CharSequence convertResultToString(Object resultValue) {
+                return resultValue instanceof CountryOption ? ((CountryOption) resultValue).nombre : super.convertResultToString(resultValue);
+            }
+        };
+
+        CountryOptionAdapter(Context context, List<CountryOption> items) {
+            super(context, android.R.layout.simple_dropdown_item_1line, new ArrayList<>(items));
+            this.originalItems = new ArrayList<>(items);
+        }
+
+        @NonNull
+        @Override
+        public Filter getFilter() {
+            return countryFilter;
         }
     }
 

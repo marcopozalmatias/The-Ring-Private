@@ -43,7 +43,7 @@
     <string name="register_doc_type_hint">Selecciona el tipo de documento</string>
       <string name="register_doc_type_short">Tipo</string>
       <string name="doc_dni_nie">DNI/NIE</string>
-      <string name="doc_pasaporte">ID</string>
+      <string name="doc_pasaporte">ID/PASAPORTE</string>
     <string name="register_document_number_hint">Número de documento</string>
     <string name="register_dni_number_hint">Número de DNI</string>
     <string name="register_passport_number_hint">Número de Pasaporte</string>
@@ -227,7 +227,7 @@
         Instagram: https://www.instagram.com/theringprivate<br/><br/>
 
         <b>¿Dónde estamos?</b><br/>
-        C. del Amparo, 75, Centro, 28012 Madrid
+        C. del Amparo, 78, Centro, 28012 Madrid
     ]]></string>
 
     <string name="texto_faq_titulo"><![CDATA[<b>¿Preguntas Frecuentes (FAQ)?</b>]]></string>
