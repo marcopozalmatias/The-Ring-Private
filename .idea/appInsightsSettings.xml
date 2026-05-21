@@ -8,7 +8,7 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.example.myapplication" />
+                  <option name="appId" value="com.cbjm.myapplication" />
                   <option name="mobileSdkAppId" value="1:554282786135:android:344a598057090b8eea3212" />
                   <option name="projectId" value="laasociacion-57649" />
                   <option name="projectNumber" value="554282786135" />
