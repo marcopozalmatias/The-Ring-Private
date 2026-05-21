@@ -135,12 +135,18 @@ public class MainActivity extends AppCompatActivity {
                     String email = safeText(etUser);
                     String password = safeText(etPassword);
 
+                    boolean isValid = true;
+
                     if (email.isEmpty()) {
                         if (tilDni != null) tilDni.setError(getString(R.string.error_dni_vacio));
-                        return;
+                        isValid = false;
                     }
                     if (password.isEmpty()) {
                         if (tilPassword != null) tilPassword.setError(getString(R.string.error_pass_vacio));
+                        isValid = false;
+                    }
+
+                    if (!isValid) {
                         return;
                     }
 
