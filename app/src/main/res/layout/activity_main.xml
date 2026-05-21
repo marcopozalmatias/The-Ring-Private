@@ -48,7 +48,10 @@
                     app:boxCornerRadiusTopEnd="30dp"
                     app:boxCornerRadiusTopStart="30dp"
                     app:boxStrokeColor="#A30000"
+                    app:boxStrokeWidth="2dp"
+                    app:boxStrokeWidthFocused="2dp"
                     app:hintTextColor="@color/textColorPrimary"
+                    app:errorIconDrawable="@null"
                     app:errorEnabled="true">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -75,6 +78,8 @@
                     app:boxCornerRadiusTopEnd="30dp"
                     app:boxCornerRadiusTopStart="30dp"
                     app:boxStrokeColor="#A30000"
+                    app:boxStrokeWidth="2dp"
+                    app:boxStrokeWidthFocused="2dp"
                     app:hintTextColor="@color/textColorPrimary"
                     app:endIconMode="password_toggle"
                     app:endIconTint="@color/textColorSecondary"
