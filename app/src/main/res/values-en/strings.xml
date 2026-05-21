@@ -37,7 +37,9 @@
     <string name="error_obligatorio">Required field</string>
     <string name="error_dni_invalido">Invalid DNI</string>
     <string name="error_email_invalido">Invalid Email</string>
-    <string name="error_email_existe">This email is already linked to an account</string>
+    <string name="error_email_existe">This email already exists in our database</string>
+    <string name="error_email_ya_existe_db">This email already exists in our database</string>
+    <string name="error_documento_ya_existe_db">This document already exists in our database</string>
     <string name="error_dni_ya_registrado">This document is already registered</string>
     <string name="error_doc_ya_existe">This %1$s already exists</string>
     <string name="register_doc_type_hint">Select document type</string>

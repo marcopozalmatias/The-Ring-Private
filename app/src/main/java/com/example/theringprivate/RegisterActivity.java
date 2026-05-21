@@ -53,6 +53,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.DataSnapshot;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -194,7 +195,7 @@ public class RegisterActivity extends AppCompatActivity {
                 actualizarCampoDocumentoSegunTipo(etDni, tilPassportCountry, actvPassportCountry, tipoDoc);
                 final String email = safeText(etEmail);
                 final String password = safeText(etPassword);
-                String finalDocKey = claveDocumento(tipoDoc, documento);
+                String documentoKey = normalizarDocumento(documento);
 
                 // Cada validación individual marca el formulario como inválido si falla.
                 boolean isValid = true;
@@ -228,16 +229,17 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
 
-                // Mostramos progreso y bloqueamos el botón para evitar clics dobles y dar feedback.
-                if (pbRegister != null) pbRegister.setVisibility(View.VISIBLE);
+                // Bloqueamos el botón mientras comprobamos duplicados para evitar dobles envíos.
                 if (btnRegister != null) {
                     btnRegister.setEnabled(false);
-                    btnRegister.setText("");
                 }
 
-                // Iniciamos el proceso de registro. La validación de duplicados se hará
-                // dentro de realizarRegistroCompleto tras la autenticación en Firebase.
-                realizarRegistroCompleto(email, password, nombre, apellidos, documento, tipoDoc, finalDocKey, paisPasaporte);
+                // Antes de crear la cuenta comprobamos si ya existe el correo o el documento.
+                verificarDuplicadosAntesDeRegistrar(email, documentoKey, tilDni, tilEmail, () -> {
+                    if (pbRegister != null) pbRegister.setVisibility(View.VISIBLE);
+                    if (btnRegister != null) btnRegister.setText("");
+                    realizarRegistroCompleto(email, password, nombre, apellidos, documento, tipoDoc, documentoKey, paisPasaporte);
+                });
             });
         }
 
@@ -309,7 +311,11 @@ public class RegisterActivity extends AppCompatActivity {
 
                 Map<String, Object> updates = new HashMap<>();
                 updates.put("usuarios/" + uid, userData);
-                updates.put("MapeoDNI/" + docKey, email);
+                if (getString(R.string.doc_pasaporte).equals(tipoDoc)) {
+                    updates.put("MapeoDocumentos/" + docKey, email);
+                } else {
+                    updates.put("MapeoDNI/" + docKey, email);
+                }
 
                 // Escribimos todo de forma atómica para que Auth y la base de datos no queden desincronizados.
                 db.getReference().updateChildren(updates).addOnCompleteListener(dbTask -> {
@@ -328,13 +334,60 @@ public class RegisterActivity extends AppCompatActivity {
                 });
             } else {
                 if (task.getException() instanceof FirebaseAuthUserCollisionException) {
-                    if (tilEmail != null) tilEmail.setError(getString(R.string.error_email_existe));
-                    errorRegistro(getString(R.string.error_email_existe));
+                    if (tilEmail != null) tilEmail.setError(getString(R.string.error_email_ya_existe_db));
+                    errorRegistro(getString(R.string.error_email_ya_existe_db));
                 } else {
                     android.util.Log.e("RegisterActivity", "Error en Auth: ", task.getException());
                     errorRegistro(getString(R.string.error_procesar));
                 }
             }
+        });
+    }
+
+    // Comprueba en Firebase si ya existe el correo o el documento antes de crear la cuenta.
+    private void verificarDuplicadosAntesDeRegistrar(String email, String documento, TextInputLayout tilDni, TextInputLayout tilEmailLayout, Runnable onSuccess) {
+        FirebaseDatabase.getInstance().getReference("usuarios").get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                errorRegistro(getString(R.string.error_procesar));
+                return;
+            }
+
+            boolean emailExiste = false;
+            boolean documentoExiste = false;
+            String emailNormalizado = email != null ? email.trim() : "";
+            String documentoNormalizado = normalizarDocumento(documento);
+
+            if (task.getResult() != null) {
+                for (DataSnapshot usuario : task.getResult().getChildren()) {
+                    String emailDb = safeSnapshotText(usuario.child("email"));
+                    String documentoDb = safeSnapshotText(usuario.child("documento"));
+
+                    if (!emailDb.isEmpty() && emailDb.equalsIgnoreCase(emailNormalizado)) {
+                        emailExiste = true;
+                    }
+                    if (!documentoDb.isEmpty() && normalizarDocumento(documentoDb).equals(documentoNormalizado)) {
+                        documentoExiste = true;
+                    }
+
+                    if (emailExiste || documentoExiste) {
+                        break;
+                    }
+                }
+            }
+
+            if (emailExiste) {
+                if (tilEmailLayout != null) tilEmailLayout.setError(getString(R.string.error_email_ya_existe_db));
+                errorRegistro(getString(R.string.error_email_ya_existe_db));
+                return;
+            }
+
+            if (documentoExiste) {
+                if (tilDni != null) tilDni.setError(getString(R.string.error_documento_ya_existe_db));
+                errorRegistro(getString(R.string.error_documento_ya_existe_db));
+                return;
+            }
+
+            if (onSuccess != null) onSuccess.run();
         });
     }
 
@@ -532,6 +585,12 @@ public class RegisterActivity extends AppCompatActivity {
          return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
      }
 
+     // Devuelve el texto de un snapshot o una cadena vacía si no existe.
+     private String safeSnapshotText(DataSnapshot snapshot) {
+         String value = snapshot != null ? snapshot.getValue(String.class) : null;
+         return value != null ? value.trim() : "";
+     }
+
      // Devuelve el texto del AutoCompleteTextView o una cadena vacía si no existe.
      private String safeTextAutocomplete(AutoCompleteTextView editText) {
          return editText != null && editText.getText() != null ? editText.getText().toString().trim() : "";
@@ -656,17 +715,6 @@ public class RegisterActivity extends AppCompatActivity {
           return null;
       }
 
-     // Genera una clave única para comprobar duplicados por tipo + número.
-     private String claveDocumento(String tipoDoc, String documento) {
-          String tipo = tipoDoc != null ? tipoDoc.trim() : "";
-          if (tipo.equals(getString(R.string.doc_pasaporte))) {
-              tipo = "ID";
-          } else {
-              tipo = codigoDocumento(tipoDoc);
-          }
-         String doc = normalizarDocumento(documento);
-         return tipo + "_" + doc;
-     }
 
       // Unifica el formato del documento para validación y guardado.
       private String normalizarDocumento(String documento) {
