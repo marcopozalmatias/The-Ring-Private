@@ -76,8 +76,9 @@
                     app:boxCornerRadiusTopStart="30dp"
                     app:boxStrokeColor="#A30000"
                     app:hintTextColor="@color/textColorPrimary"
-                    app:passwordToggleEnabled="true"
-                    app:passwordToggleTint="@color/textColorSecondary"
+                    app:endIconMode="password_toggle"
+                    app:endIconTint="@color/textColorSecondary"
+                    app:errorIconDrawable="@null"
                     app:errorEnabled="true">
 
                     <com.google.android.material.textfield.TextInputEditText
