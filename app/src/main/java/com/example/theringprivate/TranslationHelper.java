@@ -7,11 +7,8 @@ import android.content.res.Configuration;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.google.mlkit.common.model.DownloadConditions;
-import com.google.mlkit.nl.translate.TranslateLanguage;
-import com.google.mlkit.nl.translate.Translation;
-import com.google.mlkit.nl.translate.Translator;
-import com.google.mlkit.nl.translate.TranslatorOptions;
+// Eliminadas dependencias de ML Kit: pasamos a modo "traducción manual" usando
+// siempre textos en español desde los recursos.
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -21,8 +18,10 @@ import java.util.Map;
 public class TranslationHelper {
     // Etiqueta de log para localizar fácilmente mensajes de error de traducción.
     private static final String TAG = "TranslationHelper";
-    // Caché en memoria para reutilizar instancias de Translator y evitar recrearlas constantemente.
-    private static final Map<String, Translator> translators = new HashMap<>();
+    // Nota: hemos eliminado la traducción automática por ML Kit y forzamos
+    // el uso de textos en español almacenados en recursos. Esto evita
+    // dependencias de red/descarga de modelos y discrepancias entre
+    // emulador y dispositivos reales (Play Store).
 
     // Contrato simple para notificar si una traducción termina bien o si falla.
     public interface TranslationCallback {
@@ -43,106 +42,16 @@ public class TranslationHelper {
             return;
         }
 
-        // Leemos el idioma objetivo que el usuario ha elegido en la aplicación.
-        SharedPreferences prefs = context.getSharedPreferences("Settings", Context.MODE_PRIVATE);
-        String targetLangCode = prefs.getString("My_Lang", "es");
-        
-        // El contenido base del proyecto se considera español.
-        String sourceLang = TranslateLanguage.SPANISH;
-        // Solo traducimos al inglés cuando la app está configurada en ese idioma.
-        String targetLang = targetLangCode.equals("en") ? TranslateLanguage.ENGLISH : TranslateLanguage.SPANISH;
-
-        // Si el idioma de origen y destino coinciden, no necesitamos traducir nada.
-        if (sourceLang.equals(targetLang)) {
-            callback.onTranslationComplete(text);
-            return;
-        }
-
-        // Si el texto tiene saltos de línea, procesamos cada línea individualmente para no perder el formato
-        if (text.contains("\n")) {
-            String[] lines = text.split("\n", -1);
-            String[] translatedLines = new String[lines.length];
-            final int[] completedCount = {0};
-
-            // Traducimos cada línea por separado para preservar títulos, párrafos y listas.
-            for (int i = 0; i < lines.length; i++) {
-                final int index = i;
-                String currentLine = lines[i];
-
-                // Si la línea está vacía o solo tiene espacios, la mantenemos tal cual.
-                if (currentLine.trim().isEmpty()) {
-                    translatedLines[index] = currentLine;
-                    synchronized (completedCount) {
-                        completedCount[0]++;
-                        if (completedCount[0] == lines.length) {
-                            callback.onTranslationComplete(combineLines(translatedLines));
-                        }
-                    }
-                } else {
-                    // Lanzamos una traducción asíncrona para la línea concreta.
-                    translateInternal(context, currentLine, sourceLang, targetLang, new TranslationCallback() {
-                        @Override
-                        public void onTranslationComplete(String translatedText) {
-                            // Guardamos el resultado de esa línea en su posición original.
-                            translatedLines[index] = translatedText;
-                            synchronized (completedCount) {
-                                completedCount[0]++;
-                                if (completedCount[0] == lines.length) {
-                                    callback.onTranslationComplete(combineLines(translatedLines));
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            Log.e(TAG, "Error translating line: " + e.getMessage());
-                            translatedLines[index] = lines[index]; // Mantener original si falla.
-                            synchronized (completedCount) {
-                                completedCount[0]++;
-                                if (completedCount[0] == lines.length) {
-                                    callback.onTranslationComplete(combineLines(translatedLines));
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        } else {
-            // Si es una sola frase o bloque, traducimos directamente.
-            translateInternal(context, text, sourceLang, targetLang, callback);
-        }
+        // En el nuevo modo manual simplemente devolvemos el texto tal cual.
+        // Dado que forzamos el locale a español en la app, los recursos y textos
+        // ya deben estar en español; aquí evitamos cualquier traducción dinámica.
+        callback.onTranslationComplete(text);
     }
 
     /**
      * Lógica interna de traducción para un bloque de texto simple (sin saltos de línea).
      */
-    private static void translateInternal(Context context, String text, String sourceLang, String targetLang, TranslationCallback callback) {
-        // Creamos una clave única por combinación de idioma para reutilizar el traductor.
-        String key = sourceLang + "_" + targetLang;
-        Translator translator = translators.get(key);
-
-        // Si no existe traductor en caché, lo construimos y lo guardamos para futuras peticiones.
-        if (translator == null) {
-            TranslatorOptions options = new TranslatorOptions.Builder()
-                    .setSourceLanguage(sourceLang)
-                    .setTargetLanguage(targetLang)
-                    .build();
-            translator = Translation.getClient(options);
-            translators.put(key, translator);
-        }
-
-        final Translator finalTranslator = translator;
-        DownloadConditions conditions = new DownloadConditions.Builder().build();
-
-        // Descargamos el modelo solo si hace falta y después ejecutamos la traducción.
-        finalTranslator.downloadModelIfNeeded(conditions)
-                .addOnSuccessListener(unused -> {
-                    finalTranslator.translate(text)
-                            .addOnSuccessListener(callback::onTranslationComplete)
-                            .addOnFailureListener(callback::onError);
-                })
-                .addOnFailureListener(callback::onError);
-    }
+    // translateInternal eliminado: ya no usamos ML Kit ni traducciones automáticas.
 
     // Recompone las líneas traducidas manteniendo los saltos originales.
     private static String combineLines(String[] lines) {
@@ -181,21 +90,14 @@ public class TranslationHelper {
     public static void translateTextView(TextView textView, int resId) {
         try {
             Context context = textView.getContext();
-            // Primero intentamos usar el texto ya localizado en los recursos de Android.
-            String localizedText = context.getString(resId);
-            if (localizedText != null && !localizedText.trim().isEmpty()) {
-                textView.setText(localizedText);
-                return;
-            }
-
-            // Fallback conservador: si el recurso localizado estuviera vacío, traducimos desde español.
+            // Forzamos siempre la versión en español desde los recursos base.
             Configuration conf = new Configuration(context.getResources().getConfiguration());
             conf.setLocale(new Locale("es"));
             Context spanishContext = context.createConfigurationContext(conf);
             String spanishText = spanishContext.getString(resId);
-            translateTextView(textView, spanishText);
+            textView.setText(spanishText);
         } catch (Exception e) {
-            // Último recurso: mostramos el identificador del recurso para no dejar el TextView vacío.
+            Log.e(TAG, "Error setting text resource: " + e.getMessage());
             textView.setText(resId);
         }
     }
